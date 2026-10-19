@@ -1,0 +1,31 @@
+name: Propose a rule change
+description: Change how a rule works, change one of its values, or add a new rule.
+title: "Rule: "
+labels: ["type: rule", "status: needs-triage"]
+body:
+  - type: textarea
+    id: own-words
+    attributes:
+      label: In your own words
+      description: What should change, from what to what, and why it matters to people using the data.
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Which rule
+      description: The rule's file name in `rules/`, as How we clean FAERS and `rules.toml` name it, or "a new rule".
+      placeholder: dup-manufacturer-number
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and what it would move
+      description: Counts on a release, a notebook, a paper or FDA's documentation, and how many cases or values it would change, if you know. Say which release, and whether you tried it with How we clean FAERS in your own explorer or a `rules.toml`.
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of open-altio doctor or open-altio report
+      description: If you tried it, run `open-altio doctor` and paste what it prints.
+      render: text

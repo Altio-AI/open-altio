@@ -1,0 +1,518 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Altio-AI/open-altio/src/open_altio/faers/insights/methods.schema.json",
+  "title": "Open Altio methods page data (methods.json)",
+  "description": "Everything the methods page draws about a release. One file per release, named in the release manifest under 'methods'.",
+  "type": "object",
+  "required": ["format", "format_version", "release", "code", "funnel", "steps", "insights", "limits", "changelog"],
+  "additionalProperties": false,
+  "properties": {
+    "format": {"const": "open-altio-methods"},
+    "format_version": {"const": 1},
+    "release": {"type": "string", "pattern": "^[0-9]{4}Q[1-4]$", "description": "The release, named by FDA quarter."},
+    "user_rules": {
+      "type": "object",
+      "description": "How the rules the release was built with differ from Altio's standard (a person's rules.toml); both lists are empty for the standard. Releases built before this was recorded lack it.",
+      "required": ["off", "changed"],
+      "additionalProperties": false,
+      "properties": {
+        "off": {"type": "array", "items": {"type": "string"}, "description": "The data rules switched off, in the order the build applies them."},
+        "changed": {
+          "type": "array",
+          "description": "Each value set to other than Altio's standard.",
+          "items": {
+            "type": "object",
+            "required": ["rule", "key", "standard", "value"],
+            "additionalProperties": false,
+            "properties": {
+              "rule": {"type": "string"},
+              "key": {"type": "string"},
+              "standard": {"description": "Altio's value, from the rule file."},
+              "value": {"description": "The value the release was built with."}
+            }
+          }
+        }
+      }
+    },
+    "code": {
+      "type": "object",
+      "required": ["repository", "version", "ref"],
+      "additionalProperties": false,
+      "properties": {
+        "repository": {"type": "string", "format": "uri"},
+        "version": {"type": "string", "description": "The package version that built the release (manifest code_version)."},
+        "ref": {"type": "string", "description": "The git commit (or tag) every code link points at."}
+      }
+    },
+    "funnel": {
+      "type": "object",
+      "required": ["eras", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "eras": {"type": "object", "additionalProperties": {"type": "string"}},
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "description": "The funnel bars, top to bottom. Each id is also a step card's id, so a bar can jump to its card.",
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "count"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"$ref": "#/$defs/id"},
+              "label": {"type": "string"},
+              "count": {"$ref": "#/$defs/counts"}
+            }
+          }
+        },
+        "deleted_lists": {
+          "type": ["object", "null"],
+          "properties": {
+            "caseids_listed": {"type": "integer", "minimum": 0},
+            "listings": {"type": "integer", "minimum": 0}
+          }
+        },
+        "duplicates": {
+          "type": "object",
+          "description": "What the duplicate step could and could not do (funnel.json duplicates).",
+          "required": ["cases", "not_compared_by_aeolus", "set_aside", "set_aside_by_rule", "padded_date_groups"],
+          "additionalProperties": false,
+          "properties": {
+            "cases": {"type": "integer", "minimum": 0, "description": "Cases the step looked at."},
+            "not_compared_by_aeolus": {"type": "integer", "minimum": 0, "description": "Cases the AEOLUS rule cannot compare: a field it needs reads Not given."},
+            "set_aside": {"type": "integer", "minimum": 0},
+            "set_aside_by_rule": {
+              "type": "object",
+              "description": "Cases set aside that each rule grouped; a case both rules grouped counts under both.",
+              "required": ["aeolus", "manufacturer_number"],
+              "additionalProperties": false,
+              "properties": {
+                "aeolus": {"type": "integer", "minimum": 0},
+                "manufacturer_number": {"type": "integer", "minimum": 0}
+              }
+            },
+            "padded_date_groups": {
+              "type": "object",
+              "description": "AEOLUS groups left whole because their shared event date is padded.",
+              "required": ["groups", "cases"],
+              "additionalProperties": false,
+              "properties": {
+                "groups": {"type": "integer", "minimum": 0},
+                "cases": {"type": "integer", "minimum": 0}
+              }
+            }
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "description": "'What we did': one card per funnel step, in funnel order.",
+      "items": {
+        "type": "object",
+        "required": ["id", "number", "title", "label", "table", "before", "after", "removed", "sentence", "rule", "code", "insights"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "number": {"type": "integer", "minimum": 1},
+          "title": {"type": "string", "minLength": 1},
+          "label": {"type": "string", "description": "The funnel bar's label."},
+          "table": {"type": "string", "description": "The release table holding the rows after this step."},
+          "before": {"oneOf": [{"$ref": "#/$defs/counts"}, {"type": "null"}], "description": "Count after the previous step; null for the first step."},
+          "after": {"$ref": "#/$defs/counts"},
+          "removed": {"oneOf": [{"$ref": "#/$defs/counts"}, {"type": "null"}]},
+          "sentence": {"type": "string", "minLength": 1, "description": "One plain sentence."},
+          "rule": {"type": "string", "minLength": 1, "description": "The exact rule, shown when the card is expanded."},
+          "code": {
+            "type": "object",
+            "required": ["path", "line", "url"],
+            "additionalProperties": false,
+            "properties": {
+              "path": {"type": "string"},
+              "line": {"type": "integer", "minimum": 1},
+              "url": {"type": "string", "format": "uri"}
+            }
+          },
+          "insights": {"type": "array", "items": {"$ref": "#/$defs/id"}, "description": "Ids of the insight cards that motivated this step."}
+        }
+      }
+    },
+    "insights": {
+      "type": "array",
+      "description": "'What we found': insight cards in page order.",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "two_sentences", "chart", "tag", "notebook"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "title": {"type": "string", "minLength": 1},
+          "two_sentences": {"type": "string", "minLength": 1},
+          "notebook": {"type": "string", "description": "The notebook in the repository where the finding is worked out."},
+          "rules": {"type": "array", "items": {"type": "string", "minLength": 1}, "description": "The rules (files in rules/) this card is a chart for; a card can serve several, and every rule has one."},
+          "numbers": {"type": "object", "additionalProperties": {"type": ["number", "string", "null"]}, "description": "The numbers the card's words quote, as the build computed them; the page's lines (insights/lines.yaml) are filled from them where the page is served."},
+          "tag": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["kind", "step", "rules", "label"],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {"const": "changed_pipeline"},
+                  "step": {"$ref": "#/$defs/id"},
+                  "rules": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1},
+                            "description": "The rules (files in rules/) this card is the evidence for."},
+                  "label": {"const": "Changed our pipeline"}
+                }
+              },
+              {
+                "type": "object",
+                "required": ["kind", "label"],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {"const": "documented"},
+                  "label": {"const": "Documented, not transformed"}
+                }
+              }
+            ]
+          },
+          "chart": {
+            "type": "object",
+            "required": ["type", "x", "y", "series"],
+            "additionalProperties": false,
+            "properties": {
+              "type": {"enum": ["line", "stacked_area", "stacked_bar"]},
+              "x": {
+                "type": "object",
+                "required": ["label", "kind", "values"],
+                "additionalProperties": false,
+                "properties": {
+                  "label": {"type": "string"},
+                  "kind": {"enum": ["quarter", "year", "category"]},
+                  "values": {"type": "array", "items": {"type": ["string", "integer"]}}
+                }
+              },
+              "y": {
+                "type": "object",
+                "required": ["label", "unit"],
+                "additionalProperties": false,
+                "properties": {
+                  "label": {"type": "string"},
+                  "unit": {"enum": ["percent", "count"]}
+                }
+              },
+              "question": {"type": "string", "minLength": 1, "description": "The question the chart answers, shown above it."},
+              "note": {
+                "type": "object",
+                "required": ["x", "text"],
+                "additionalProperties": false,
+                "description": "One label drawn on the chart at the x value that matters.",
+                "properties": {
+                  "x": {"type": ["string", "integer"], "description": "One of x.values."},
+                  "text": {"type": "string", "minLength": 1}
+                }
+              },
+              "series": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "values"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {"type": "string"},
+                    "values": {"type": "array", "items": {"type": ["number", "null"]}, "description": "One per x value; null where there is no data."}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "limits": {
+      "type": "array",
+      "description": "'What we do not do'.",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "title": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "classes": {
+      "type": "object",
+      "description": "The drug classes layer: whether the release carries WHO's ATC classes, from which index year, the citation to show wherever a class is shown and the cases they cover; or why it does not.",
+      "required": ["present", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "present": {"type": "boolean"},
+        "source": {"type": "string", "minLength": 1},
+        "index_year": {"type": "integer"},
+        "citation": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1},
+        "cases": {
+          "type": "object",
+          "required": ["with_a_coded_drug", "with_a_class", "with_a_shared_class", "with_cannot_tell"],
+          "additionalProperties": false,
+          "properties": {
+            "with_a_coded_drug": {"type": "integer", "minimum": 0},
+            "with_a_class": {"type": "integer", "minimum": 0},
+            "with_a_shared_class": {"type": "integer", "minimum": 0},
+            "with_cannot_tell": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "numbers": {
+      "type": "object",
+      "description": "The numbers the methods story shows that the rest of the release does not carry, counted over the cases the release shows (case_latest_T where dup_kept_T) and their drug and reaction rows. Numbers that need MedDRA's files are in the licensed manifest instead, under its MedDRA version's 'numbers'; a part whose tables the release lacks is left out.",
+      "required": ["dates", "ages", "reporters", "routes", "terms"],
+      "additionalProperties": false,
+      "properties": {
+        "dates": {
+          "type": "object",
+          "description": "Event dates as FDA wrote them, by digits (day 8, month 6, year 4), and as read (rule event-date-precision); the full days read as a month or a year.",
+          "required": ["written", "read", "day_read_as_month_or_year"],
+          "additionalProperties": false,
+          "properties": {
+            "written": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0},
+              "description": "Counts by value; 'none' where FDA left it blank or nothing was read."
+            },
+            "read": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0},
+              "description": "Counts by value; 'none' where FDA left it blank or nothing was read."
+            },
+            "day_read_as_month_or_year": {"type": "integer", "minimum": 0}
+          }
+        },
+        "ages": {
+          "type": "object",
+          "description": "Ages by the unit FDA gave ('none': an age with no unit), cases with no age, and ages read in years (rule age-in-years).",
+          "required": ["units", "no_age", "in_years"],
+          "additionalProperties": false,
+          "properties": {
+            "units": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0},
+              "description": "Counts by value; 'none' where FDA left it blank or nothing was read."
+            },
+            "no_age": {"type": "integer", "minimum": 0},
+            "in_years": {"type": "integer", "minimum": 0}
+          }
+        },
+        "reporters": {
+          "type": "object",
+          "description": "FDA's occupation code as written, and the reporter type it reads to (rule reporter-type).",
+          "required": ["written", "read"],
+          "additionalProperties": false,
+          "properties": {
+            "written": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0},
+              "description": "Counts by value; 'none' where FDA left it blank or nothing was read."
+            },
+            "read": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0},
+              "description": "Counts by value; 'none' where FDA left it blank or nothing was read."
+            }
+          }
+        },
+        "routes": {
+          "type": "object",
+          "description": "Drug rows' routes: blank, saying unknown, and so Not given (rule not-given); with their route families (rule drug-route).",
+          "required": ["rows", "blank", "says_unknown", "not_given"],
+          "additionalProperties": false,
+          "properties": {
+            "rows": {"type": "integer", "minimum": 0},
+            "blank": {"type": "integer", "minimum": 0},
+            "says_unknown": {"type": "integer", "minimum": 0},
+            "not_given": {"type": "integer", "minimum": 0},
+            "families": {
+              "type": "object",
+              "description": "How many route families there are, and drug rows with one, several or none known.",
+              "required": ["families", "one", "several", "not_known"],
+              "additionalProperties": false,
+              "properties": {
+                "families": {"type": "integer", "minimum": 0},
+                "one": {"type": "integer", "minimum": 0},
+                "several": {"type": "integer", "minimum": 0},
+                "not_known": {"type": "integer", "minimum": 0}
+              }
+            }
+          }
+        },
+        "terms": {
+          "type": "object",
+          "description": "Reaction terms as FDA wrote them.",
+          "required": ["texts"],
+          "additionalProperties": false,
+          "properties": {"texts": {"type": "integer", "minimum": 0}}
+        },
+        "drug_names": {
+          "type": "object",
+          "description": "Drug names as FDA wrote them, read to ingredients (rule drug-names); suspect cases (explorer-drug-counts' default roles) summed over every ingredient, found by its ingredient and by its most common spelling alone.",
+          "required": ["spellings", "ingredients", "combinations", "spellings_per_ingredient", "written_two_or_more_ways", "suspect_cases", "drug_records", "unmapped_records"],
+          "additionalProperties": false,
+          "properties": {
+            "spellings": {"type": "integer", "minimum": 0},
+            "ingredients": {"type": "integer", "minimum": 0, "description": "Single ingredients, a combination split into its parts, counted ignoring capitals."},
+            "combinations": {"type": "integer", "minimum": 0, "description": "Combinations of two or more ingredients, counted ignoring capitals."},
+            "spellings_per_ingredient": {
+              "type": "object",
+              "description": "Ingredients by how many spellings each has: those with one, then by how many digits the count has (1 for 1 to 9, 2 for 10 to 99, ...).",
+              "required": ["one", "by_digits"],
+              "additionalProperties": false,
+              "properties": {
+                "one": {"type": "integer", "minimum": 0},
+                "by_digits": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["digits", "ingredients"],
+                    "additionalProperties": false,
+                    "properties": {"digits": {"type": "integer", "minimum": 1}, "ingredients": {"type": "integer", "minimum": 0}}
+                  }
+                }
+              }
+            },
+            "written_two_or_more_ways": {"type": "integer", "minimum": 0},
+            "suspect_cases": {
+              "type": "object",
+              "required": ["by_ingredient", "by_most_common_spelling"],
+              "additionalProperties": false,
+              "properties": {
+                "by_ingredient": {"type": "integer", "minimum": 0},
+                "by_most_common_spelling": {"type": "integer", "minimum": 0}
+              }
+            },
+            "drug_records": {"type": "integer", "minimum": 0, "description": "Drug records, each once however many dose rows FDA repeats it on."},
+            "unmapped_records": {"type": "integer", "minimum": 0, "description": "The drug records whose name finds no ingredient."}
+          }
+        },
+        "rxnorm": {
+          "type": "object",
+          "description": "Suspect drug rows, those with an RxNorm code, and the codes (rule rxnorm-ingredients); and the suspect drug records, each once however many dose rows FDA repeats it on, and those with a code.",
+          "required": ["suspect_rows", "coded_rows", "codes", "suspect_records", "coded_records"],
+          "additionalProperties": false,
+          "properties": {
+            "suspect_rows": {"type": "integer", "minimum": 0},
+            "coded_rows": {"type": "integer", "minimum": 0},
+            "codes": {"type": "integer", "minimum": 0},
+            "suspect_records": {"type": "integer", "minimum": 0},
+            "coded_records": {"type": "integer", "minimum": 0}
+          }
+        },
+        "label_flags": {
+          "type": "object",
+          "description": "The suspect drug records (rule label-flags' roles) by the fate each meets on the way to a label, and all of them (suspect), where the release's labels are flagged.",
+          "required": ["records"],
+          "additionalProperties": false,
+          "properties": {
+            "records": {
+              "type": "object",
+              "required": ["trial_product", "no_rxnorm_code", "code_names_another_drug", "no_label", "label", "suspect"],
+              "additionalProperties": false,
+              "properties": {
+                "trial_product": {"type": "integer", "minimum": 0},
+                "no_rxnorm_code": {"type": "integer", "minimum": 0},
+                "code_names_another_drug": {"type": "integer", "minimum": 0},
+                "no_label": {"type": "integer", "minimum": 0},
+                "label": {"type": "integer", "minimum": 0},
+                "suspect": {"type": "integer", "minimum": 0}
+              }
+            }
+          }
+        },
+        "statistics": {
+          "type": "object",
+          "description": "The pairs meeting each statistic's default screen (the preset its rule marks default), by statistic.",
+          "required": ["stand_out"],
+          "additionalProperties": false,
+          "properties": {
+            "stand_out": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["preset", "pairs"],
+                "additionalProperties": false,
+                "properties": {"preset": {"type": "string", "minLength": 1}, "pairs": {"type": "integer", "minimum": 0}}
+              }
+            }
+          }
+        },
+        "classes": {
+          "type": "object",
+          "description": "WHO classes: drug rows by how their one class was chosen (rule atc-class-choice), those with a class, the classes used, and suspect cases in each main group.",
+          "required": ["rows", "chosen_by", "rows_with_class", "codes", "main_groups"],
+          "additionalProperties": false,
+          "properties": {
+            "rows": {"type": "integer", "minimum": 0},
+            "chosen_by": {
+              "type": "object",
+              "additionalProperties": {"type": "integer", "minimum": 0},
+              "description": "Counts by value; 'none' where FDA left it blank or nothing was read."
+            },
+            "rows_with_class": {"type": "integer", "minimum": 0},
+            "codes": {"type": "integer", "minimum": 0},
+            "main_groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["code", "name", "cases"],
+                "additionalProperties": false,
+                "properties": {
+                  "code": {"type": "string", "minLength": 1},
+                  "name": {"type": "string", "minLength": 1},
+                  "cases": {"type": "integer", "minimum": 0}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "rule_versions": {
+      "type": "object",
+      "description": "Every rule's version, by rule name: a short hash of its file's front-matter values and its text, and its values as the release was built with them, so the next release can say which rules are new or changed.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["hash", "values"],
+        "additionalProperties": false,
+        "properties": {"hash": {"type": "string", "pattern": "^[0-9a-f]{12}$"}, "values": {"type": "object"}}
+      }
+    },
+    "changelog": {
+      "type": "object",
+      "required": ["release", "date", "entry", "placeholder"],
+      "additionalProperties": false,
+      "properties": {
+        "release": {"type": "string"},
+        "date": {"type": ["string", "null"], "description": "Publication date, set when a person publishes the release."},
+        "entry": {"type": "string"},
+        "placeholder": {"type": "boolean", "description": "True until the entry is written at publication."}
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "counts": {
+      "type": "object",
+      "required": ["legacy", "faers", "total"],
+      "additionalProperties": false,
+      "properties": {
+        "legacy": {"type": "integer", "minimum": 0},
+        "faers": {"type": "integer"},
+        "total": {"type": "integer"}
+      }
+    }
+  }
+}

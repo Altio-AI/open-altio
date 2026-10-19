@@ -1,0 +1,11 @@
+rxnorm_name,reason
+divalproex sodium,the same drug as valproate under another name; its parent's code reaches only labels of valproate
+enfortumab vedotin,the only product of enfortumab in RxNorm (Padcev); its parent's code finds no other drug
+glyceryl monostearate,an ester of glyceryl stearate; the form words do not reach the prefix mono
+glycopyrrolate,the same drug as glycopyrronium under another name; its parent's code reaches only labels of glycopyrronium
+sacituzumab govitecan,the only product of sacituzumab in RxNorm (Trodelvy); its parent's code finds no other drug
+silicic acid,the hydrated form of silicon dioxide; one substance under two chemical names
+sodium glycerophosphate,the sodium salt of glyceryl phosphate; the form words do not join glycero and glyceryl
+telisotuzumab vedotin,the only product of telisotuzumab in RxNorm (Emrelis); its parent's code finds no other drug
+tisotumab vedotin,the only product of tisotumab in RxNorm (Tivdak); its parent's code finds no other drug
+ursodiol,the same drug as ursodeoxycholate under another name; its parent's code reaches only labels of ursodeoxycholate

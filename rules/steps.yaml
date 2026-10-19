@@ -1,0 +1,101 @@
+# The steps a release is built in, in order, and the data rules that act in each. The methods page
+# groups the rules this way and a rules.toml lists them in this order. `id` is the step's name in
+# the release's funnel.json; the groups from cases_you_see on take nothing out: they mark cases,
+# read dates, read codes one way across the years, add each drug's ingredients and its WHO class,
+# give each drug record its RxNorm code, read the MedDRA terms to today's version, count the
+# statistics, and add FDA's drug labels when a build is given a labels folder. A step with a
+# `switch` has one switch for all its rules, that rule's: off, the build leaves the whole step out.
+
+- id: report_versions
+  title: Every report version FDA published
+  sentence: We load every row of every quarterly file FDA has published since 2004, exactly as FDA wrote it.
+  rules: [transformed-suffix-T, not-given, overlong-lines, sex-codes, age-in-years, weight-in-kg, age-bands]
+
+- id: latest_versions
+  title: Newest version of each case
+  sentence: A case is often sent again with new information, so we keep only its most recent version.
+  rules: [latest-version]
+
+- id: after_deleted_lists
+  title: Cases FDA later withdrew
+  sentence: >-
+    FDA publishes lists of cases it has withdrawn, and we take those cases out of the counts.
+  rules: [deleted-cases]
+
+- id: kept_after_duplicates
+  title: Probable duplicates
+  sentence: >-
+    The same patient's event is sometimes reported as two or more separate cases, so we group probable
+    duplicates, show one copy of each group and flag the others.
+  rules: [dedup-default, dup-manufacturer-number, dup-padded-event-dates, dup-shown-copy, legacy-country,
+          country-not-given, eu-member-state, reaction-term-case]
+
+- id: cases_you_see
+  title: Marked on the cases you see
+  sentence: Nothing is taken out here; some cases get a mark.
+  rules: [no-drug-or-reaction, company-names, drug-route]
+
+- id: dates
+  title: Dates read as far as they are known
+  sentence: >-
+    Nothing is taken out here; each event and therapy date is read only as far as it is known and can be
+    true, and the time to onset and each therapy's duration are worked out from those dates.
+  rules: [event-date-precision, date-limits, time-to-onset, therapy-duration]
+
+- id: codes
+  title: Codes read one way across the years
+  sentence: >-
+    Nothing is taken out here; where FDA wrote a code differently in some years, we read it one way, beside
+    FDA's own.
+  rules: [reporter-type]
+
+- id: drug_names
+  title: Drug names read to their ingredients
+  sentence: >-
+    Each drug is given its ingredients from the open DiAna drug dictionary, so one medicine is counted
+    together whatever the reporter typed, and no case is removed.
+  rules: [drug-names]
+
+- id: drug_classes
+  title: WHO drug classes
+  sentence: >-
+    Nothing is taken out here; each drug gets its class in WHO's drug classification (ATC), and the statistics
+    are worked out for each class too, in tables of their own that a release can be built without.
+  switch: atc-index
+  rules: [atc-index, atc-spelling-bridges, atc-group-classes, atc-class-choice, statistics-classes]
+
+- id: drug_codes
+  title: US drug codes
+  sentence: >-
+    Nothing is taken out here; each drug gets its code in RxNorm, the US list of prescribable drugs,
+    where it has one, so it can be joined to its FDA label.
+  rules: [rxnorm-ingredients]
+
+- id: meddra_terms
+  title: Reaction terms as named today
+  sentence: >-
+    Nothing is taken out: old terms written in capitals are shown in today's spelling, and where the
+    release has MedDRA, the drug-safety dictionary, every term is also read to the term it uses today.
+  rules: [legacy-term-spelling, meddra-terms]
+
+- id: statistics
+  title: Statistics for each ingredient and reaction
+  sentence: >-
+    For every ingredient of a suspected drug and every reaction named with it, we work out how much more
+    often they are reported together than expected; no case is removed.
+  rules: [statistics-cases, ebgm, prr, ror, rrr, ic, ror-strata]
+
+- id: drug_labels
+  title: FDA drug labels
+  sentence: >-
+    Each ingredient gets its original maker's current label for each way it is taken, with the label's
+    safety sections as text; nothing is taken out.
+  rules: [label-source, label-choice, label-sections, label-own-ingredients]
+
+- id: label_flags
+  title: On the drug's label
+  sentence: >-
+    Each suspect drug's reactions are compared with the drug's FDA label; nothing is taken out,
+    each drug and reaction gets a flag.
+  rules: [label-dictionary, label-negation, label-population, label-table-rows, label-umbrella,
+          label-treated-disease, label-not-a-medical-event, label-procedure, label-flags]

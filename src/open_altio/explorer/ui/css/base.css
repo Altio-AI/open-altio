@@ -1,0 +1,65 @@
+/* The base: the cascade's layers, a reset, the page's defaults and its frame. SPDX-License-Identifier: Apache-2.0 */
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; background: none; border: 0; padding: 0; }
+  button:disabled { cursor: default; }
+  [hidden] { display: none !important; }
+  dialog { padding: 0; border: 0; color: inherit; }
+}
+
+@layer defaults {
+  html {
+    text-underline-offset: var(--underline-offset);
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-line) transparent;
+  }
+  body {
+    min-height: 100vh;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--link); }
+  :focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+  svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+@layer layouts {
+  .frame {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+  }
+  .frame-page {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    /* the foot gap is the side panel's own distance from the window's foot */
+    padding: var(--space-8) var(--space-11) var(--page-foot) var(--space-11);
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .frame[data-side-panel-state="closed"] .frame-page {
+    padding-left: var(--side-rail-lane);
+  }
+}

@@ -1,0 +1,67 @@
+/* Slide switches and tab lines. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .tabs-line {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-4);
+    border-bottom: var(--hairline) solid var(--line);
+  }
+  .tabs-line-tab {
+    --tab-ink: var(--ink-soft);
+    --tab-under: transparent;
+    padding: var(--tab-pad-top) 0 var(--tab-pad-bottom);
+    margin-bottom: calc(-1 * var(--hairline));
+    border: 0;
+    border-bottom: var(--tab-underline) solid var(--tab-under);
+    background: transparent;
+    color: var(--tab-ink);
+    font: inherit;
+    font-size: var(--text-md);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .tabs-line-tab:hover { --tab-ink: var(--ink); }
+  .tabs-line-tab[aria-selected="true"] { --tab-ink: var(--accent-deep); --tab-under: var(--accent); }
+  .tabs-line-tab:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+
+  .slide-switch {
+    --parts: 2;
+    --knob-at: 0;
+    position: relative;
+    display: inline-grid;
+    grid-template-columns: repeat(var(--parts), var(--view-switch-half));
+    padding: var(--view-switch-pad);
+    border-radius: var(--radius-pill);
+    background: var(--view-switch-track);
+  }
+  .slide-switch[data-parts="3"] { --parts: 3; }
+  .slide-switch[data-state="second"] { --knob-at: 1; }
+  .slide-switch[data-state="third"] { --knob-at: 2; }
+  .slide-switch::before {
+    content: "";
+    position: absolute;
+    top: var(--view-switch-pad);
+    bottom: var(--view-switch-pad);
+    left: var(--view-switch-pad);
+    width: var(--view-switch-half);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--panel);
+    transform: translateX(calc(var(--knob-at) * 100%));
+    transition: transform var(--motion-slide);
+  }
+  .slide-switch-part {
+    position: relative;
+    padding: var(--space-3) 0;
+    border: 0;
+    background: transparent;
+    color: var(--ink-soft);
+    font: inherit;
+    font-size: var(--text-md);
+    font-weight: var(--weight-regular);
+    cursor: pointer;
+  }
+  .slide-switch-part[aria-checked="true"] { color: var(--accent); font-weight: var(--weight-medium); cursor: default; }
+  .slide-switch-part:focus-visible { outline: var(--focus-ring); outline-offset: 0; border-radius: var(--radius-pill); }
+}

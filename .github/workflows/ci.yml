@@ -1,0 +1,42 @@
+# Every push to main and every pull request, on the three systems people run Open Altio on and
+# both supported Pythons: the same commands AGENTS.md gives a contributor, through
+# scripts/check.py. The browser is required here, so a page test fails rather than skips.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    name: ${{ matrix.os }}, Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.12", "3.13"]
+    env:
+      OPEN_ALTIO_REQUIRE_BROWSER: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --locked --extra dev  # fails when uv.lock is out of date with pyproject.toml
+      - run: uv run playwright install --only-shell chromium
+      - run: uv run python scripts/check.py --all

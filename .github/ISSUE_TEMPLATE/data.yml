@@ -1,0 +1,39 @@
+name: Report wrong data
+description: A count, a value or a case that does not look like what FDA published, or what How we clean FAERS says.
+title: "Data: "
+labels: ["type: data", "status: needs-triage"]
+body:
+  - type: textarea
+    id: own-words
+    attributes:
+      label: In your own words
+      description: What looks wrong, what you expected, and where that comes from (FDA's own file, a paper, another tool or How we clean FAERS). Numbers help most.
+    validations:
+      required: true
+  - type: checkboxes
+    id: seen
+    attributes:
+      label: Seen it yourself
+      options:
+        - label: I've seen this happen myself
+          required: true
+  - type: textarea
+    id: looked-at
+    attributes:
+      label: Where you looked
+      description: The release (for example 2026Q2 or the demo, and whether you built it with your own rules), then an explorer link, a table and column, or the case numbers.
+      placeholder: "2026Q2: case_latest_T.country_T for case 12345678"
+    validations:
+      required: true
+  - type: textarea
+    id: query
+    attributes:
+      label: A query that shows it
+      description: If you have one, the SQL that shows it on the release (Tables and SQL in the explorer, or DuckDB).
+      render: sql
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of open-altio doctor or open-altio report
+      description: If you built the release yourself, run `open-altio doctor` and paste what it prints.
+      render: text

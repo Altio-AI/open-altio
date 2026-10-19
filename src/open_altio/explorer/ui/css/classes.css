@@ -1,0 +1,28 @@
+/* WHO's drug classes: the Drug class filter, a drug's class on the case list and in a case, and
+   WHO's short line under them. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .oa-atc-head { gap: var(--space-3); }
+  .oa-atc-year { margin-left: auto; padding-right: var(--space-3); color: var(--ink-faint); font-size: var(--text-sm); white-space: nowrap; }
+  .oa-atc-code { margin-right: var(--space-3); color: var(--ink); font-weight: var(--weight-medium); font-variant-numeric: tabular-nums; }
+  .oa-filter-options[data-kind="atc"] { overflow: hidden; }
+  .oa-atc-could { flex: 0 0 auto; padding: 0 0 var(--space-2); }
+  .oa-atc-could:empty { display: none; }
+
+  /* the case list: the class's code beside the drug, quiet */
+  .oa-class-tag { margin-left: var(--space-1); color: var(--ink-faint); font-size: var(--text-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .oa-class-broader { font-style: italic; }
+  .oa-class-cite { margin: var(--space-3) 0 0; color: var(--ink-faint); font-size: var(--text-sm); }
+  /* WHO's short line: quiet, opening the rule with WHO's full citation */
+  .oa-who-line { color: inherit; text-decoration: underline; text-decoration-color: var(--line); }
+  .oa-who-line:hover { color: var(--link); text-decoration-color: currentColor; }
+
+  /* the case window: the class, what it could be, and how it was chosen */
+  .oa-class-cell p { margin: var(--space-1) 0 0; font-size: var(--text-sm); }
+  .oa-class-could { color: var(--ink-soft); }
+
+  /* the chart's bar of cases whose drug could be several classes: no value to filter by */
+  .oa-chart li[data-state="plain"] .chart-track { cursor: default; }
+  .oa-chart li[data-state="plain"] .chart-fill { background: var(--line); }
+  .oa-chart li[data-state="plain"] .chart-row-label { font-style: italic; }
+}

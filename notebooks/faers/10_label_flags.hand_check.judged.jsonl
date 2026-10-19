@@ -1,0 +1,40 @@
+{"key": "3b5c8ac73f", "verdict": "states it", "sentence": "diarrhea have occurred", "reason": "Label lists diarrhea.", "judge": "Claude Sonnet 5.5"}
+{"key": "85a25ee020", "verdict": "close or related", "sentence": "Injection Site Reactions (erythema, itching, pain, swelling)", "reason": "Label names injection site reactions, not urticaria specifically.", "judge": "Claude Sonnet 5.5"}
+{"key": "00d16fe287", "verdict": "states it", "sentence": "experienced respiratory distress, hypoxia, cyanosis, and seizure with a loss of consciousness during ELAPRASE infusion", "reason": "Seizure reported during infusion.", "judge": "Claude Sonnet 5.5"}
+{"key": "fc897d040f", "verdict": "states it", "sentence": "Infusion-related reactions and hypersensitivity reactions have been reported, including anaphylaxis, dyspnea", "reason": "Dyspnea named.", "judge": "Claude Sonnet 5.5"}
+{"key": "5f07320460", "verdict": "states it", "sentence": "malaise", "reason": "Malaise listed under adverse reactions.", "judge": "Claude Sonnet 5.5"}
+{"key": "e0de17a8a2", "verdict": "close or related", "sentence": "White blood cell count decreased", "reason": "Label only lists decreased count, the opposite direction.", "judge": "Claude Sonnet 5.5"}
+{"key": "55d9dcfb30", "verdict": "not stated", "sentence": "", "reason": "No creatinine clearance or renal lab effect found in safety sections.", "judge": "Claude Sonnet 5.5"}
+{"key": "eb89b37256", "verdict": "states it", "sentence": "Severe myelosuppression resulting in serious infection, septic shock, requirement for transfusions, hospitalization, and death may occur", "reason": "Myelosuppression is the broader term covering aplastic anaemia.", "judge": "Claude Sonnet 5.5"}
+{"key": "50e56ecd76", "verdict": "not stated", "sentence": "", "reason": "No prolonged expiration in label.", "judge": "Claude Sonnet 5.5"}
+{"key": "7c016401d1", "verdict": "close or related", "sentence": "There have been reports of severe hepatic reactions including acute liver failure", "reason": "Hepatic reactions named, not fatty liver.", "judge": "Claude Sonnet 5.5"}
+{"key": "0a62d13633", "verdict": "not stated", "sentence": "Amiodarone hydrochloride can cause either hypothyroidism or hyperthyroidism", "reason": "Thyroid effects only; no parathyroid hormone finding.", "judge": "Claude Sonnet 5.5"}
+{"key": "95479e61b2", "verdict": "not a medical event", "sentence": "", "reason": "Toxicity to various agents is an overdose/exposure term, not a health effect.", "judge": "Claude Sonnet 5.5"}
+{"key": "a6e6336a5a", "verdict": "not a medical event", "sentence": "", "reason": "Toxicity to various agents is an overdose/exposure term, not a health effect.", "judge": "Claude Sonnet 5.5"}
+{"key": "7d39b8effe", "verdict": "not stated", "sentence": "", "reason": "No back pain in any of the three labels.", "judge": "Claude Sonnet 5.5"}
+{"key": "dde7a86d28", "verdict": "not stated", "sentence": "", "reason": "Condition aggravated is unspecific; label does not state it.", "judge": "Claude Sonnet 5.5"}
+{"key": "707eddf868", "verdict": "states it", "sentence": "Nervous System Disorders | Dysgeusia Somnolence Tremor Lethargy", "reason": "Tremor listed in oral label; injected label also lists it.", "judge": "Claude Sonnet 5.5"}
+{"key": "ef338e136f", "verdict": "states it on some forms only", "sentence": "Non-Site Specific: Malaise and fatigue (16% and 9%)", "reason": "Inhaled label lists fatigue; nasal and topical labels do not.", "judge": "Claude Sonnet 5.5"}
+{"key": "fbea6eeb2b", "verdict": "states it on some forms only", "sentence": "Tachycardia, hypotension, and hypertension have been reported.", "reason": "Oral label states it; injected label does not.", "judge": "Claude Sonnet 5.5"}
+{"key": "402693b704", "verdict": "states it on some forms only", "sentence": "hyperesthesia, hyperkinesia, hypertonia, hypoesthesia", "reason": "Oral label lists hypoesthesia; eye and injected labels do not.", "judge": "Claude Sonnet 5.5"}
+{"key": "0c34d04a80", "verdict": "states it on some forms only", "sentence": "Diarrhea | 3 | < 1 | 3 | 4 | 8", "reason": "Oral/injected label lists diarrhea; topical and eye labels do not.", "judge": "Claude Sonnet 5.5"}
+{"key": "67fa3fd02c", "verdict": "states it", "sentence": "Hyperkalemia | - | - | - | - | - | 22.0 | 23.7", "reason": "Table row lists hyperkalemia.", "judge": "Claude Sonnet 5.5"}
+{"key": "5e64b195c4", "verdict": "states it", "sentence": "Hypocalcemia | - | - | - | - | - | 30.0 | 30.0", "reason": "Table row lists hypocalcemia.", "judge": "Claude Sonnet 5.5"}
+{"key": "1a01a2741e", "verdict": "states it", "sentence": "Dry mouth | 13 | 3 | 0.7 | 0", "reason": "Table row lists dry mouth.", "judge": "Claude Sonnet 5.5"}
+{"key": "71c07fd25a", "verdict": "states it", "sentence": "Rash | 19 | 1 | 10 | 0", "reason": "Table row lists rash.", "judge": "Claude Sonnet 5.5"}
+{"key": "5e0c6ce7c2", "verdict": "states it", "sentence": "Insomnia | 6 (1%) | 0 (<1%)", "reason": "Table row lists insomnia.", "judge": "Claude Sonnet 5.5"}
+{"key": "8c158f37d7", "verdict": "disease it treats", "sentence": "Enbrel is indicated for reducing signs and symptoms ... in patients with moderately to severely active rheumatoid arthritis (RA).", "reason": "Rheumatoid arthritis is the indication.", "judge": "Claude Sonnet 5.5"}
+{"key": "d21eaabb0f", "verdict": "disease it treats", "sentence": "BUTRANS is indicated for the management of severe and persistent pain", "reason": "Pain is the indication.", "judge": "Claude Sonnet 5.5"}
+{"key": "5a51893a31", "verdict": "disease it treats", "sentence": "In a sample of about 3500 patients treated for anxiety", "reason": "Anxiety is what lorazepam treats.", "judge": "Claude Sonnet 5.5"}
+{"key": "8885c96c01", "verdict": "disease it treats", "sentence": "", "reason": "Rheumatoid arthritis is the disease treated.", "judge": "Claude Sonnet 5.5"}
+{"key": "f1434a47d3", "verdict": "disease it treats", "sentence": "Hydrocodone bitartrate and acetaminophen tablets are indicated for the relief of moderate to moderately severe pain.", "reason": "Pain is the indication.", "judge": "Claude Sonnet 5.5"}
+{"key": "bbeeca0c9b", "verdict": "procedure", "sentence": "", "reason": "Foot operation is a surgery.", "judge": "Claude Sonnet 5.5"}
+{"key": "3cf899f93c", "verdict": "procedure", "sentence": "", "reason": "Colon operation is a surgery.", "judge": "Claude Sonnet 5.5"}
+{"key": "e10b0b8cd2", "verdict": "procedure", "sentence": "", "reason": "Hospice care is care given, not a health effect.", "judge": "Claude Sonnet 5.5"}
+{"key": "fcccd1deb6", "verdict": "procedure", "sentence": "", "reason": "Peritoneal dialysis is a procedure.", "judge": "Claude Sonnet 5.5"}
+{"key": "607585a51d", "verdict": "procedure", "sentence": "", "reason": "Dialysis is a procedure; label mentions it only as treatment for renal failure.", "judge": "Claude Sonnet 5.5"}
+{"key": "a02dc12ba8", "verdict": "not a medical event", "sentence": "", "reason": "Device issue is a product problem.", "judge": "Claude Sonnet 5.5"}
+{"key": "bfdc9d86a0", "verdict": "not a medical event", "sentence": "", "reason": "Incorrect dose administered is a use problem.", "judge": "Claude Sonnet 5.5"}
+{"key": "c202c00005", "verdict": "not a medical event", "sentence": "", "reason": "Prescribed underdose is a use problem.", "judge": "Claude Sonnet 5.5"}
+{"key": "13fded47fd", "verdict": "not a medical event", "sentence": "", "reason": "Poor quality device used is a product problem.", "judge": "Claude Sonnet 5.5"}
+{"key": "de5c9d0e98", "verdict": "not a medical event", "sentence": "", "reason": "Maternal exposure during pregnancy is an exposure.", "judge": "Claude Sonnet 5.5"}

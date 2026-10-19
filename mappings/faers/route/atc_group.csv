@@ -1,0 +1,20 @@
+code,e2b_route,group
+001,Auricular (otic),ear
+003,Cutaneous,skin
+013,Intra-arterial,injection
+030,Intramuscular,injection
+031,Intraocular,eye
+040,Intravenous bolus,injection
+041,Intravenous drip,injection
+042,Intravenous (not otherwise specified),injection
+045,Nasal,nose
+047,Ophthalmic,eye
+048,Oral,mouth
+051,Parenteral,injection
+055,Respiratory (inhalation),lungs
+056,Retrobulbar,eye
+057,Subconjunctival,eye
+058,Subcutaneous,injection
+061,Topical,skin
+062,Transdermal,transdermal
+067,Vaginal,vagina

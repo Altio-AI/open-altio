@@ -1,0 +1,15 @@
+/* Charts of rows: a sentence, then a bar for each row. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+
+  .chart-sentence { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-size: var(--text-sm); color: var(--ink); }
+  .chart-lead { font-weight: var(--weight-strong); }
+
+  .chart-rows { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: 0; list-style: none; font-size: var(--text-sm); }
+  .chart-rows li { display: grid; grid-template-columns: 40% 1fr auto; align-items: center; gap: var(--space-3); }
+  .chart-row-label { color: var(--ink-soft); }
+  .chart-track { display: block; height: var(--space-5); padding: 0; border: 0; background: transparent; cursor: pointer; }
+  .chart-fill { display: block; height: 100%; width: calc(var(--share, 0) * 100%); background: var(--accent); }
+  .chart-track:hover .chart-fill, .chart-track:focus-visible .chart-fill { background: var(--blue); }
+  .chart-count { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+}

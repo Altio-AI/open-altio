@@ -1,0 +1,23 @@
+# FDA source files and build outputs are never committed
+zips/
+raw/
+parquet/
+db/
+releases/
+*.duckdb
+*.duckdb.wal
+*.parquet
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+*.egg-info/
+build/
+.pytest_cache/
+
+# executed notebooks and card files written by notebooks/faers
+notebooks/out/
+
+# local runs of the access service and the browser walk (tests/walks/)
+var/
+site/

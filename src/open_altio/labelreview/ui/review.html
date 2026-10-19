@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Label review</title>
+  <link rel="stylesheet" href="/ui/review.css">
+</head>
+<body>
+  <header class="head">
+    <nav class="queues" aria-label="Queues">
+      <a href="/" id="q-phrases">Uncertain phrases</a>
+      <a href="/check">Rule check</a>
+      <a href="/?queue=redo" id="q-redo">Blind redo</a>
+    </nav>
+    <p id="batch-line" class="quiet">Loading</p>
+    <div class="views" role="tablist">
+      <button id="view-one" role="tab" aria-selected="true">One at a time</button>
+      <button id="view-list" role="tab" aria-selected="false">List</button>
+    </div>
+  </header>
+
+  <section class="gates" id="gates" aria-label="Gates for this batch">
+    <div><span class="label">Decided</span><span id="g-decided"></span></div>
+    <div><span class="label">Other</span><span id="g-other"></span></div>
+    <div><span class="label">Agent agreed</span><span id="g-agreed"></span></div>
+    <div><span class="label">Suggestions current</span><span id="g-stale"></span></div>
+    <div class="wide"><span class="label">Next batch</span><span id="g-next"></span></div>
+  </section>
+
+  <main>
+    <section id="one" class="one">
+      <div class="item">
+        <p class="counter"><span id="pos"></span> <span id="state-word" class="state"></span></p>
+        <dl class="facts">
+          <dt>Drug</dt><dd id="f-drug"></dd>
+          <dt>Section</dt><dd id="f-section"></dd>
+          <dt>Label date</dt><dd id="f-date"></dd>
+          <dt>Why unsure</dt><dd id="f-why"></dd>
+        </dl>
+        <p class="label">Label phrase</p>
+        <blockquote id="f-sentence" class="sentence"></blockquote>
+        <p class="term-line"><span class="label">Rules' guess</span> <span id="f-guess"></span></p>
+
+        <div class="suggestion" id="suggestion">
+          <p class="label">The agent's coding</p>
+          <p class="big" id="s-answer"></p>
+          <p><span class="label">Evidence</span> <span id="s-evidence"></span></p>
+          <p id="s-reason" class="reason"></p>
+          <p id="s-meta" class="quiet"></p>
+        </div>
+      </div>
+
+      <form class="decide" id="decide" autocomplete="off">
+        <p id="question" class="question"></p>
+        <label class="field">Preferred terms the phrase states <span class="quiet">(one a line; <kbd>P</kbd>)</span>
+          <textarea id="d-pts" rows="4"></textarea>
+        </label>
+        <fieldset class="choices" id="reasons">
+          <legend>Or none, because <span class="quiet">(press its number)</span></legend>
+        </fieldset>
+        <p id="definition" class="definition"></p>
+        <label class="field">Note <span class="quiet">(optional, needed for Other)</span>
+          <textarea id="d-note" rows="2"></textarea>
+        </label>
+        <div class="acts">
+          <button type="button" id="accept">Accept <kbd>A</kbd></button>
+          <button type="button" id="reject">Reject <kbd>R</kbd></button>
+          <button type="button" id="prev">Previous <kbd>K</kbd></button>
+          <button type="button" id="next">Next <kbd>J</kbd></button>
+        </div>
+        <p id="message" class="message" role="status"></p>
+        <p id="decided-line" class="quiet decided-line"></p>
+      </form>
+    </section>
+
+    <section id="list" class="list" hidden>
+      <table>
+        <colgroup>
+          <col class="c-n"><col class="c-drug"><col class="c-section"><col class="c-phrase">
+          <col class="c-class"><col class="c-class"><col class="c-agree">
+        </colgroup>
+        <thead>
+          <tr><th>#</th><th>Drug</th><th>Section</th><th>Label phrase</th>
+            <th>Agent</th><th>Decided</th><th>Agrees</th></tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="keys">
+    <kbd>A</kbd> accept, <kbd>R</kbd> reject with your coding, <kbd>P</kbd> preferred terms,
+    the number keys a reason for none, <kbd>N</kbd> note, <kbd>J</kbd> and <kbd>K</kbd> next and previous,
+    <kbd>U</kbd> next not decided, <kbd>L</kbd> list, <kbd>Esc</kbd> leave a box
+  </footer>
+  <script type="module" src="/ui/review.js"></script>
+</body>
+</html>

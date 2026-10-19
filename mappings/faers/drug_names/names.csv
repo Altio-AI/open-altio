@@ -1,0 +1,10 @@
+diana_name,name,reason,evidence
+cyclosporine,ciclosporin,one ingredient under two names: DiAna writes the international name everywhere but for Vevye,"ciclosporin 166,455 drug records, cyclosporine 5,038"
+buthylscopolamine,butylscopolamine,"a misspelling of butylscopolamine (Buscopan), DiAna's name for it elsewhere","butylscopolamine 3,442 drug records, buthylscopolamine 3,354"
+clorhexidine,chlorhexidine,"a misspelling of chlorhexidine, DiAna's name for it elsewhere","chlorhexidine 43,978 drug records, clorhexidine 2,146"
+imdemivab,imdevimab,"a misspelling of imdevimab, DiAna's name for it elsewhere","imdevimab 2,644 drug records, imdemivab 2,309"
+flumethasone,flumetasone,"one ingredient under two names: the US and the international name, which DiAna writes elsewhere","flumetasone 7,946 drug records, flumethasone 895"
+diphteria vaccine,diphtheria vaccine,"a misspelling of diphtheria vaccine, DiAna's name for it elsewhere","diphtheria vaccine 3,379 drug records, diphteria vaccine 265"
+ostilodrostat,osilodrostat,"a misspelling of osilodrostat (Isturisa), DiAna's name for it elsewhere","osilodrostat 472 drug records, ostilodrostat 3,729"
+technetiumÂ tcÂ 99mÂ tetrofosmin,technetium tc 99m tetrofosmin,DiAna's file holds this name's spaces mis-encoded (a non-breaking space written twice over as UTF-8); its other file has the plain name,"3 dictionary entries, 27 drug records"
+technetiumÂ tcÂ 99mÂ albumin,technetium tc 99m albumin,DiAna's file holds this name's spaces mis-encoded (a non-breaking space written twice over as UTF-8); its other file has the plain name,"1 dictionary entry, 3 drug records"

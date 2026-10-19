@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rule check</title>
+  <link rel="stylesheet" href="/ui/review.css">
+</head>
+<body>
+  <header class="head">
+    <nav class="queues" aria-label="Queues">
+      <a href="/">Uncertain phrases</a>
+      <a href="/check" aria-current="page">Rule check</a>
+      <a href="/?queue=redo">Blind redo</a>
+    </nav>
+    <p id="line" class="quiet">Loading</p>
+    <span></span>
+  </header>
+
+  <section class="rates">
+    <table>
+      <thead>
+        <tr><th>The rules said</th><th>Drawn</th><th>Checked</th><th>Wrong</th><th>Error rate</th>
+          <th id="range-head">Likely range</th></tr>
+      </thead>
+      <tbody id="rates"></tbody>
+    </table>
+  </section>
+
+  <main class="one">
+    <div class="item">
+      <p class="counter"><span id="pos"></span> <span id="state-word" class="state"></span></p>
+      <dl class="facts">
+        <dt>Drug</dt><dd id="f-drug"></dd>
+        <dt>Reaction</dt><dd id="f-pt"></dd>
+        <dt>The rules said</dt><dd id="f-outcome"></dd>
+        <dt>Section</dt><dd id="f-section"></dd>
+        <dt>Label date</dt><dd id="f-date"></dd>
+        <dt>Label</dt><dd><a id="f-label" target="_blank" rel="noopener"></a></dd>
+      </dl>
+    </div>
+    <form class="decide" id="decide" autocomplete="off">
+      <fieldset class="choices" id="choices">
+        <legend>Right outcome, if the flag is wrong <span class="quiet">(press its number key)</span></legend>
+      </fieldset>
+      <label class="field">Note <span class="quiet">(optional)</span>
+        <textarea id="note" rows="2"></textarea>
+      </label>
+      <div class="acts">
+        <button type="button" id="right">Right <kbd>Y</kbd></button>
+        <button type="button" id="wrong">Wrong <kbd>W</kbd></button>
+        <button type="button" id="prev">Previous <kbd>K</kbd></button>
+        <button type="button" id="next">Next <kbd>J</kbd></button>
+      </div>
+      <p id="message" class="message" role="status"></p>
+      <p id="decided-line" class="quiet decided-line"></p>
+    </form>
+  </main>
+
+  <footer class="keys">
+    <kbd>Y</kbd> right, <kbd>W</kbd> wrong with the chosen outcome, the number keys choose,
+    <kbd>N</kbd> note, <kbd>J</kbd> and <kbd>K</kbd> next and previous, <kbd>U</kbd> next not checked,
+    <kbd>Esc</kbd> leave the note
+  </footer>
+  <script type="module" src="/ui/check.js"></script>
+</body>
+</html>

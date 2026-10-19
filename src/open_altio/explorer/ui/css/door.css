@@ -1,0 +1,28 @@
+/* A page of one card in the middle: the explorer's when its server does not answer, and a host's
+   sign-in page. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .door {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-6);
+    padding: var(--space-8) var(--space-8) var(--page-foot);
+  }
+  .door .banner { width: min(var(--door-card-width), 100%); }
+  .door-card {
+    --panel-pad-y: var(--space-12);
+    --panel-pad-x: var(--space-11);
+    width: min(var(--door-card-width), 100%);
+    text-align: center;
+  }
+  .door-brand {
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: var(--text-brand);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-display);
+  }
+}

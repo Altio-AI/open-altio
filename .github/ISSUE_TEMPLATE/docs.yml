@@ -1,0 +1,31 @@
+name: Improve the docs
+description: Something in the docs, a help text or a README is wrong, unclear or missing.
+title: "Docs: "
+labels: ["type: docs", "area: docs", "status: needs-triage"]
+body:
+  - type: textarea
+    id: own-words
+    attributes:
+      label: In your own words
+      description: What you were trying to do, and what is wrong or missing.
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Which page
+      description: The address of the page, the file in the repository, or the command whose help text it is.
+      placeholder: "https://altio-ai.github.io/open-altio/customise/rules/"
+    validations:
+      required: true
+  - type: textarea
+    id: suggested
+    attributes:
+      label: Suggested text
+      description: If you know what it should say, write it here.
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of open-altio doctor or open-altio report
+      description: If the docs did not match what the command did, run `open-altio doctor` and paste what it prints.
+      render: text

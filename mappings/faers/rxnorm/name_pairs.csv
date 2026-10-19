@@ -1,0 +1,77 @@
+dictionary_name,rxnorm_name,evidence
+acetylsalicylic acid,aspirin,chemical name and US name of one substance
+aciclovir,acyclovir,US name (USAN) and international name (INN) of one substance
+adrenaline,epinephrine,European name and international name (INN) of one substance
+aluminium,aluminum,British and US spelling of one name
+amfetamine,amphetamine,US name (USAN) and international name (INN) of one substance
+anti-d immunoglobulin,rho(d) immune globulin,international name and US name of one substance
+beclometasone,beclomethasone,US name (USAN) and international name (INN) of one substance
+benvitimod,tapinarof,two names of one substance
+benzatropine,benztropine,US name (USAN) and international name (INN) of one substance
+benzylpenicillin,penicillin g,US name (USAN) and international name (INN) of one substance
+c1-inhibitor,c1 esterase inhibitor,international name and US name of one substance
+calcipotriol,calcipotriene,US name (USAN) and international name (INN) of one substance
+carbocisteine,carbocysteine,US name (USAN) and international name (INN) of one substance
+cefalexin,cephalexin,US name (USAN) and international name (INN) of one substance
+certolizumab,certolizumab pegol,"the dictionary leaves out the pegol form, which RxNorm names"
+"charcoal, activated",activated charcoal,the same name in another word order
+chlormethine,mechlorethamine,US name (USAN) and international name (INN) of one substance
+chlorphenamine,chlorpheniramine,US name (USAN) and international name (INN) of one substance
+chlortalidone,chlorthalidone,US name (USAN) and international name (INN) of one substance
+chorionic gonadotrophin,chorionic gonadotropin,British and US spelling of one name
+ciclosporin,cyclosporine,US name (USAN) and international name (INN) of one substance
+clomifene,clomiphene,US name (USAN) and international name (INN) of one substance
+colecalciferol,cholecalciferol,US name (USAN) and international name (INN) of one substance
+colestyramine,cholestyramine resin,US name (USAN) and international name (INN) of one substance
+cromoglicic acid,cromolyn,US name (USAN) and international name (INN) of one substance
+dexamfetamine,dextroamphetamine,US name (USAN) and international name (INN) of one substance
+diclofenamide,dichlorphenamide,US name (USAN) and international name (INN) of one substance
+dicycloverine,dicyclomine,US name (USAN) and international name (INN) of one substance
+ethinylestradiol,ethinyl estradiol,US name (USAN) and international name (INN) of one substance
+fampridine,dalfampridine,US name (USAN) and international name (INN) of one substance
+folinic acid,leucovorin,US name (USAN) and international name (INN) of one substance
+glibenclamide,glyburide,US name (USAN) and international name (INN) of one substance
+glycerol,glycerin,US name (USAN) and international name (INN) of one substance
+glyceryl trinitrate,nitroglycerin,US name (USAN) and international name (INN) of one substance
+hydroxycarbamide,hydroxyurea,US name (USAN) and international name (INN) of one substance
+indometacin,indomethacin,US name (USAN) and international name (INN) of one substance
+isopropanol,isopropyl alcohol,chemical name and US name of one substance
+leuprorelin,leuprolide,US name (USAN) and international name (INN) of one substance
+levofolinic acid,levoleucovorin,US name (USAN) and international name (INN) of one substance
+levoglutamide,glutamine,US name (USAN) and international name (INN) of one substance
+levosalbutamol,levalbuterol,US name (USAN) and international name (INN) of one substance
+meclozine,meclizine,US name (USAN) and international name (INN) of one substance
+mercaptamine,cysteamine,US name (USAN) and international name (INN) of one substance
+mesalazine,mesalamine,US name (USAN) and international name (INN) of one substance
+metamfetamine,methamphetamine,US name (USAN) and international name (INN) of one substance
+metamizole,dipyrone,US name (USAN) and international name (INN) of one substance
+methylergometrine,methylergonovine,US name (USAN) and international name (INN) of one substance
+methylthioninium,methylene blue,US name (USAN) and international name (INN) of one substance
+noradrenaline,norepinephrine,European name and international name (INN) of one substance
+norethisterone,norethindrone,US name (USAN) and international name (INN) of one substance
+oxybate sodium,sodium oxybate,the same salt with its words in another order
+paracetamol,acetaminophen,US name (USAN) and international name (INN) of one substance
+paraffin,mineral oil,liquid paraffin is the international name of mineral oil
+pethidine,meperidine,US name (USAN) and international name (INN) of one substance
+phenoxymethylpenicillin,penicillin v,US name (USAN) and international name (INN) of one substance
+proxymetacaine,proparacaine,US name (USAN) and international name (INN) of one substance
+rifampicin,rifampin,US name (USAN) and international name (INN) of one substance
+salbutamol,albuterol,US name (USAN) and international name (INN) of one substance
+simeticone,simethicone,US name (USAN) and international name (INN) of one substance
+suxamethonium,succinylcholine,US name (USAN) and international name (INN) of one substance
+tetryzoline,tetrahydrozoline,US name (USAN) and international name (INN) of one substance
+thiamazole,methimazole,US name (USAN) and international name (INN) of one substance
+tioguanine,thioguanine,US name (USAN) and international name (INN) of one substance
+torasemide,torsemide,US name (USAN) and international name (INN) of one substance
+ulobetasol,halobetasol,US name (USAN) and international name (INN) of one substance
+valaciclovir,valacyclovir,US name (USAN) and international name (INN) of one substance
+vitamin b1,thiamine,the dictionary names vitamins by letter
+vitamin b2,riboflavin,the dictionary names vitamins by letter
+vitamin b3,niacin,the dictionary names vitamins by letter
+vitamin b5,pantothenic acid,the dictionary names vitamins by letter
+vitamin b7,biotin,the dictionary names vitamins by letter
+vitamin b9,folic acid,the dictionary names vitamins by letter
+vitamin c,ascorbic acid,the dictionary names vitamins by letter
+"vitamin d, unspecified",vitamin d,"vitamin D of no stated form, which RxNorm names vitamin D"
+vitamin d2,ergocalciferol,the dictionary names vitamins by letter
+vitamin d3,cholecalciferol,the dictionary names vitamins by letter

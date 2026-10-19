@@ -1,0 +1,227 @@
+/* The methods page and the "Your rules" notice: only what the stylesheets before this one do not
+   draw, from the page's tokens alone, in light and dark. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .oa-rules .oa-subtitle { margin-bottom: var(--space-9); }
+
+  /* a chart's title says its point; the line under it says how to read it */
+  .oa-claim { margin: 0; color: var(--ink); font-size: var(--text-base); font-weight: var(--weight-strong); line-height: 1.4; }
+  .oa-claim-sub { margin: 0; color: var(--ink-soft); font-size: var(--text-md); line-height: 1.5; }
+
+  /* a step's number in its circle; the last step's filled */
+  .oa-step-n { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: var(--hairline) solid var(--line); border-radius: 50%; background: var(--mist); color: var(--ink-soft); font-size: var(--text-md); font-weight: var(--weight-strong); }
+  .oa-step-n-end :is(.icon, .icon svg) { width: 16px; height: 16px; }
+  .oa-rule-link { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--link); font-size: var(--text-sm); white-space: nowrap; }
+  .oa-rule-link :is(.icon, .icon svg) { width: 14px; height: 14px; }
+
+  /* ---- the journey: one box per step, numbered and joined by a line ---- */
+  .oa-journey { --panel-pad-y: var(--space-9); --panel-pad-x: var(--space-10); display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-10); box-shadow: none; }
+  .oa-journey-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-8); margin: var(--space-8) 0 0; padding: 0; list-style: none; }
+  .oa-jstep { position: relative; min-width: 0; }
+  .oa-jstep:not(:last-child)::after { content: ''; position: absolute; top: 15px; left: 44px; right: calc(-1 * var(--space-8) + 6px); height: 2px; border-radius: 1px; background: var(--line); }
+  .oa-jstep-link { display: grid; grid-template-columns: 32px minmax(0, 1fr); column-gap: var(--space-5); row-gap: var(--space-2); width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .oa-jstep-link:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-ring-offset); border-radius: var(--radius-sm); }
+  .oa-jstep-link > :not(.oa-step-n, .oa-jstep-tag) { grid-column: 1 / -1; }
+  .oa-jstep .oa-step-n { position: relative; z-index: 1; }
+  .oa-jstep[data-last="true"] .oa-step-n { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .oa-jstep-tag { position: relative; z-index: 1; display: flex; align-items: center; }
+  .oa-jstep-tag .oa-chip { box-shadow: 0 0 0 4px var(--panel); }
+  .oa-jstep-title { min-height: calc(2 * 1.45em); margin-top: var(--space-4); color: var(--ink); font-size: var(--text-md); font-weight: var(--weight-medium); line-height: 1.45; }
+  .oa-jstep-link:hover .oa-jstep-title { color: var(--link); text-decoration: underline; }
+  .oa-jstep-count { color: var(--accent-deep); font-size: var(--text-brand); font-weight: var(--weight-medium); line-height: 1.2; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .oa-jstep-unit { color: var(--ink-soft); font-size: var(--text-sm); font-weight: var(--weight-regular); }
+  .oa-jstep-altio { min-height: 1.2em; font-size: var(--text-sm); line-height: 1.2; }
+  .oa-jstep-altio .oa-fda { margin-top: 0; }
+  .oa-jstep-bar { display: block; height: 6px; margin: var(--space-2) 0; border-radius: 3px; background: var(--mist); overflow: hidden; }
+  .oa-jstep-bar i { display: block; width: calc(var(--share) * 100%); height: 100%; border-radius: 3px; background: var(--accent); }
+  .oa-jstep-out { color: var(--ink-soft); font-size: var(--text-sm); line-height: 1.45; }
+
+  /* ---- the rules: one list per step, every row the same columns ---- */
+  .oa-rules-cols, .oa-rule-head { display: grid; grid-template-columns: 18px minmax(0, 1fr) 128px 196px; column-gap: var(--space-6); }
+  .oa-rules-cols { padding: 0 var(--space-7) var(--space-3); color: var(--ink-faint); font-size: var(--text-xs); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+  .oa-rules-cols span:last-child { text-align: right; }
+  .oa-rule-group { margin-top: var(--space-11); scroll-margin-top: var(--space-8); }
+  .oa-rules-cols + .oa-rule-group { margin-top: var(--space-4); }
+  .oa-rule-group-head { display: grid; grid-template-columns: 32px minmax(0, 1fr); column-gap: var(--space-6); align-items: start; margin-bottom: var(--space-6); }
+  .oa-rule-group-plain .oa-rule-group-head { grid-template-columns: minmax(0, 1fr); }
+  .oa-rule-group-words { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; padding-top: var(--space-2); }
+  .oa-rule-group-title { margin: 0; color: var(--accent-deep); font-size: var(--text-base); font-weight: var(--weight-strong); }
+  .oa-rule-group-words > .oa-note { max-width: 760px; font-size: var(--text-md); }
+  /* a step with one switch for all its rules has it in its head, over the rows' State column */
+  .oa-rule-group-switched .oa-rule-group-head { grid-template-columns: 32px minmax(0, 1fr) 128px 196px; padding-right: calc(var(--space-7) + var(--hairline)); }
+  .oa-rule-group-state { align-self: center; }
+  .oa-rule-group-words > .oa-rule-group-cite { color: var(--ink-faint); font-size: var(--text-sm); }
+  .oa-rule-group-switched[data-on="false"] .oa-rule-group-title { color: var(--ink-soft); }
+
+  .oa-rule-list { margin: 0; padding: 0; list-style: none; border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--panel); }
+  .oa-rule + .oa-rule { border-top: var(--hairline) solid var(--line); }
+  .oa-rule { scroll-margin-top: var(--space-8); }
+  .oa-rule-head { align-items: baseline; width: 100%; padding: var(--space-6) var(--space-7); color: var(--ink); text-align: left; cursor: pointer; }
+  .oa-rule-head:focus-visible { outline: var(--focus-ring); outline-offset: -2px; }
+  .oa-rule-head:hover { background: var(--frame-ground); }
+  .oa-rule:first-child .oa-rule-head { border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+  .oa-rule-chev { display: inline-flex; align-self: start; padding-top: 2px; color: var(--ink-faint); }
+  .oa-rule-chev :is(.icon, .icon svg) { width: 16px; height: 16px; }
+  .oa-rule-chev .icon { transform: rotate(-90deg); transition: transform var(--motion-fast); }
+  .oa-rule[data-open="true"] .oa-rule-chev .icon { transform: none; }
+  .oa-rule-words { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+  .oa-rule-name { color: var(--ink); font-size: var(--text-row); font-weight: var(--weight-medium); line-height: 1.4; }
+  .oa-rule-line { color: var(--ink-soft); font-size: var(--text-md); line-height: 1.45; }
+  .oa-rule-state .oa-chip, .oa-rule-group-state .oa-chip { min-width: 84px; text-align: center; }
+  .oa-rule-moved { color: var(--ink); font-size: var(--text-md); text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* a row opened: what it does and why, its evidence; what it moved, its values and links beside */
+  .oa-rule-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: var(--space-11); padding: var(--space-2) var(--space-7) var(--space-10) calc(var(--space-7) + 18px + var(--space-6)); }
+  .oa-rule-body-doc { grid-template-columns: minmax(0, 1fr); }
+  .oa-rule-main, .oa-rule-side { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+  .oa-rule-main > .oa-card-sub:not(:first-child), .oa-rule-side > .oa-card-sub:not(:first-child) { margin-top: var(--space-7); }
+  .oa-rule-plain { margin: 0; max-width: 68ch; color: var(--ink); font-size: var(--text-row); line-height: var(--leading); }
+  .oa-rule-always { margin: 0; padding: var(--space-4) var(--space-6); border-radius: var(--radius-sm); background: var(--mist); color: var(--ink-soft); font-size: var(--text-md); line-height: 1.5; }
+  .oa-rule-always strong { color: var(--ink); font-weight: var(--weight-medium); }
+  .oa-rule-none { margin: 0; font-size: var(--text-md); }
+  .oa-rule-facts { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3) var(--space-6); }
+  .oa-rule-facts dt { color: var(--ink-soft); }
+  .oa-rule-facts dd { color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+  .oa-rule-facts dd .oa-fda { margin: 0; }
+  .oa-rule-links { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-8); margin: var(--space-6) 0 0; }
+
+  /* a rule's switch: a track with its knob, then its word in a fixed width so turning it moves nothing */
+  .oa-rule-switch { --switch-width: 30px; --switch-height: 17px; --switch-knob: 13px; --switch-bg: var(--mist); --switch-knob-x: 0px; padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
+  .oa-rule-switch[aria-checked="true"] { --switch-bg: var(--accent); --switch-knob-x: calc(var(--switch-width) - var(--switch-knob) - var(--space-2)); }
+  .oa-rule-switch .switch-track { position: relative; display: block; width: var(--switch-width); height: var(--switch-height); border-radius: var(--radius-pill); background: var(--switch-bg); transition: background var(--motion-fast); }
+  .oa-rule-switch .switch-track::after { content: ''; position: absolute; top: var(--space-1); left: var(--space-1); width: var(--switch-knob); height: var(--switch-knob); border-radius: var(--radius-round); background: var(--panel); box-shadow: var(--shadow); transform: translateX(var(--switch-knob-x)); transition: transform var(--motion-fast); }
+  .oa-rule-switch:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-ring-offset); border-radius: var(--radius-sm); }
+  .oa-switch-word { align-self: baseline; min-width: 6em; color: var(--ink-soft); text-align: left; }
+  .oa-rule-switch[aria-checked="true"] .oa-switch-word { color: var(--ink); }
+  .oa-rule[data-on="false"] .oa-rule-name { color: var(--ink-soft); }
+
+  /* its values: each a plain label over the control that sets it, and room for a refusal */
+  .oa-rule-values { display: flex; flex-direction: column; }
+  .oa-rule-value { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5) 0; border-bottom: var(--hairline) solid var(--line); }
+  .oa-rule-value:first-child { padding-top: var(--space-2); }
+  .oa-rule-value-label { color: var(--ink-soft); font-size: var(--text-md); line-height: 1.45; }
+  .oa-rule-value-set { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); min-height: 32px; color: var(--ink); font-size: var(--text-md); }
+  .oa-rule-value-set .oa-fda { flex-basis: 100%; margin: 0; }
+  .oa-rule-value-problem { margin: 0; color: var(--warn); font-size: var(--text-sm); }
+  .oa-value-file { font-size: var(--text-sm); }
+  .oa-value-switch { --view-switch-half: 104px; }
+  .oa-rule[data-on="false"] .oa-rule-values { opacity: 0.55; }
+  .oa-value-box { display: inline-flex; align-items: center; }
+  .oa-value-input {
+    width: 56px; height: 32px; padding: 0 var(--space-2);
+    border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--panel);
+    color: var(--ink); font: inherit; font-size: var(--text-md); font-variant-numeric: tabular-nums; text-align: center;
+  }
+  .oa-value-input:hover:not(:focus-visible) { border-color: var(--accent-line); }
+  .oa-value-box[data-state="changed"] .oa-value-input { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); }
+  .oa-value-input[aria-invalid] { border-color: var(--warn); }
+
+  /* the bar that rebuilds the release with the changed rules: it rides at the foot of the window */
+  .oa-rebuild-slot { position: sticky; bottom: var(--space-8); z-index: 6; margin-top: var(--space-10); }
+  .oa-rebuild-slot:empty { display: none; }
+  .oa-rebuild-bar { --panel-pad-y: var(--space-6); --panel-pad-x: var(--space-8); display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5) var(--space-8); }
+  .oa-rebuild-words { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; font-size: var(--text-md); }
+  .oa-rebuild-words strong { color: var(--ink); font-size: var(--text-row); font-weight: var(--weight-strong); }
+  .oa-rebuild-problem { color: var(--warn); }
+  .oa-rebuild-acts { display: flex; gap: var(--space-4); margin-left: auto; }
+  .oa-rebuild-track { display: block; flex: 1 1 100%; height: 6px; border-radius: 3px; background: var(--mist); overflow: hidden; }
+  .oa-rebuild-track i { display: block; width: calc(var(--share) * 100%); height: 100%; border-radius: 3px; background: var(--accent); transition: width var(--motion-slide); }
+  .oa-rebuild-note { flex: 1 1 100%; margin: 0; color: var(--ink-soft); font-size: var(--text-sm); }
+
+  /* the hosted page: the same rules for anyone, read only, under the signed-out pages' head */
+  .oa-rules-public { max-width: 1180px; margin: 0 auto; padding: 0 var(--space-11) var(--space-12); }
+  .oa-rules-public .oa-title-row { margin-top: var(--space-6); }
+
+  /* ---- an evidence chart ---- */
+  .oa-evidence-list { display: flex; flex-direction: column; gap: var(--space-7); }
+  .oa-evidence { display: flex; flex-direction: column; gap: var(--space-5); margin: 0; padding: var(--space-8) var(--space-9); border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--panel); }
+  .oa-evidence figcaption { display: flex; flex-direction: column; gap: var(--space-2); }
+  .oa-evidence-chart { width: 100%; min-height: 180px; }
+  .oa-evidence-svg { display: block; min-width: 100%; stroke: none; }
+  .oa-evidence-svg .oa-axis { fill: var(--ink-faint); font-size: var(--text-tag); }
+  .oa-evidence-svg rect, .oa-evidence-svg polygon { stroke: none; }
+  .oa-evidence-svg .oa-grid { stroke: var(--line); stroke-width: 1; }
+  .oa-evidence-svg .oa-line { fill: none; stroke-width: 2; }
+  .oa-evidence-svg .oa-area { stroke: var(--panel); stroke-width: 0.5; }
+  .oa-evidence-svg .oa-hit { fill: transparent; }
+  .oa-evidence-svg .oa-hit:hover { fill: color-mix(in srgb, var(--ink-faint) 12%, transparent); }
+  .oa-evidence-svg .oa-note-line { stroke: var(--caution); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .oa-evidence-svg .oa-note-text { fill: var(--ink-soft); font-size: var(--text-tag); }
+  .oa-s0 { fill: var(--accent); stroke: var(--accent); background: var(--accent); }
+  .oa-s1 { fill: var(--blue); stroke: var(--blue); background: var(--blue); }
+  .oa-s2 { fill: var(--caution); stroke: var(--caution); background: var(--caution); }
+  .oa-s3 { fill: var(--ink-faint); stroke: var(--ink-faint); background: var(--ink-faint); }
+  .oa-s4 { fill: var(--ok); stroke: var(--ok); background: var(--ok); }
+  .oa-s5 { fill: var(--warn); stroke: var(--warn); background: var(--warn); }
+  .oa-s6 { fill: var(--accent-line); stroke: var(--accent-line); background: var(--accent-line); }
+  .oa-s7 { fill: var(--ink-pale); stroke: var(--ink-pale); background: var(--ink-pale); }
+  .oa-legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-7); margin: 0; padding: 0; list-style: none; color: var(--ink-soft); font-size: var(--text-sm); }
+  .oa-legend li { display: inline-flex; align-items: center; gap: var(--space-3); }
+  .oa-key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+  .oa-evidence-text { margin: 0; color: var(--ink-soft); font-size: var(--text-md); line-height: 1.5; }
+  .oa-evidence-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-4) var(--space-7); margin: 0; }
+
+  /* ---- what the release does not do ---- */
+  .oa-limit-text { margin: 0; max-width: 900px; }
+
+  /* ---- your rules: what this release was built with, where it is not Altio's standard ---- */
+  .oa-yours { display: flex; flex-direction: column; gap: var(--space-5); margin: 0 0 var(--space-9); padding: var(--space-7) var(--space-8); border: var(--hairline) solid var(--accent-line); border-radius: var(--radius-sm); background: var(--accent-soft); font-size: var(--text-md); }
+  .oa-yours-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); margin: 0; color: var(--ink); font-size: var(--text-row); }
+  .oa-yours-head strong { font-weight: var(--weight-strong); }
+  .oa-yours-list { display: flex; flex-direction: column; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+  .oa-yours-list li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-5); }
+  .oa-yours-list .oa-chip { min-width: 84px; text-align: center; }
+  .oa-yours .oa-chip:not(.oa-chip-aside) { background: var(--panel); }
+  .oa-yours-list a { color: var(--ink); font-weight: var(--weight-medium); }
+  .oa-yours-what { color: var(--ink-soft); }
+  .oa-yours-file { margin: 0; color: var(--ink-soft); font-size: var(--text-sm); }
+  .oa-yours-file .oa-link { font-size: inherit; }
+  .oa-yours-menu { min-width: 300px; max-width: min(420px, calc(100vw - 24px)); }
+  .oa-yours-menu .menu-item { gap: var(--space-5); white-space: normal; }
+  .oa-yours-menu .menu-item .oa-chip { flex: 0 0 auto; min-width: 76px; text-align: center; }
+  .oa-yours-menu .oa-yours-what { color: var(--ink-faint); font-size: var(--text-sm); }
+  .oa-yours-menu .menu-footnote a { color: var(--link); }
+}
+
+/* phones: every row reads top to bottom; the journey is a column of steps joined by one line */
+@media (max-width: 767px) {
+  .oa-journey { --panel-pad-y: var(--space-7); --panel-pad-x: var(--space-7); }
+  .oa-journey-steps { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); }
+  .oa-jstep:not(:last-child)::after { top: 36px; bottom: calc(-1 * var(--space-8) + 4px); left: 15px; right: auto; width: 2px; height: auto; }
+  .oa-jstep-link > .oa-step-n { grid-row: 1 / span 6; align-self: start; }
+  .oa-jstep-link > :not(.oa-step-n) { grid-column: 2; }
+  .oa-jstep-tag:empty, .oa-jstep-altio:empty { display: none; }
+  .oa-jstep-title { min-height: 0; margin-top: 0; }
+  .oa-rules-cols { display: none; }
+  .oa-rule-group { margin-top: var(--space-10); }
+  .oa-rules-cols + .oa-rule-group { margin-top: 0; }
+  .oa-rule-group, .oa-rule { scroll-margin-top: 72px; }
+  .oa-rule-head { grid-template-columns: 18px minmax(0, 1fr) auto; grid-template-areas: "chev words words" ". state moved"; row-gap: var(--space-4); padding: var(--space-6); }
+  .oa-rule-chev { grid-area: chev; }
+  .oa-rule-words { grid-area: words; }
+  .oa-rule-state { grid-area: state; }
+  .oa-rule-moved { grid-area: moved; }
+  .oa-rule-doc .oa-rule-state { display: none; }
+  .oa-rule-group-switched .oa-rule-group-head { grid-template-columns: 32px minmax(0, 1fr); row-gap: var(--space-4); padding-right: 0; }
+  .oa-rule-group-state { grid-column: 2; }
+  .oa-rule-group-switched .oa-rule-state:empty { display: none; }
+  .oa-rule-body { grid-template-columns: minmax(0, 1fr); gap: var(--space-9); padding: var(--space-2) var(--space-6) var(--space-9); }
+  .oa-evidence { padding: var(--space-6); }
+  .oa-yours { padding: var(--space-6); }
+  .oa-rules-public { padding: 0 var(--space-8) var(--space-12); }
+  .oa-rebuild-slot { bottom: var(--space-4); }
+  .oa-rebuild-acts { flex: 1 1 100%; margin-left: 0; }
+  .oa-rebuild-acts .btn { flex: 0 0 auto; white-space: nowrap; }
+  .oa-rebuild-acts .btn-primary { flex: 1 1 auto; }
+  .oa-rebuild-bar:not([data-state]) .oa-rebuild-words .oa-faint { display: none; }
+}
+@media (pointer: coarse) {
+  .oa-rule-link { min-height: 44px; }
+  .oa-value-input { min-height: 44px; }
+}
+@media (min-width: 768px) and (max-width: 1439px) {
+  .oa-jstep-count { font-size: 21px; }
+  .oa-rule-body { grid-template-columns: minmax(0, 1fr) 260px; gap: var(--space-10); }
+  .oa-rules-cols, .oa-rule-head { grid-template-columns: 18px minmax(0, 1fr) 128px 168px; }
+  .oa-rule-group-switched .oa-rule-group-head { grid-template-columns: 32px minmax(0, 1fr) 128px 168px; }
+}

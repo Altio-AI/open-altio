@@ -1,0 +1,117 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "open-altio"
+version = "1.0.0"
+description = "FDA's adverse event reports (FAERS), cleaned and deduplicated in the open: the pipeline that builds a release and the explorer that reads it"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+authors = [{ name = "Altio AI" }]
+keywords = ["FAERS", "pharmacovigilance", "adverse events", "FDA", "drug safety", "deduplication"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Typing :: Typed",
+]
+dependencies = [
+    "duckdb>=1.2",
+    "pyarrow>=17",
+    "pyyaml>=6",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "jsonschema>=4.20",
+    # the statistics: EBGM's fit and percentiles, and the ratios over whole columns at once
+    "numpy>=1.26",
+    "scipy>=1.11",
+    # reading WHO's ATC index spreadsheet, to build the drug-to-class table
+    "openpyxl>=3.1",
+]
+
+[project.urls]
+Homepage = "https://open.altioai.com"
+Documentation = "https://altio-ai.github.io/open-altio/"
+Source = "https://github.com/Altio-AI/open-altio"
+Issues = "https://github.com/Altio-AI/open-altio/issues"
+Changelog = "https://github.com/Altio-AI/open-altio/blob/main/CHANGELOG.md"
+
+[project.scripts]
+open-altio = "open_altio.cli:main"
+
+[project.optional-dependencies]
+# running the notebooks in notebooks/ headless (scripts/run_nb.py)
+notebooks = ["nbclient", "nbformat", "ipykernel", "matplotlib", "pandas", "jinja2"]  # jinja2 draws the styled tables of notebook 04
+docs = ["mkdocs<2", "mkdocs-material"]
+# the browser checks; their browser comes once with: python -m playwright install --only-shell chromium
+browser = ["playwright"]
+# everything the test suite and scripts/check.py --all need; httpx is FastAPI's test client
+dev = [
+    "open-altio[notebooks,browser,docs]",
+    "pytest",
+    "httpx",
+    "ruff",
+    "mypy",
+    "types-PyYAML",
+    "types-jsonschema",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/open_altio"]
+
+# The rules and the mappings they name stay at the repository's root for readers, and ship inside
+# the package so an installed copy builds the same release (rulebook.data_root finds them).
+[tool.hatch.build.targets.wheel.force-include]
+"rules" = "open_altio/rules"
+"mappings" = "open_altio/mappings"
+
+[tool.hatch.build.targets.sdist]
+only-include = ["src", "rules", "mappings", "tests", "README.md", "LICENSE", "NOTICE",
+                "CHANGELOG.md", "CITATION.cff"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]  # the package from the working tree, never a stale install
+addopts = "-m 'not slow'"
+markers = [
+    "slow: long-running tests over real FAERS data (run with -m slow)",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# A notebook quotes long SQL, sentences and tables; broken up, they would read worse.
+"notebooks/**" = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["open_altio", "open_altio_service"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+[[tool.mypy.overrides]]
+module = ["open_altio.*"]
+disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["pyarrow.*", "nbformat.*", "nbclient.*", "matplotlib.*", "pandas.*", "scipy.*", "openpyxl.*"]
+ignore_missing_imports = true

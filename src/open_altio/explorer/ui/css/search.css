@@ -1,0 +1,99 @@
+/* Search boxes and the lists of what they find. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: var(--hit-target);
+    margin-top: var(--search-bar-gap);
+  }
+  .search-icon {
+    display: block;
+    position: absolute;
+    left: var(--space-5);
+    color: var(--ink-faint);
+    pointer-events: none;
+  }
+  .search-icon .icon, .search-icon .icon svg { width: var(--icon-result); height: var(--icon-result); }
+  .search-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: var(--space-3) var(--space-5) var(--space-3) calc(var(--space-5) * 2 + var(--icon-result));
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius-btn);
+    background: var(--panel);
+    color: var(--ink);
+    font-size: var(--text-md);
+  }
+  .search-input::placeholder { color: var(--ink-faint); }
+  .search-input::-webkit-search-cancel-button { appearance: none; }
+
+  .result-list {
+    background: var(--panel);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .result-list:empty { display: none; }
+  .result-list .skeleton-row { margin: var(--space-6) var(--space-7); }
+  .result-none {
+    padding: var(--space-5) var(--space-7);
+    color: var(--ink-faint);
+    font-size: var(--text-md);
+  }
+  .result-none:empty { display: none; }
+
+  .result-row {
+    --chat-row-ink: var(--ink);
+    --result-row-bg: var(--chat-row-bg);
+    background: var(--result-row-bg);
+  }
+
+  .result-row:not(:last-child) { border-bottom: var(--hairline) solid var(--line); }
+  .result-open {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-5);
+    width: 100%;
+    padding: var(--result-pad-y) var(--space-7);
+    color: var(--chat-row-ink);
+    text-align: left;
+  }
+  .result-icon { color: var(--ink-faint); padding-top: var(--space-1); }
+  .result-icon .icon, .result-icon .icon svg { width: var(--icon-result); height: var(--icon-result); }
+  .result-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .result-title, .result-passage {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .result-title { font-size: var(--text-menu); }
+  .result-passage { color: var(--ink-soft); font-size: var(--text-note); }
+  .result-passage:empty { display: none; }
+
+  .result-row[data-state="deleting"] .result-passage { color: var(--danger); }
+  .result-row .chat-dots { padding-right: var(--space-5); }
+
+  .result-row[data-state="renaming"] .result-open { width: auto; flex: none; padding-right: 0; }
+  .result-row[data-state="renaming"] :is(.result-text, .chat-dots) { display: none; }
+  .result-row .chat-rename { padding: var(--space-1) var(--space-6) var(--space-1) var(--space-5); }
+
+  .search-mark {
+    border-radius: var(--radius-mark);
+    background: var(--mark-bg);
+    color: inherit;
+  }
+
+  .filter-value {
+    margin-left: auto;
+    color: var(--ink-faint);
+    font-size: var(--text-note);
+  }
+}

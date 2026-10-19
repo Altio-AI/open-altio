@@ -1,0 +1,141 @@
+# Step cards on the methods page, one per funnel step, keyed by the step's id
+# in src/open_altio/faers/funnel.py:FUNNEL_STEPS. A release build fails when a funnel step
+# has no card here, so a new step adds its entry in the same change. The step's title and
+# plain line are in rules/steps.yaml, beside the rules that act in it.
+#
+#   rule      the exact rule: keys, order, tie-breaks, what is matched
+#   code      the file implementing the step and a line of text in it that
+#             marks the step (the build finds its line number for the link)
+#
+# Which insight cards motivated a step is not written here: it comes from the
+# cards' own tags (src/open_altio/faers/insights/cards), so the two can never disagree.
+# Plain English, no em dashes.
+
+report_versions:
+  rule: >-
+    Every case table (DEMO, DRUG, REAC, OUTC, RPSR, THER, INDI) and every deleted-case list in each quarterly
+    file is read as text, $-delimited, with no quoting. Each value is kept byte for byte; an empty field is
+    empty. Two columns are added to every row: quarter_T (the file's quarter) and era_T (legacy for the AERS
+    layout, 2004Q1 to 2012Q3, faers from 2012Q4). Column names are unified across eras by a fixed list of
+    renames (ISR to primaryid, CASE to caseid and six others); a column FDA never published stops the build.
+    A line holding two records run together (three in FDA's 2011 DRUG files) is split back into them; any
+    other line longer than its header is kept as read and listed in the manifest.
+  code:
+    path: src/open_altio/faers/load.py
+    anchor: "def load_quarter("
+
+latest_versions:
+  rule: >-
+    One row per case number, across AERS and FAERS: FDA carried AERS cases into FAERS in 2012 under the
+    same number, with caseversion counting on from the AERS versions. Within a case, versions are ordered
+    by caseversion (highest first), then fda_dt (latest first, compared as FDA's text), then the quarter the
+    row was published in (latest first, because FDA sometimes publishes the same primaryid twice), then
+    primaryid (highest first, as text); the first row is kept. Legacy AERS has no caseversion, so a carried
+    case keeps its FAERS version and an AERS-only case is ordered from fda_dt. A legacy row with no CASE
+    number is its own case. Earlier versions stay in demo_T; nothing is deleted.
+  code:
+    path: src/open_altio/faers/derive.py
+    anchor: "DEMO_LATEST_T = "
+
+after_deleted_lists:
+  rule: >-
+    Every caseid on any of FDA's quarterly deleted-case lists (from 2019Q1) or on the one-off whole-history
+    list shipped in 2019Q1 is collected once in deleted_cases_T. A case whose case number is on that set is
+    left out of case_latest_T and of the child tables joined to it, in both eras: AERS and FAERS share one
+    case numbering, so a listed number in the AERS range is an AERS case. A legacy report with no case
+    number is never matched. The removed cases remain in demo_T and demo_latest_T.
+  code:
+    path: src/open_altio/faers/derive.py
+    anchor: "CASE_LATEST_T = "
+
+kept_after_duplicates:
+  rule: >-
+    Two rules group the cases in case_latest_T; a case is in a group when either rule puts it there. The
+    AEOLUS rule (Banda et al. 2016): the event date, age, age unit, sex, country (occurrence country, else
+    reporter country, a legacy AERS country name read as its ISO code) and the sets of normalized drug names
+    (uppercased, spaces collapsed, trailing periods removed) and reaction terms (uppercased, because legacy
+    AERS writes them in capitals and FAERS does not) all match exactly as FDA wrote them. A case with any of
+    these fields empty is never compared by this rule. In a group of
+    {rules[dup-padded-event-dates][min_group_size]} or more cases whose shared event date is 1 January, or a
+    month or year only, and whose cases were all sent by one company (the same mfr_sndr, trimmed and in
+    capitals; a blank sender counts as another), the date does not count as a match, so this rule sets
+    nothing aside in that group.
+    The manufacturer number rule: the same manufacturer case number from the same sender (mfr_num and
+    mfr_sndr, trimmed and in capitals). A number without its leading two-letter country code and hyphen
+    matches the coded number when the sender wrote it with exactly one code; two different codes never
+    match. A number group is skipped when its cases include both M and F, or when their ages in years differ
+    by more than {rules[dup-manufacturer-number][max_age_gap_years]}. Groups of the two rules that share a
+    case are one group. In each group the case received last is shown (latest init_fda_dt, else fda_dt,
+    then the highest caseid) and the others are set aside; the whole group is dated by its earliest receipt
+    (group_first_dt_T), which received-date filters, sorting and exports use. Matching works across AERS and
+    FAERS. Flagged cases stay in the data with probable_duplicate_T set; the shown set is dup_kept_T, and
+    dup_rule_T names the rules that grouped each case.
+  code:
+    path: src/open_altio/faers/duplicates.py
+    anchor: "CASE_DUP_T = "
+
+dates:
+  rule: >-
+    Each event date, and each therapy's start and end date, is read only as far as it is known and can be true,
+    in a clean copy beside FDA's text, which is never changed: event_dt_T on the case, start_dt_T and end_dt_T
+    on the therapy line, each with a _prec_T of 8 for the day, 6 the month, 4 the year. In case versions from
+    legacy AERS, and from FAERS published in {rules[event-date-precision][faers_from_quarter]} or later, a full
+    event date on the 1st of a month is known to its month, on 1 January to its year. A date after the last day
+    of the quarter its case version was published in, compared at its own precision, has no clean value; so
+    has an event date more than {rules[date-limits][max_age_years]} years before the year FDA first received
+    the case, and a therapy date more than {rules[date-limits][before_birth_years]} year before the patient's
+    birth year where the age is known, else more than {rules[date-limits][max_age_years]} years before that
+    year. Time to onset (drug_onset_T, one row per drug record) is the event date less the record's earliest
+    therapy start, both known to the day, plus {rules[time-to-onset][first_dose_day]}; it is empty when the
+    event came before the first dose, or when a start known only to its month or year could be earlier. A
+    therapy's duration (dur_days_T) comes from its two clean dates, else from FDA's duration and unit, and is
+    empty when longer than the patient's age plus {rules[therapy-duration][age_margin_years]} year, or than
+    {rules[therapy-duration][max_years_unknown_age]} years where the age is not known. The duplicate rules read
+    FDA's own dates, so no case is removed or set aside.
+  code:
+    path: src/open_altio/faers/dates.py
+    anchor: "def event_date("
+
+codes:
+  rule: >-
+    FDA's reporter code (occp_cod) is read as the reporter's qualification in ICH E2B(R3) (C.2.r.4, code list
+    6), through the reviewed mapping in {rules[reporter-type][mapping]}: MD is 1 Physician, PH 2 Pharmacist, OT,
+    HP and RN 3 Other health professional, LW 4 Lawyer, CN 5 Consumer or other non health professional. Any
+    other code, and an empty one, has no type. The type is reporter_type_T on every case version, beside FDA's
+    code, which is never changed; no case is removed.
+  code:
+    path: src/open_altio/faers/derive.py
+    anchor: "def reporter_type_table("
+
+drug_names:
+  rule: >-
+    A drug name meets the DiAna dictionary (Fusaroli et al., CC BY 4.0, the file dated
+    {rules[drug-names][published]}, read only when its SHA-256 checksum is the one we pin) through DiAna's own
+    key: lower case, one trailing period removed, runs of spaces made one, leading and trailing punctuation
+    stripped twice keeping the brackets, and no space just inside a bracket. Where the name has no ingredient,
+    FDA's prod_ai is looked up the same way, whole, else split on its backslash with every part found. A
+    combination keeps all its ingredients, sorted and joined with a semicolon, in drug_substance_T, and has one
+    row per ingredient in drug_ingredient_T. DiAna's trial mark is taken off the ingredient and kept in
+    diana_trial_T. Our reviewed corrections replace DiAna's answer for named families of spellings (the
+    Dianeal solutions gain their calcium chloride, Tecfidera is dimethyl fumarate) and give one name to an
+    ingredient DiAna writes two ways; substance_source_T says whether a record's ingredients came from DiAna by
+    its name, from DiAna by prod_ai, from our correction, or from nowhere. FDA's drugname and prod_ai are never
+    changed.
+  code:
+    path: src/open_altio/faers/drugnames/substances.py
+    anchor: "_SUBSTANCES = "
+
+meddra_terms:
+  rule: >-
+    On a legacy row, a reaction or indication written in capitals is shown in the spelling FAERS uses for the
+    same text compared without capitals (pt_spelling_T, indi_pt_spelling_T); where FAERS spells a term two
+    ways, the one on more rows; a term FAERS never spells stays as written. A release built with MedDRA reads
+    every distinct text of pt, drug_rec_act and indi_pt, in lower case with runs of spaces made one (and in
+    drug_rec_act a ^ read as an apostrophe), to that one MedDRA version: a preferred term first, else a lower
+    level term, a current one first, else a name MedDRA used before renaming the term, from its history file.
+    The match gives each text its current preferred term, kept in the licensed part, and reactions are counted
+    under it. A reaction text that matches nothing refuses the MedDRA file as older than the data. FDA's text
+    is never changed.
+  code:
+    path: src/open_altio/faers/meddra/terms.py
+    anchor: "MAP_TABLE = "

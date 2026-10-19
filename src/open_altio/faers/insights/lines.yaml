@@ -1,0 +1,154 @@
+# The words of an opened card's Why: what its chart shows, why it matters and what we did, for
+# each card id. They are read where the page is served (methods.card_lines), not written into
+# methods.json, so they can be reworded without a rebuild. A {name} is one of the card's own
+# `numbers`, as the build computed them; {name:,} writes it with thousands separators.
+
+fda_columns_kept:
+  shows: "{fda_columns:,} of FDA's columns are kept exactly as published; {added_columns:,} columns, each ending in _T, are ours."
+  matters: "You can always tell FDA's data from ours, and check any value we work out against FDA's own."
+  did: "Never change FDA's values; add what we work out beside them, in columns ending in _T."
+
+run_on_lines_split:
+  shows: "{lines:,} lines of FDA's files hold whole records run together; split back, {records_saved:,} more records are kept."
+  matters: "A reader that keeps only the first record of such a line loses the second report's drug."
+  did: "Split a line holding whole records back into those records; change no value."
+
+weights_read_in_kg:
+  shows: "Of {weights_given:,} weights FDA gives, {read_in_kg:,} read in kilograms and {no_weight:,} give none."
+  matters: "A weight in pounds read as kilograms doubles the patient; one with no unit cannot be read at all."
+  did: "Read pounds and grams in kilograms; a weight with no unit, an unknown one, zero or over 635 kg is no weight."
+
+cases_by_age_band:
+  shows: "{in_a_band:,} of {cases:,} cases fall in an age band."
+  matters: "The age filter and the statistics must put each case in the same band, or their counts disagree."
+  did: "Give each case one age band from its age in years; a baby given as 0 years goes by the sender's own age group."
+
+country_not_specified:
+  shows: "{cases:,} cases give COUNTRY NOT SPECIFIED or A1; {country_from_other_field:,} still get a country from the other field, {no_country:,} none."
+  matters: "Read as a country, these words would match unrelated cases as duplicates and fill a country of their own in every chart."
+  did: "Read them as no country, and use the reporter's country where the event's is missing."
+
+dates_without_a_clean_date:
+  shows: "{event_dates:,} event dates and {therapy_dates:,} therapy lines' dates get no clean date."
+  matters: "A date after the file that holds it, or long before the patient was born, would give a time to onset no patient had."
+  did: "Give such a date no clean date, keep FDA's value beside it, and count no time from it."
+
+therapy_durations:
+  shows: "Of {therapy_lines:,} therapy lines, {from_dates:,} get a duration from two exact dates and {from_fda_duration:,} from the duration FDA wrote."
+  matters: "A duration from a date known only to its month or year can be weeks wrong."
+  did: "Count days from start and end dates known to the day, else use FDA's duration; leave it empty when it cannot be true."
+
+route_found:
+  shows: "{with_a_route:,} of {drug_records:,} drug records get the ways the drug could have been given."
+  matters: "A drug is read against the label for the way it was taken: tablets and eye drops of one drug have different labels."
+  did: "Read the way from FDA's route, the dose form and words in the drug name, and keep every way they allow."
+
+drug_records_classed:
+  shows: "{classed:,} of {drug_records:,} drug records get a WHO class, all from its {index_year} edition."
+  matters: "Classes from different editions would put one drug in two classes across the years."
+  did: "Class every drug from one year's index, joining WHO's spellings to ours through a reviewed list of bridges."
+
+classes_chosen:
+  shows: "{by_use:,} drug records get the class of their use, {group_class:,} a group's class and {use_not_said:,} say nothing that tells the use."
+  matters: "Timolol tablets treat the heart and timolol drops glaucoma; one class for both would mix two uses."
+  did: "Choose the class from the report's route, dose or stated use; a group word such as insulin gets the group's class."
+
+class_pairs_by_level:
+  shows: "{pairs:,} pairs of a WHO class and a reaction get statistics, each level of the class on its own."
+  matters: "A reaction that stands out for a whole class can be told from one that stands out for one drug."
+  did: "Work out the statistics again with each drug's class in place of its ingredient, at three levels of the class."
+
+rxnorm_codes:
+  shows: "{coded:,} of {drug_records:,} drug records get an RxNorm code."
+  matters: "The code joins a drug to its FDA label; a guessed code would join it to the wrong one."
+  did: "Give a code only where RxNorm names exactly this drug; never guess."
+
+pairs_by_cases:
+  shows: "Of {pairs:,} ingredient and reaction pairs, {one_or_two_cases:,} are named together in only one or two cases."
+  matters: "Every statistic counts the same cases, so a pair's numbers can be compared with each other."
+  did: "Count the kept cases that name an ingredient of a suspected drug and a reaction."
+
+ebgm_spread:
+  shows: "{at_or_above:,} of {pairs:,} pairs have an EBGM of 2 or more."
+  matters: "Two or three cases cannot make a pair look alarming on their own: EBGM pulls small counts toward the usual."
+  did: "Work out EBGM for every pair, with its 5% and 95% bounds."
+
+prr_spread:
+  shows: "{at_or_above:,} of {pairs:,} pairs have a PRR of 2 or more."
+  matters: "A PRR of 3: the reaction is three times as large a part of the ingredient's cases as of all others."
+  did: "Work out the PRR and its chi-square for every pair."
+
+ror_spread:
+  shows: "{at_or_above:,} of {pairs:,} pairs have an ROR of 2 or more."
+  matters: "An ROR of 3 means three times the odds among the ingredient's cases."
+  did: "Work out the ROR and its 95% bounds for every pair."
+
+rrr_spread:
+  shows: "{at_or_above:,} of {pairs:,} pairs have an RRR of 2 or more."
+  matters: "An RRR of 3 means three times as many cases as expected."
+  did: "Work out the RRR for every pair."
+
+ic_spread:
+  shows: "{at_or_above:,} of {pairs:,} pairs have an IC of 1 or more."
+  matters: "An IC of 1 means twice the expected cases, 2 four times, 0 as expected."
+  did: "Work out the IC and its lower bound for every pair."
+
+ror_by_stratum:
+  shows: "Of {pair_strata:,} odds ratios worked out within an age band or a sex, {lower_above_1:,} have a lower bound above 1."
+  matters: "A link that comes only from who takes the drug shows up when it disappears within each band or sex."
+  did: "Work out each pair's ROR again within each age band and each sex."
+
+labels_by_application:
+  shows: "{labels:,} current FDA prescription labels are read."
+  matters: "Over-the-counter and animal labels would put reactions on a label no prescriber reads."
+  did: "Read only DailyMed's human prescription labels, from its monthly release."
+
+label_choice_reasons:
+  shows: "Of {chosen:,} ingredients and ways of taking them, {only_label:,} have only one current label."
+  matters: "One drug can have dozens of labels; reading another each time would change its flags."
+  did: "Read each ingredient against its original maker's current label, one for each way it is taken."
+
+label_sections_read:
+  shows: "{labels:,} labels' safety sections are read; {table_rows:,} of their lines are table rows."
+  matters: "A reaction only the placebo group had sits in the same table as the drug's own."
+  did: "Find the safety sections by FDA's section codes and read a table row by row, leaving out a reaction only placebo had."
+
+labels_keyed_by_ingredients:
+  shows: "{own_ingredients:,} chosen labels have no drug code and are matched by their own ingredients."
+  matters: "Without this, a drug such as TECENTRIQ would have no label at all."
+  did: "Match a current label with no drug code by the ingredients it names."
+
+label_flags_given:
+  shows: "Of {pairs:,} suspect drug and reaction pairs, {on_label:,} are Listed ({umbrella:,} under a wider term) and {set_aside:,} are Not compared, as the disease treated, no medical event or a procedure."
+  matters: "A flag must say why: the disease treated, a procedure or a faulty product is no reaction the label could name."
+  did: "Give each pair one flag by fixed rules anyone can rerun, reading what the label rules out and who must not take it."
+
+label_treated_disease:
+  shows: "{pairs:,} drug and reaction pairs name the disease the drug treats; ten reactions make up {top_pairs:,} of them."
+  matters: "A reaction that is the illness the drug was given for says nothing about the drug's safety."
+  did: "Flag it Not compared, the disease it treats; a worse form of the disease is still compared."
+
+label_not_a_medical_event:
+  shows: "{pairs:,} drug and reaction pairs name no medical event; ten terms make up {top_pairs:,} of them."
+  matters: "Drug ineffective or a faulty product is no reaction a label could list."
+  did: "Flag it Not compared, not a medical event, and keep it in view."
+
+label_procedure:
+  shows: "{pairs:,} drug and reaction pairs name something done to the patient; ten make up {top_pairs:,} of them."
+  matters: "A transplant or dialysis can be the only trace of serious harm, so it must stay in view."
+  did: "Flag it Not compared, a procedure, and keep it among the unexpected."
+
+label_umbrella:
+  shows: "{pairs:,} drug and reaction pairs are listed under a wider term; ten reactions make up {top_pairs:,} of them."
+  matters: "A label that names a group, such as an injection site reaction, lists the mild reactions in it too."
+  did: "Count a mild reaction under a listed wider term as Listed, never a serious form."
+
+label_dictionary:
+  shows: "Of {pairs:,} listed pairs, {no_section:,} have no one section: a wider term lists them, or several forms' labels agree."
+  matters: "Where a label names a reaction tells how strongly it warns: a boxed warning is not an adverse reactions table."
+  did: "Read each safety section once for every reaction it names, in the words of the medical dictionary."
+
+label_table_rows:
+  shows: "Label tables name {kept:,} terms kept as the drug's, {left_out:,} that only the placebo or comparison group had and {sent_to_person:,} sent to a person."
+  matters: "A reaction only the placebo group had is not the drug's."
+  did: "Leave it off the label; a row that cannot be lined up goes to a person."

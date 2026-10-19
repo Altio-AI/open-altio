@@ -1,0 +1,505 @@
+source,value,families,decided_by,reason
+route,auricular (otic),ear,both runs,
+route,auricular use,ear,both runs,
+route,intra-aural,ear,both runs,
+route,intracochlear,ear;injected,both runs,"into the inner ear, given by injection or with an implant"
+route,buccal,under_tongue,both runs,
+route,buccal use,under_tongue,both runs,
+route,transbuccal,under_tongue,both runs,
+route,cutaneous,skin;transdermal,both runs,"on the skin: usually for a local effect, but patches and gels that act in the body are also given this way"
+route,cutaneous use,skin;transdermal,both runs,"on the skin: usually for a local effect, but patches and gels that act in the body are also given this way"
+route,epilesional use,other;skin,union of two runs,applied onto a lesion on the skin
+route,dental,injected;other;under_tongue,both runs,"dental products include anaesthetic injections, gels and rinses on the gums, and pastes or varnishes on the teeth"
+route,dental use,injected;other;under_tongue,both runs,"dental products include anaesthetic injections, gels and rinses on the gums, and pastes or varnishes on the teeth"
+route,periodontal,injected;other;under_tongue,both runs,"into the gum pocket (gels, chips, microspheres) or a periodontal ligament anaesthetic injection"
+route,periodontal use,injected;other;under_tongue,both runs,"into the gum pocket (gels, chips, microspheres) or a periodontal ligament anaesthetic injection"
+route,endocervical,other;vaginal,both runs,"into the cervical canal, reached through the vagina; cervical ripening products are given here or in the vagina"
+route,endocervical use,other;vaginal,both runs,"into the cervical canal, reached through the vagina; cervical ripening products are given here or in the vagina"
+route,endosinusial,injected;nasal,union of two runs,"into the sinuses, reached through the nose"
+route,endosinusial use,injected;nasal,union of two runs,"into the sinuses, reached through the nose"
+route,intrasinal,injected;nasal,union of two runs,"into the sinuses, reached through the nose"
+route,endotracheal,inhaled;injected;other,union of two runs,"down the windpipe to the lungs: surfactants, emergency injection drugs given by tube, or airway anaesthetic"
+route,epidural,injected,both runs,
+route,epidural use,injected,both runs,
+route,intracaudal,injected,both runs,caudal epidural injection
+route,extra-amniotic,injected;other,union of two runs,into the uterus outside the membranes through a catheter; fits no named family
+route,extraamniotic use,injected;other,union of two runs,into the uterus outside the membranes through a catheter; fits no named family
+route,hemodialysis,injected;other,both runs,"a drug injected into the dialysis line, or the dialysis fluid itself"
+route,intra corpus cavernosum,injected,both runs,
+route,intra-amniotic,injected,both runs,injected into the amniotic sac through the abdomen
+route,intraamniotic use,injected,both runs,injected into the amniotic sac through the abdomen
+route,arterial administration,injected,both runs,
+route,intra-arterial,injected,both runs,
+route,intraarterial use,injected,both runs,
+route,intra-articular,injected,both runs,
+route,intraarticular use,injected,both runs,
+route,intra-uterine,other,both runs,into the uterus (intrauterine systems); fits no named family
+route,intrauterine,other,both runs,into the uterus (intrauterine systems); fits no named family
+route,intrauterine use,other,both runs,into the uterus (intrauterine systems); fits no named family
+route,intracardiac,injected,both runs,
+route,intracardiac use,injected,both runs,
+route,intracavernosa,injected,both runs,
+route,intracavernous,injected,both runs,
+route,intracavernous use,injected,both runs,
+route,intracerebral,injected,both runs,injected or implanted into the brain (carmustine wafer)
+route,intracerebroventricular use,injected,both runs,
+route,intraventricular,injected,both runs,
+route,intra-cervical,injected;other;vaginal,both runs,"injected into the cervix, or a gel into the cervical canal reached through the vagina"
+route,intracervical,injected;other;vaginal,both runs,"injected into the cervix, or a gel into the cervical canal reached through the vagina"
+route,intracervical use,injected;other;vaginal,both runs,"injected into the cervix, or a gel into the cervical canal reached through the vagina"
+route,intracisternal,injected,both runs,
+route,intracorneal,eye;injected,both runs,an injection into the cornea of the eye
+route,intracoronary,injected,both runs,
+route,intracoronary use,injected,both runs,
+route,intradermal,injected,both runs,
+route,intradermal use,injected,both runs,
+route,intraepidermal,injected;skin,both runs,"pricked or scratched into the top layer of the skin (allergen tests, some vaccines)"
+route,skin scarification,injected;skin,both runs,a vaccine or allergen scratched into the skin with a needle
+route,intradiscal,injected,both runs,
+route,intradiscal (intraspinal),injected,both runs,
+route,intraspinal,injected,both runs,
+route,intrahepatic,injected,both runs,
+route,intralesional,injected,both runs,
+route,intralesional use,injected,both runs,
+route,intralymphatic,injected,both runs,
+route,intramedullar,injected,both runs,
+route,intramedullar (bone marrow),injected,both runs,
+route,intramedullary,injected,both runs,
+route,intrameningeal,injected,both runs,
+route,intramusc-dtoid,injected,both runs,intramuscular into the deltoid
+route,intramusc-glut,injected,both runs,intramuscular into the gluteal muscle
+route,intramuscular,injected,both runs,
+route,intramuscular injection,injected,both runs,
+route,intramuscular use,injected,both runs,
+route,intracameral,eye;injected,both runs,an injection into the front chamber of the eye
+route,intracameral use,eye;injected,both runs,an injection into the front chamber of the eye
+route,intraocular,eye;injected,both runs,"into the eye by injection, implant or surgical irrigation"
+route,intraocular use,eye;injected,both runs,"into the eye by injection, implant or surgical irrigation"
+route,intravitreal,eye;injected,both runs,an injection or implant into the eye
+route,intravitreal use,eye;injected,both runs,an injection or implant into the eye
+route,subretinal,eye;injected,both runs,an injection under the retina of the eye
+route,subretinal use,eye;injected,both runs,an injection under the retina of the eye
+route,intrapericardial,injected,both runs,
+route,intrapericardial use,injected,both runs,
+route,intraperitoneal,injected;other,both runs,"an injection or infusion into the abdomen, or peritoneal dialysis fluid"
+route,intraperitoneal injection,injected,both runs,
+route,intraperitoneal use,injected;other,both runs,"an injection or infusion into the abdomen, or peritoneal dialysis fluid"
+route,intrapleural,injected;other,both runs,"injected through a chest tube, or talc sprayed or poured into the chest"
+route,intrapleural use,injected;other,both runs,"injected through a chest tube, or talc sprayed or poured into the chest"
+route,intra-bursal,injected,both runs,
+route,intrasynovial,injected,both runs,
+route,intratumor,injected,both runs,
+route,intratumoral use,injected,both runs,
+route,intrathecal,injected,both runs,
+route,intrathecal use,injected,both runs,
+route,subarachnoid,injected,both runs,
+route,intrathoracic,injected;other,both runs,"into the chest cavity: injected, or talc instilled"
+route,intrabronchial,inhaled;injected;other,union of two runs,"into the airways by bronchoscope or tube: not breathed in, and may be an injection drug"
+route,intratrachael,inhaled;injected;other,union of two runs,"misspelling of intratracheal: into the windpipe (surfactants, emergency injection drugs given by tube)"
+route,intratracheal,inhaled;injected;other,union of two runs,"into the windpipe: surfactants, emergency injection drugs given by tube"
+route,transtracheal,inhaled;injected,both runs,"through the windpipe wall: an anaesthetic injection, or oxygen by catheter"
+route,intraven bolus,injected,both runs,
+route,intravenous bolus,injected,both runs,
+route,intravenous bolus use,injected,both runs,
+route,intravenous boluses,injected,both runs,
+route,intravenous?bolus,injected,both runs,Intravenous bolus with a garbled separator.
+route,iv bolus,injected,both runs,
+route,iv push,injected,both runs,
+route,drop for injection,injected,both runs,likely a translation of intravenous drip
+route,infusion,injected,both runs,
+route,intraven drip,injected,both runs,
+route,intravenous drip,injected,both runs,
+route,intravenous infusion,injected,both runs,
+route,iv drip,injected,both runs,
+route,iv infusion,injected,both runs,
+route,intravenous,injected,both runs,
+route,intravenous (not otherwise specified),injected,both runs,
+route,intravenous (not specified),injected,both runs,
+route,intravenous administration,injected,both runs,
+route,intravenous injection,injected,both runs,
+route,intravenous use,injected,both runs,
+route,intravenously,injected,both runs,
+route,iv,injected,both runs,
+route,intravesical,other,both runs,into the bladder
+route,intravesical instillation,other,both runs,into the bladder
+route,intravesical use,other,both runs,into the bladder
+route,intravesically,other,both runs,into the bladder
+route,iontophoresis,skin;transdermal,both runs,"an electric current drives the drug through the skin: local anaesthesia, or systems that act in the body (fentanyl, sumatriptan)"
+route,intranasal,nasal,both runs,
+route,intranasally,nasal,both runs,
+route,nasal,nasal,both runs,
+route,nasal use,nasal,both runs,
+route,occlusive dressing,skin;transdermal,both runs,"a cream or ointment under a covering, usually local; nitroglycerin ointment under a covering acts in the body"
+route,occlusive dressing technique,skin;transdermal,both runs,"a cream or ointment under a covering, usually local; nitroglycerin ointment under a covering acts in the body"
+route,conjunctival,eye,both runs,
+route,intracanalicular,eye,both runs,an insert in the tear duct of the eye
+route,ocular,eye;injected,union of two runs,"Eye products include drops and ointments, and also injections and implants into the eye that are often reported as ocular."
+route,ocular use,eye;injected,union of two runs,"Eye products include drops and ointments, and also injections and implants into the eye that are often reported as ocular."
+route,ophthalmic,eye;injected,union of two runs,"Eye products include drops and ointments, and also injections and implants into the eye that are often reported as ophthalmic."
+route,opthalmic,eye;injected,union of two runs,misspelling of ophthalmic
+route,by mouth,by_mouth;under_tongue,both runs,"by mouth also covers products dissolved in the mouth (lozenges, gums, troches) that are labelled oral"
+route,ingested,by_mouth,both runs,
+route,ingesting,by_mouth,both runs,
+route,ingestion,by_mouth,both runs,
+route,injested,by_mouth;injected,union of two runs,misspelling one letter away from both ingested and injected
+route,intraoral,by_mouth;injected;other;under_tongue,union of two runs,"inside the mouth: swallowed, on the mouth lining, dental pastes, or dental injections"
+route,oral,by_mouth;under_tongue,both runs,"oral also covers products dissolved in the mouth (lozenges, gums, troches) that are labelled oral"
+route,oral use,by_mouth;under_tongue,both runs,"oral also covers products dissolved in the mouth (lozenges, gums, troches) that are labelled oral"
+route,orale,by_mouth;under_tongue,both runs,non-English spelling of oral; oral also covers products dissolved in the mouth that are labelled oral
+route,orally,by_mouth;under_tongue,both runs,"oral also covers products dissolved in the mouth (lozenges, gums, troches) that are labelled oral"
+route,per oral,by_mouth;under_tongue,both runs,"oral also covers products dissolved in the mouth (lozenges, gums, troches) that are labelled oral"
+route,po,by_mouth;under_tongue,both runs,"per os: oral also covers products dissolved in the mouth (lozenges, gums, troches) that are labelled oral"
+route,tablet,by_mouth;under_tongue;vaginal,both runs,"a dose form in the route field: tablets are mostly swallowed, some go under the tongue or in the vagina"
+route,oromucosal,under_tongue,both runs,
+route,oromucosal use,under_tongue,both runs,
+route,oropharingeal,by_mouth;under_tongue,both runs,misspelling of oropharyngeal: mouth and throat products that act locally and are partly swallowed
+route,oropharyngeal,by_mouth;under_tongue,both runs,"mouth and throat products (lozenges, sprays, rinses) that act locally and are partly swallowed"
+route,oropharyngeal use,by_mouth;under_tongue,both runs,"mouth and throat products (lozenges, sprays, rinses) that act locally and are partly swallowed"
+route,transmucosal,nasal;under_tongue,both runs,"through a mucous membrane: the mouth (fentanyl lozenges, buccal tablets) or the nose (fentanyl spray)"
+route,catheter,by_mouth;injected;other,union of two runs,"through a line into a vein or space, a urinary catheter into the bladder, or a feeding catheter"
+route,enteral,by_mouth;other,union of two runs,"through a feeding tube: into the stomach, or past it into the intestine"
+route,extracorporeal,injected;other,both runs,"added to blood in a circuit outside the body (photopheresis, dialysis) that returns it to the vein"
+route,extracorporeal use,injected;other,both runs,"added to blood in a circuit outside the body (photopheresis, dialysis) that returns it to the vein"
+route,g tube,by_mouth,both runs,through a stomach tube
+route,g-tube,by_mouth,both runs,through a stomach tube
+route,gastric tube,by_mouth,both runs,Through a stomach tube.
+route,gastric use,by_mouth,both runs,
+route,gastroenteral,by_mouth;other;rectal,union of two runs,"into the stomach or bowel: swallowed, by tube, or as an enema (contrast media)"
+route,gastroenteral use,by_mouth;other;rectal,union of two runs,"into the stomach or bowel: swallowed, by tube, or as an enema (contrast media)"
+route,gastrostomy tube,by_mouth,both runs,Through a stomach tube.
+route,implantation,eye;injected;nasal,both runs,"implants go under the skin or into tissue, into the eye, or into the sinuses"
+route,insufflation,inhaled;nasal;other,both runs,"blown in: snorted into the nose, into the lungs, or a powder or gas into a body cavity"
+route,intestinal use,by_mouth;other,union of two runs,"through a tube into the small intestine (levodopa gel), past the stomach"
+route,intracavitary,injected;other,both runs,"into a body cavity: injected, or instilled into the chest, abdomen or bladder"
+route,intracavity,injected;other,both runs,"into a body cavity: injected, or instilled into the chest, abdomen or bladder"
+route,intraductal,injected;other,both runs,into a duct: injected (breast duct) or instilled through an endoscope (bile duct)
+route,intraduodenal,by_mouth;other,union of two runs,"through a tube into the duodenum, past the stomach"
+route,intraluminal,injected;other,both runs,"into the inside of a vessel, catheter or hollow organ"
+route,irrigation,eye;nasal;other;skin;vaginal,union of two runs,"washing the eye, nose, a wound, the bladder or a body cavity, or a vaginal douche"
+route,jejunal,by_mouth;other,union of two runs,"through a tube into the jejunum, past the stomach"
+route,jejunal tube,by_mouth;other,union of two runs,"through a tube into the jejunum, past the stomach"
+route,nasogastric,by_mouth,both runs,through a nose-to-stomach tube
+route,nasogastric tube,by_mouth,both runs,through a nose-to-stomach tube
+route,nephrostomy,other,both runs,into the kidney through a nephrostomy tube; fits no named family
+route,ng tube,by_mouth,both runs,through a nose-to-stomach tube
+route,ng-tube,by_mouth,both runs,through a nose-to-stomach tube
+route,other,,both runs,the word other says nothing about how the drug was given
+route,per semen,,both runs,exposure through a partner's semen; says nothing about how the product was given
+route,percutaneous j tube,by_mouth;other,union of two runs,"through a tube in the abdominal wall into the jejunum, past the stomach"
+route,percutaneous j-tube,by_mouth;other,union of two runs,"through a tube in the abdominal wall into the jejunum, past the stomach"
+route,percutaneous jejunal tube,by_mouth;other,union of two runs,"through a tube in the abdominal wall into the jejunum, past the stomach"
+route,percutaneous-j tube,by_mouth;other,union of two runs,"through a tube in the abdominal wall into the jejunum, past the stomach"
+route,subdural,injected,both runs,
+route,ureteral,other,both runs,into the ureter; fits no named family
+route,via g-tube,by_mouth,both runs,through a stomach tube
+route,via j-tube,by_mouth;other,union of two runs,"through a tube into the jejunum, past the stomach"
+route,via ng-tube,by_mouth,both runs,through a nose-to-stomach tube
+route,infiltration,injected,both runs,local anaesthetic injected into tissue
+route,injectable,eye;injected,both runs,most injections go into the body; eye injections (intravitreal) are injections too
+route,injection,eye;injected,both runs,most injections go into the body; eye injections (intravitreal) are injections too
+route,injection not otherwise specified,eye;injected,both runs,most injections go into the body; eye injections (intravitreal) are injections too
+route,interstitial,injected,both runs,injected or implanted into tissue
+route,intraosseous use,injected,both runs,
+route,intravascular,injected,both runs,
+route,parenteral,injected,both runs,
+route,percutaneous,injected;skin;transdermal,both runs,"through the skin: a needle, a vaccine scratched in, or absorption through the skin (patches)"
+route,soft tissue,injected,both runs,
+route,submucosal,injected,both runs,
+route,submucosal use,injected,both runs,
+route,periarticular,injected,both runs,
+route,periarticular use,injected,both runs,
+route,perineural,injected,both runs,
+route,perineural use,injected,both runs,
+route,rectal,rectal,both runs,
+route,rectal suppository,rectal,both runs,
+route,rectal use,rectal,both runs,
+route,rectum,rectal,both runs,
+route,by nebulizer,inhaled,both runs,
+route,inhalaltion,inhaled,both runs,misspelling of inhalation
+route,inhalation,inhaled,both runs,
+route,inhalation use,inhaled,both runs,
+route,inhalation via nebulizer,inhaled,both runs,
+route,inhalational,inhaled,both runs,
+route,inhale via nebulizer,inhaled,both runs,
+route,inhaled,inhaled,both runs,
+route,inhaled via spacer,inhaled,both runs,
+route,inhaled via spacer with paediatric mask,inhaled,both runs,
+route,nebulisation use,inhaled,both runs,
+route,nebuliser,inhaled,both runs,
+route,nebulized,inhaled,both runs,
+route,nebulizer,inhaled,both runs,
+route,respiratory,inhaled;nasal,both runs,"the airway: usually breathed into the lungs, and could include the nose"
+route,respiratory (inhalation),inhaled,both runs,
+route,via nebulizer,inhaled,both runs,
+route,retrobulbar,eye;injected,both runs,an anaesthetic injection behind the eye
+route,retrobulbar use,eye;injected,both runs,an anaesthetic injection behind the eye
+route,subconjunctival,eye;injected,both runs,an injection under the lining of the eye
+route,subconjunctival use,eye;injected,both runs,an injection under the lining of the eye
+route,sunconjunctival,eye;injected,both runs,misspelling of subconjunctival: an injection under the lining of the eye
+route,intrapump injection,injected,both runs,a refill injected into an implanted pump (intrathecal)
+route,sc,injected,both runs,
+route,sq,injected,both runs,
+route,subcutaneous,injected,both runs,
+route,subcutaneous injection,injected,both runs,
+route,subcutaneous use,injected,both runs,
+route,subcutaneously,injected,both runs,
+route,subq,injected,both runs,
+route,under the skin,injected,both runs,
+route,subdermal,injected,both runs,an implant under the skin
+route,sublingual,under_tongue,both runs,
+route,sublingual use,under_tongue,both runs,
+route,topical,ear;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,union of two runs,"topical means on any surface: skin, eye, ear, nose, mouth, rectum or vagina; patches and hormone gels are also reported this way"
+route,topically,ear;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,union of two runs,"topical means on any surface: skin, eye, ear, nose, mouth, rectum or vagina; patches and hormone gels are also reported this way"
+route,transdermal,skin;transdermal,both runs,through the skin for an effect in the body; local patches such as lidocaine are often called transdermal too
+route,transdermal use,skin;transdermal,both runs,through the skin for an effect in the body; local patches such as lidocaine are often called transdermal too
+route,transammmary,,both runs,misspelling of transmammary: exposure through breast milk; says nothing about how the product was given
+route,transmammary,,both runs,exposure through breast milk; says nothing about how the product was given
+route,transplacental,,both runs,exposure before birth through the mother; says nothing about how the product was given
+route,not applicable,,both runs,Says nothing about how the drug was given.
+route,not provided,,both runs,Says nothing about how the drug was given.
+route,route of administration not applicable,,both runs,Says nothing about how the drug was given.
+route,unk,,both runs,Says nothing about how the drug was given.
+route,unknown,,both runs,Says nothing about how the drug was given.
+route,urethral,other,both runs,into the urethra; fits no named family
+route,urethral use,other,both runs,into the urethra; fits no named family
+route,vaginal,vaginal,both runs,
+route,vaginal use,vaginal,both runs,
+dose_form,caplet,by_mouth,both runs,
+dose_form,capsule,by_mouth;inhaled;vaginal,both runs,"mostly swallowed; some hold powder for an inhaler (tiotropium), and some soft capsules are vaginal inserts"
+dose_form,"capsule, hard",by_mouth;inhaled,both runs,mostly swallowed; some hold powder for an inhaler (tiotropium)
+dose_form,"capsule, soft",by_mouth;vaginal,both runs,"mostly swallowed; some soft capsules are vaginal inserts (progesterone, estradiol)"
+dose_form,capsules,by_mouth;inhaled;vaginal,both runs,"mostly swallowed; some hold powder for an inhaler (tiotropium), and some soft capsules are vaginal inserts"
+dose_form,chewable tablet,by_mouth,both runs,
+dose_form,coated tablet,by_mouth;vaginal,union of two runs,mostly swallowed; estradiol vaginal tablets are film-coated
+dose_form,dispersible tablet,by_mouth,both runs,
+dose_form,er tablets,by_mouth,both runs,
+dose_form,extended release tablet,by_mouth,both runs,
+dose_form,extended-release oral suspension,by_mouth,both runs,
+dose_form,extended-release tablet,by_mouth,both runs,
+dose_form,film coated tablet,by_mouth;vaginal,union of two runs,mostly swallowed; estradiol vaginal tablets are film-coated
+dose_form,film-coated tablet,by_mouth;vaginal,union of two runs,mostly swallowed; estradiol vaginal tablets are film-coated
+dose_form,gastro-resistant coated tablet,by_mouth,both runs,
+dose_form,gastro-resistant tablet,by_mouth,both runs,
+dose_form,lozenge,by_mouth;under_tongue,both runs,"dissolved in the mouth: absorbed through the mouth lining and partly swallowed, often labelled oral"
+dose_form,medicated chewing-gum,by_mouth;under_tongue,both runs,nicotine is absorbed through the mouth lining; gums are often labelled oral
+dose_form,"modified-release capsule, hard",by_mouth,both runs,
+dose_form,modified-release tablet,by_mouth,both runs,
+dose_form,oral solution,by_mouth,both runs,
+dose_form,oral suspension,by_mouth,both runs,
+dose_form,orodispersible tablet,by_mouth;under_tongue,both runs,melts in the mouth and is swallowed; some (desmopressin) are taken under the tongue
+dose_form,oros (oral osmotic) therapeutic system tablet,by_mouth,both runs,
+dose_form,powder for oral solution,by_mouth,both runs,
+dose_form,powder for oral suspension,by_mouth,both runs,
+dose_form,prolonged-release capsule,by_mouth,both runs,
+dose_form,prolonged-release tablet,by_mouth,both runs,
+dose_form,slow release capsules,by_mouth,both runs,
+dose_form,sublingual tablet,under_tongue,both runs,
+dose_form,sustained release tablets,by_mouth,both runs,
+dose_form,syrup,by_mouth,both runs,
+dose_form,tablet,by_mouth;under_tongue;vaginal,both runs,mostly swallowed; sublingual tablets (nitroglycerin) and vaginal tablets are also labelled tablet
+dose_form,"tablet, film coated",by_mouth;vaginal,union of two runs,mostly swallowed; estradiol vaginal tablets are film-coated
+dose_form,tablets,by_mouth;under_tongue;vaginal,both runs,mostly swallowed; sublingual tablets (nitroglycerin) and vaginal tablets are also labelled tablet
+dose_form,cutaneous patch,skin;transdermal,both runs,a patch on the skin: local (lidocaine) or acting in the body (fentanyl)
+dose_form,cutaneous foam,skin,both runs,
+dose_form,cutaneous liquid,skin;transdermal,both runs,on the skin: mostly local; testosterone or estradiol liquids act through the skin
+dose_form,cutaneous solution,skin;transdermal,both runs,on the skin: mostly local; testosterone or estradiol solutions act through the skin
+dose_form,foam,injected;rectal;skin;vaginal,union of two runs,"foams are made for the skin, rectum and vagina, and as an injectable foam (polidocanol)"
+dose_form,gel,,"reviewer correction, accepted","Gels are made for nearly every route (oral and intestinal gels, eye gels, nasal gels, rectal diazepam, vaginal metronidazole, skin, transdermal testosterone, urethral lidocaine, and gels for injection), so the value says nothing about how the drug was given (rule 3)."
+dose_form,shampoo,skin,both runs,
+dose_form,matrix patch,skin;transdermal,both runs,"a patch on the skin: mostly acting in the body (fentanyl), some local"
+dose_form,patch,skin;transdermal,both runs,a patch on the skin: local (lidocaine) or acting in the body (fentanyl)
+dose_form,trans-therapeutic-system,transdermal,both runs,transdermal therapeutic system (TTS) patch
+dose_form,transdermal patch,skin;transdermal,both runs,mostly patches that act in the body; local lidocaine patches are often called transdermal too
+dose_form,transdermal system,skin;transdermal,union of two runs,mostly patches that act in the body; local lidocaine patches are often called transdermal too
+dose_form,microspheres,injected;other;under_tongue,union of two runs,mostly long-acting injections; minocycline microspheres go into the gum pocket
+dose_form,powder and solvent for suspension for injection,injected,both runs,
+dose_form,prolonged-release suspension for injection,injected,both runs,
+dose_form,dispersion for infusion,injected,both runs,
+dose_form,intravenous infusion,injected,both runs,
+dose_form,liposome injection,injected,both runs,
+dose_form,lyophilized powder,by_mouth;injected;other,union of two runs,mostly made up for injection; some freeze-dried products are given by mouth (oral vaccines) or into the bladder (BCG)
+dose_form,powder and solvent for solution for infusion,injected,both runs,
+dose_form,powder for solution for infusion,injected,both runs,
+dose_form,concentrate for solution for infusion,injected,both runs,
+dose_form,gel for injection,injected,both runs,
+dose_form,implant,eye;injected;nasal,both runs,"implants go under the skin or into tissue, into the eye, or into the sinuses"
+dose_form,infusion,injected,both runs,
+dose_form,"infusion, solution",injected,both runs,
+dose_form,injection,eye;injected,both runs,most injections go into the body; eye injections (intravitreal) come in this form too
+dose_form,injection for infusion,injected,both runs,
+dose_form,"injection, powder, lyophilized, for solution",injected,both runs,
+dose_form,powder and solvent for solution for injection,injected,both runs,
+dose_form,powder for concentrate for solution for infusion,injected,both runs,
+dose_form,powder for infusion,injected,both runs,
+dose_form,powder for injection,eye;injected,both runs,mostly injections into the body; cefuroxime powder is injected into the eye
+dose_form,powder for solution for injection,eye;injected,both runs,mostly injections into the body; cefuroxime powder is injected into the eye
+dose_form,powder for solution for injection/infusion,injected,both runs,
+dose_form,soln for inject in pre-filled syringe,eye;injected,both runs,"mostly injections into the body; eye injections (aflibercept, ranibizumab) come in pre-filled syringes"
+dose_form,solution for infusion,injected,both runs,
+dose_form,solution for injection,eye;injected,both runs,most injections go into the body; eye injections (intravitreal) come in this form too
+dose_form,solution for injection/infusion,injected,both runs,
+dose_form,suspension for injection,eye;injected,both runs,mostly injections into the body; triamcinolone suspension is injected into the eye
+dose_form,suspension for injection in pre-filled syringe,injected,both runs,
+dose_form,vial,by_mouth;eye;inhaled;injected;other,union of two runs,"vials hold injections, nebuliser solutions, single-use eye drops, and acetylcysteine taken by mouth or inhaled"
+dose_form,direct auto-injector,injected,both runs,
+dose_form,"injection, solution",eye;injected,both runs,most injections go into the body; eye injections (intravitreal) come in this form too
+dose_form,pre-filled syringe,eye;injected;other;rectal,FAERS evidence,"mostly injections including eye injections; urethral lidocaine gel and rectal diazepam also come pre-filled. Under the tongue removed: FAERS has it only as injections written as sublingual (Actemra, Xolair, Nutropin)"
+dose_form,solution for injection in cartridge,injected,both runs,
+dose_form,solution for injection in pre-filled pen,injected,both runs,
+dose_form,solution for injection in pre-filled syringe,eye;injected,both runs,"mostly injections into the body; eye injections (aflibercept, ranibizumab) come in pre-filled syringes"
+dose_form,sub-cutaneous injection,injected,both runs,
+dose_form,subcutaneous injection,injected,both runs,
+dose_form,dry powder,inhaled;injected;other;skin,FAERS evidence,"usually inhaler powder; also dry powders made up as injections. By mouth and nasal removed: FAERS has them only as inhalation powders written with an oral or nasal route (TOBI Podhaler, Foradil)"
+dose_form,inhalation gas,inhaled,both runs,
+dose_form,inhalation powder,inhaled,both runs,
+dose_form,inhalation solution,inhaled,both runs,
+dose_form,"inhalation vapour, liquid",inhaled,both runs,
+dose_form,"inhalation vapour, solution",inhaled,both runs,
+dose_form,inhaler,inhaled;nasal,both runs,usually breathed into the lungs; nasal decongestant inhalers go into the nose
+dose_form,multi dose powder inhaler,inhaled,both runs,
+dose_form,nebuliser solution,inhaled,both runs,
+dose_form,pressurised inhalation,inhaled,both runs,
+dose_form,"pressurised inhalation, suspension",inhaled,both runs,
+dose_form,eye drops,eye,both runs,
+dose_form,"eye drops, solution",eye,both runs,
+dose_form,intrauterine,other,both runs,into the uterus; fits no named family
+dose_form,intrauterine delivery system,other,both runs,into the uterus; fits no named family
+dose_form,intrauterine device,other,both runs,into the uterus; fits no named family
+dose_form,solution for peritoneal dialysis,other,both runs,dialysis fluid run into the abdomen
+dose_form,nasal spray,nasal,both runs,
+dose_form,"nasal spray, suspension",nasal,both runs,
+dose_form,vaginal cream,vaginal,both runs,
+dose_form,vaginal delivery system,vaginal,both runs,
+dose_form,vaginal ring,vaginal,both runs,
+dose_form,aerosol,inhaled;nasal;other;rectal;skin;under_tongue;vaginal,both runs,"sprays exist for the lungs, nose, skin and under the tongue (nitroglycerin), as rectal and vaginal foams, and into the chest (talc)"
+dose_form,cream,nasal;rectal;skin;transdermal;vaginal,union of two runs,"creams are for the skin, vagina, rectum (haemorrhoids) and nose"
+dose_form,formulation unknown,,both runs,Says nothing about how the drug was given.
+dose_form,gastroenteral suspension,by_mouth;other;rectal,union of two runs,"into the stomach or bowel: swallowed, by tube, or as an enema (contrast media)"
+dose_form,"inhalation powder, hard capsule",inhaled,both runs,
+dose_form,intestinal gel,by_mouth;other,union of two runs,"through a tube into the small intestine (levodopa gel), past the stomach"
+dose_form,liquid,,"reviewer correction, accepted","A liquid can be given by every one of the twelve routes (swallowed, injected, eye, ear, nose, inhaled, skin, rectal, vaginal, dialysis), so it says nothing about how the drug was given (rule 3)."
+dose_form,not specified,,both runs,Says nothing about how the drug was given.
+dose_form,ointment,eye;nasal;rectal;skin;transdermal,both runs,"ointments are for the skin, eye, nose and rectum; nitroglycerin ointment acts through the skin"
+dose_form,oral liquid,by_mouth,both runs,
+dose_form,powder,by_mouth;inhaled;injected;nasal;other;skin,both runs,"powders are made up for swallowing, injection or inhalation, and used on the skin, in the nose or into the chest (talc)"
+dose_form,softgel capsule,by_mouth;vaginal,both runs,mostly swallowed; some softgels are vaginal inserts (estradiol)
+dose_form,solution,,"reviewer correction, accepted","A solution can be given by every one of the twelve routes (swallowed, injected, eye, ear, nose, inhaled, skin, rectal, vaginal, dialysis), so it says nothing about how the drug was given (rule 3)."
+dose_form,suppository,other;rectal;vaginal,both runs,"suppositories are rectal or vaginal, and alprostadil has a urethral one"
+dose_form,suspension,,"reviewer correction, accepted","Suspensions are made for nearly every route (oral, injectable, eye, ear, nasal, nebuliser, enema, skin, mouth, bladder BCG), so the value says nothing about how the drug was given (rule 3)."
+dose_form,unk,,both runs,Says nothing about how the drug was given.
+dose_form,unknown,,both runs,Says nothing about how the drug was given.
+dose_form,unknown formulation,,both runs,Says nothing about how the drug was given.
+dose_form,unspecified,,both runs,Says nothing about how the drug was given.
+drugname,buccal,under_tongue,both runs,
+drugname,cap,by_mouth;inhaled;vaginal,both runs,capsule: mostly swallowed; some hold inhaler powder and some are vaginal inserts
+drugname,caplet,by_mouth,both runs,
+drugname,caplets,by_mouth,both runs,
+drugname,caps,by_mouth;inhaled;vaginal,both runs,capsules: mostly swallowed; some hold inhaler powder and some are vaginal inserts
+drugname,capsule,by_mouth;inhaled;vaginal,both runs,mostly swallowed; some hold inhaler powder and some are vaginal inserts
+drugname,capsules,by_mouth;inhaled;vaginal,both runs,mostly swallowed; some hold inhaler powder and some are vaginal inserts
+drugname,chewable,by_mouth,both runs,
+drugname,gelcap,by_mouth,both runs,
+drugname,gelcaps,by_mouth,both runs,
+drugname,lozenge,by_mouth;under_tongue,both runs,"dissolved in the mouth: absorbed through the mouth lining and partly swallowed, often labelled oral"
+drugname,lozenges,by_mouth;under_tongue,both runs,"dissolved in the mouth: absorbed through the mouth lining and partly swallowed, often labelled oral"
+drugname,odt,by_mouth;under_tongue,both runs,"orally disintegrating tablet: swallowed, and some are taken under the tongue"
+drugname,oral,by_mouth;inhaled;under_tongue,union of two runs,"oral also names products dissolved in the mouth (oral transmucosal fentanyl, lozenges, rinses)"
+drugname,softgels,by_mouth;vaginal,both runs,mostly swallowed; some softgels are vaginal inserts (estradiol)
+drugname,sublingual,under_tongue,both runs,
+drugname,syrup,by_mouth,both runs,
+drugname,tab,by_mouth;under_tongue;vaginal,both runs,tablet: mostly swallowed; sublingual and vaginal tablets exist
+drugname,tablet,by_mouth;under_tongue;vaginal,both runs,mostly swallowed; sublingual and vaginal tablets exist
+drugname,tablets,by_mouth;under_tongue;vaginal,both runs,mostly swallowed; sublingual and vaginal tablets exist
+drugname,tabs,by_mouth;under_tongue;vaginal,both runs,tablets: mostly swallowed; sublingual and vaginal tablets exist
+drugname,emulgel,skin,both runs,
+drugname,patch,skin;transdermal,both runs,a patch on the skin: local (lidocaine) or acting in the body (fentanyl)
+drugname,patches,skin;transdermal,both runs,a patch on the skin: local (lidocaine) or acting in the body (fentanyl)
+drugname,topical,ear;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,union of two runs,"topical means on any surface: skin, eye, ear, nose, mouth, rectum or vagina; hormone gels and patches are also named this way"
+drugname,cream,nasal;rectal;skin;transdermal;vaginal,union of two runs,"creams are for the skin, vagina, rectum (haemorrhoids) and nose"
+drugname,foam,injected;rectal;skin;vaginal,union of two runs,"foams are made for the skin, rectum and vagina, and as an injectable foam (polidocanol)"
+drugname,lotion,skin,both runs,
+drugname,shampoo,skin,both runs,
+drugname,transdermal,skin;transdermal,both runs,through the skin for an effect in the body; local patches such as lidocaine are often called transdermal too
+drugname,im,injected,both runs,intramuscular
+drugname,auto-injector,injected,both runs,
+drugname,infusion,injected,both runs,
+drugname,inj,eye;injected,both runs,injection: mostly into the body; eye injections (intravitreal) too
+drugname,injectable,eye;injected,both runs,mostly into the body; eye injections (intravitreal) too
+drugname,injection,eye;injected,both runs,mostly into the body; eye injections (intravitreal) too
+drugname,injections,eye;injected,both runs,mostly into the body; eye injections (intravitreal) too
+drugname,intravenous,injected,both runs,
+drugname,iv,injected,both runs,
+drugname,pen,by_mouth;injected,both runs,mostly injection pens; Pen VK is penicillin tablets
+drugname,sc,injected,both runs,subcutaneous
+drugname,vial,by_mouth;eye;inhaled;injected;other,union of two runs,"vials hold injections, nebuliser solutions, single-use eye drops, and acetylcysteine taken by mouth or inhaled"
+drugname,autoinjector,injected,both runs,
+drugname,pre-filled,eye;injected;nasal;other;rectal;vaginal,FAERS evidence,"mostly injection syringes and pens (including eye injections); also pre-filled nasal sprayers and rectal, urethral and vaginal applicators. Under the tongue removed: FAERS has it only as an injection pen written as sublingual (Humira)"
+drugname,prefilled,eye;injected;nasal;other;rectal;vaginal,FAERS evidence,"mostly injection syringes and pens (including eye injections); also pre-filled nasal sprayers and rectal, urethral and vaginal applicators. Under the tongue removed, as for its spelling pre-filled: FAERS has it only as a mistake"
+drugname,subcutaneous,injected,both runs,
+drugname,syringe,by_mouth;eye;injected;other;rectal;under_tongue,union of two runs,"mostly injections (including eye); also oral and oromucosal syringes, rectal diazepam and urethral lidocaine gel"
+drugname,hfa,inhaled;nasal,both runs,HFA aerosols are mostly inhalers; beclomethasone HFA also comes as a nasal aerosol
+drugname,inhalation,inhaled,both runs,
+drugname,inhaled,inhaled,both runs,
+drugname,nebuliser,inhaled,both runs,
+drugname,ophthalmic,eye;injected,union of two runs,"Mostly eye drops and ointments, but some ophthalmic solutions are injected into the eye during surgery (trypan blue)."
+drugname,intrauterine,other,both runs,into the uterus; fits no named family
+drugname,enema,rectal,both runs,
+drugname,suppositories,other;rectal;vaginal,both runs,"suppositories are rectal or vaginal, and alprostadil has a urethral one"
+drugname,vaginal,vaginal,both runs,
+label,VAGINAL,vaginal,both runs,
+label,URETHRAL,other,both runs,into the urethra; fits no named family
+label,AURICULAR (OTIC),ear,both runs,
+label,SUBMUCOSAL,injected,both runs,
+label,INTRA-ARTICULAR,injected,both runs,
+label,ENDOTRACHEAL,inhaled;injected;other,union of two runs,"down the windpipe to the lungs: surfactants, emergency injection drugs given by tube, or airway anaesthetic"
+label,INTRATHECAL,injected,both runs,
+label,SOFT TISSUE,injected,both runs,
+label,INTRALESIONAL,injected,both runs,
+label,INTRATUMOR,injected,both runs,
+label,INTRAPLEURAL,injected;other,both runs,"injected through a chest tube, or talc sprayed or poured into the chest"
+label,INTRAVESICAL,other,both runs,into the bladder
+label,INTRACAUDAL,injected,both runs,caudal epidural injection
+label,PERIODONTAL,injected;other;under_tongue,both runs,"into the gum pocket (gels, chips, microspheres) or a periodontal ligament anaesthetic injection"
+label,CUTANEOUS,skin;transdermal,both runs,"on the skin: usually for a local effect, but patches and gels that act in the body are also given this way"
+label,INTRABRONCHIAL,inhaled;injected;other,union of two runs,"into the airways by bronchoscope or tube: not breathed in, and may be an injection drug"
+label,EXTRACORPOREAL,injected;other,both runs,"added to blood in a circuit outside the body (photopheresis, dialysis) that returns it to the vein"
+label,SUBCUTANEOUS,injected,both runs,
+label,SUBARACHNOID,injected,both runs,
+label,RECTAL,rectal,both runs,
+label,ORAL,by_mouth;under_tongue,both runs,"oral labels include products dissolved in the mouth (lozenges, gums, troches)"
+label,RETROBULBAR,eye;injected,both runs,an anaesthetic injection behind the eye
+label,INTRACORONARY,injected,both runs,
+label,OPHTHALMIC,eye;injected,union of two runs,"Eye products include drops and ointments, and also solutions injected or instilled into the eye."
+label,INTRAPERITONEAL,injected;other,both runs,"an injection or infusion into the abdomen, or peritoneal dialysis fluid"
+label,BUCCAL,under_tongue,both runs,
+label,INTRACOCHLEAR,ear;injected,both runs,"into the inner ear, given by injection or with an implant"
+label,TRANSTRACHEAL,inhaled;injected,both runs,"through the windpipe wall: an anaesthetic injection, or oxygen by catheter"
+label,RESPIRATORY (INHALATION),inhaled,both runs,
+label,INTRAVENOUS,injected,both runs,
+label,NASAL,nasal,both runs,
+label,INTRADERMAL,injected,both runs,
+label,INTRALUMINAL,injected;other,both runs,"into the inside of a vessel, catheter or hollow organ"
+label,INTRACEREBRAL,injected,both runs,injected or implanted into the brain (carmustine wafer)
+label,INTRAUTERINE,other,both runs,into the uterus (intrauterine systems); fits no named family
+label,IRRIGATION,eye;nasal;other;skin;vaginal,union of two runs,"washing the eye, nose, a wound, the bladder or a body cavity, or a vaginal douche"
+label,INTRAMUSCULAR,injected,both runs,
+label,OROPHARYNGEAL,by_mouth;under_tongue,both runs,"mouth and throat products (lozenges, sprays, rinses) that act locally and are partly swallowed"
+label,DENTAL,injected;other;under_tongue,both runs,"dental products include anaesthetic injections, gels and rinses on the gums, and pastes or varnishes on the teeth"
+label,INTRACAVITARY,injected;other,both runs,"into a body cavity: injected, or instilled into the chest, abdomen or bladder"
+label,EPIDURAL,injected,both runs,
+label,INTRAVITREAL,eye;injected,both runs,an injection or implant into the eye
+label,PERCUTANEOUS,injected;skin;transdermal,both runs,"through the skin: a needle, a vaccine scratched in, or absorption through the skin (patches)"
+label,SUBLINGUAL,under_tongue,both runs,
+label,INTRAVENTRICULAR,injected,both runs,
+label,PERINEURAL,injected,both runs,
+label,INTRAVASCULAR,injected,both runs,
+label,TOPICAL,ear;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,union of two runs,"topical means on any surface: skin, eye, ear, nose, mouth, rectum or vagina; hormone gels are also labelled this way"
+label,INTRAOCULAR,eye;injected,both runs,"into the eye by injection, implant or surgical irrigation"
+label,SUBRETINAL,eye;injected,both runs,an injection under the retina of the eye
+label,INTRASYNOVIAL,injected,both runs,
+label,TRANSDERMAL,skin;transdermal,both runs,through the skin for an effect in the body; some local-effect patches are also labelled transdermal
+label,PARENTERAL,injected,both runs,
+label,INFILTRATION,injected,both runs,local anaesthetic injected into tissue
+label,INTRA-ARTERIAL,injected,both runs,
+label,URETERAL,other,both runs,into the ureter; fits no named family
+label,SUBCONJUNCTIVAL,eye;injected,both runs,an injection under the lining of the eye

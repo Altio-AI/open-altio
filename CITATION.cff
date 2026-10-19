@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use Open Altio, please cite it as below, and name the data release you used by its FDA quarter (for example 2026Q2)."
+title: "Open Altio"
+abstract: "FDA's Adverse Event Reporting System (FAERS and legacy AERS), cleaned and deduplicated in the open, with the code, the rules and the evidence for every step."
+type: software
+authors:
+  - name: "Altio AI"
+    website: "https://open.altioai.com"
+repository-code: "https://github.com/Altio-AI/open-altio"
+url: "https://open.altioai.com"
+license: Apache-2.0
+version: "1.0.0"
+date-released: 2026-10-19
+keywords:
+  - FAERS
+  - AERS
+  - pharmacovigilance
+  - adverse events
+  - drug safety
+  - deduplication

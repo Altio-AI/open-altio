@@ -1,0 +1,266 @@
+route,code,evidence
+auricular (otic),001,E2B route
+auricular use,001,DiAna reads it as otic
+intra-aural,001,another spelling
+intracochlear,001,a route on FDA labels
+buccal,002,E2B route
+buccal use,002,"E2B route, written as on EDQM's list"
+transbuccal,002,another spelling
+cutaneous,003,E2B route
+cutaneous use,003,"E2B route, written as on EDQM's list"
+epilesional use,003,another spelling
+dental,004,E2B route
+dental use,004,"E2B route, written as on EDQM's list"
+periodontal,004,another spelling
+periodontal use,004,another spelling
+endocervical,005,E2B route
+endocervical use,005,"E2B route, written as on EDQM's list"
+endosinusial,006,E2B route
+endosinusial use,006,"E2B route, written as on EDQM's list"
+intrasinal,006,a route on FDA labels
+endotracheal,007,E2B route
+epidural,008,E2B route
+epidural use,008,"E2B route, written as on EDQM's list"
+intracaudal,008,a route on FDA labels
+extra-amniotic,009,E2B route
+extraamniotic use,009,DiAna reads it as extraamniotic
+hemodialysis,010,E2B route
+intra corpus cavernosum,011,E2B route
+intra-amniotic,012,E2B route
+intraamniotic use,012,another spelling
+arterial administration,013,another spelling
+intra-arterial,013,E2B route
+intraarterial use,013,another spelling
+intra-articular,014,E2B route
+intraarticular use,014,another spelling
+intra-uterine,015,E2B route
+intrauterine,015,another spelling
+intrauterine use,015,DiAna reads it as intrauterine
+intracardiac,016,E2B route
+intracardiac use,016,"E2B route, written as on EDQM's list"
+intracavernosa,017,another spelling
+intracavernous,017,E2B route
+intracavernous use,017,"E2B route, written as on EDQM's list"
+intracerebral,018,E2B route
+intracerebroventricular use,018,another spelling
+intraventricular,018,a route on FDA labels
+intra-cervical,019,another spelling
+intracervical,019,E2B route
+intracervical use,019,"E2B route, written as on EDQM's list"
+intracisternal,020,E2B route
+intracorneal,021,E2B route
+intracoronary,022,E2B route
+intracoronary use,022,"E2B route, written as on EDQM's list"
+intradermal,023,E2B route
+intradermal use,023,"E2B route, written as on EDQM's list"
+intraepidermal,023,a route on FDA labels
+skin scarification,023,another spelling
+intradiscal,024,another spelling
+intradiscal (intraspinal),024,E2B route
+intraspinal,024,a route on FDA labels
+intrahepatic,025,E2B route
+intralesional,026,E2B route
+intralesional use,026,"E2B route, written as on EDQM's list"
+intralymphatic,027,E2B route
+intramedullar,028,another spelling
+intramedullar (bone marrow),028,E2B route
+intramedullary,028,a route on FDA labels
+intrameningeal,029,E2B route
+intramusc-dtoid,030,another spelling
+intramusc-glut,030,another spelling
+intramuscular,030,E2B route
+intramuscular injection,030,another spelling
+intramuscular use,030,"E2B route, written as on EDQM's list"
+intracameral,031,a route on FDA labels
+intracameral use,031,another spelling
+intraocular,031,E2B route
+intraocular use,031,"E2B route, written as on EDQM's list"
+intravitreal,031,another spelling
+intravitreal use,031,DiAna reads it as intravitreal
+subretinal,031,a route on FDA labels
+subretinal use,031,another spelling
+intrapericardial,032,E2B route
+intrapericardial use,032,"E2B route, written as on EDQM's list"
+intraperitoneal,033,E2B route
+intraperitoneal injection,033,another spelling
+intraperitoneal use,033,"E2B route, written as on EDQM's list"
+intrapleural,034,E2B route
+intrapleural use,034,"E2B route, written as on EDQM's list"
+intra-bursal,035,another spelling
+intrasynovial,035,E2B route
+intratumor,036,E2B route
+intratumoral use,036,another spelling
+intrathecal,037,E2B route
+intrathecal use,037,"E2B route, written as on EDQM's list"
+subarachnoid,037,a route on FDA labels
+intrathoracic,038,E2B route
+intrabronchial,039,a route on FDA labels
+intratrachael,039,another spelling
+intratracheal,039,E2B route
+transtracheal,039,a route on FDA labels
+intraven bolus,040,another spelling
+intravenous bolus,040,E2B route
+intravenous bolus use,040,"E2B route, written as on EDQM's list"
+intravenous boluses,040,another spelling
+intravenous?bolus,040,another spelling
+iv bolus,040,another spelling
+iv push,040,another spelling
+drop for injection,041,another spelling
+infusion,041,another spelling
+intraven drip,041,another spelling
+intravenous drip,041,E2B route
+intravenous infusion,041,another spelling
+iv drip,041,another spelling
+iv infusion,041,another spelling
+intravenous,042,another spelling
+intravenous (not otherwise specified),042,E2B route
+intravenous (not specified),042,another spelling
+intravenous administration,042,another spelling
+intravenous injection,042,another spelling
+intravenous use,042,DiAna reads it as intravenous
+intravenously,042,another spelling
+iv,042,another spelling
+intravesical,043,E2B route
+intravesical instillation,043,another spelling
+intravesical use,043,"E2B route, written as on EDQM's list"
+intravesically,043,another spelling
+iontophoresis,044,E2B route
+intranasal,045,another spelling
+intranasally,045,another spelling
+nasal,045,E2B route
+nasal use,045,"E2B route, written as on EDQM's list"
+occlusive dressing,046,DiAna reads it as occlusive dressing
+occlusive dressing technique,046,E2B route
+conjunctival,047,a route on FDA labels
+intracanalicular,047,a route on FDA labels
+ocular,047,another spelling
+ocular use,047,DiAna reads it as ophthalmic
+ophthalmic,047,E2B route
+opthalmic,047,another spelling
+by mouth,048,another spelling
+ingested,048,another spelling
+ingesting,048,another spelling
+ingestion,048,another spelling
+injested,048,another spelling
+intraoral,048,another spelling
+oral,048,E2B route
+oral use,048,"E2B route, written as on EDQM's list"
+orale,048,another spelling
+orally,048,another spelling
+per oral,048,another spelling
+po,048,another spelling
+tablet,048,another spelling
+oromucosal,049,another spelling
+oromucosal use,049,another spelling
+oropharingeal,049,E2B route
+oropharyngeal,049,another spelling
+oropharyngeal use,049,DiAna reads it as oropharyngeal
+transmucosal,049,a route on FDA labels
+catheter,050,another spelling
+enteral,050,a route on FDA labels
+extracorporeal,050,a route on FDA labels
+extracorporeal use,050,DiAna reads it as extracorporeal
+g tube,050,another spelling
+g-tube,050,DiAna reads it as gastrostomy tube
+gastric tube,050,DiAna reads it as gastric tube
+gastric use,050,DiAna reads it as gastroenteral
+gastroenteral,050,another spelling
+gastroenteral use,050,DiAna reads it as gastroenteral
+gastrostomy tube,050,DiAna reads it as gastrostomy tube
+implantation,050,DiAna reads it as implantation
+insufflation,050,DiAna reads it as insufflation
+intestinal use,050,DiAna reads it as intestinal
+intracavitary,050,a route on FDA labels
+intracavity,050,DiAna reads it as intracavity
+intraductal,050,DiAna reads it as intraductal
+intraduodenal,050,another spelling
+intraluminal,050,a route on FDA labels
+irrigation,050,a route on FDA labels
+jejunal,050,another spelling
+jejunal tube,050,another spelling
+nasogastric,050,a route on FDA labels
+nasogastric tube,050,DiAna reads it as nasogastric tube
+nephrostomy,050,another spelling
+ng tube,050,another spelling
+ng-tube,050,another spelling
+other,050,E2B route
+per semen,050,another spelling
+percutaneous j tube,050,another spelling
+percutaneous j-tube,050,another spelling
+percutaneous jejunal tube,050,another spelling
+percutaneous-j tube,050,another spelling
+subdural,050,DiAna reads it as subdural
+ureteral,050,a route on FDA labels
+via g-tube,050,DiAna reads it as gastrostomy tube
+via j-tube,050,DiAna reads it as jejunostomy tube
+via ng-tube,050,DiAna reads it as nasogastric tube
+infiltration,051,a route on FDA labels
+injectable,051,another spelling
+injection,051,another spelling
+injection not otherwise specified,051,another spelling
+interstitial,051,a route on FDA labels
+intraosseous use,051,DiAna reads it as intraosseous
+intravascular,051,a route on FDA labels
+parenteral,051,E2B route
+percutaneous,051,a route on FDA labels
+soft tissue,051,a route on FDA labels
+submucosal,051,a route on FDA labels
+submucosal use,051,DiAna reads it as submucosal
+periarticular,052,E2B route
+periarticular use,052,"E2B route, written as on EDQM's list"
+perineural,053,E2B route
+perineural use,053,"E2B route, written as on EDQM's list"
+rectal,054,E2B route
+rectal suppository,054,another spelling
+rectal use,054,"E2B route, written as on EDQM's list"
+rectum,054,another spelling
+by nebulizer,055,another spelling
+inhalaltion,055,another spelling
+inhalation,055,another spelling
+inhalation use,055,DiAna reads it as inhalation
+inhalation via nebulizer,055,another spelling
+inhalational,055,another spelling
+inhale via nebulizer,055,another spelling
+inhaled,055,another spelling
+inhaled via spacer,055,another spelling
+inhaled via spacer with paediatric mask,055,another spelling
+nebulisation use,055,another spelling
+nebuliser,055,another spelling
+nebulized,055,another spelling
+nebulizer,055,another spelling
+respiratory,055,another spelling
+respiratory (inhalation),055,E2B route
+via nebulizer,055,another spelling
+retrobulbar,056,E2B route
+retrobulbar use,056,"E2B route, written as on EDQM's list"
+subconjunctival,057,E2B route
+subconjunctival use,057,"E2B route, written as on EDQM's list"
+sunconjunctival,057,another spelling
+intrapump injection,058,another spelling
+sc,058,another spelling
+sq,058,another spelling
+subcutaneous,058,E2B route
+subcutaneous injection,058,another spelling
+subcutaneous use,058,"E2B route, written as on EDQM's list"
+subcutaneously,058,another spelling
+subq,058,another spelling
+under the skin,058,another spelling
+subdermal,059,E2B route
+sublingual,060,E2B route
+sublingual use,060,"E2B route, written as on EDQM's list"
+topical,061,E2B route
+topically,061,another spelling
+transdermal,062,E2B route
+transdermal use,062,"E2B route, written as on EDQM's list"
+transammmary,063,another spelling
+transmammary,063,E2B route
+transplacental,064,E2B route
+not applicable,065,another spelling
+not provided,065,another spelling
+route of administration not applicable,065,another spelling
+unk,065,another spelling
+unknown,065,E2B route
+urethral,066,E2B route
+urethral use,066,"E2B route, written as on EDQM's list"
+vaginal,067,E2B route
+vaginal use,067,"E2B route, written as on EDQM's list"

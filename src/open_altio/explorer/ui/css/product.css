@@ -1,0 +1,54 @@
+/* A page's title, its tabs and its panel. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .product-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .frame:not([data-page="product"]) .product-page { display: none; }
+  .product-title {
+    margin-bottom: var(--space-6);
+    color: var(--accent-deep);
+    font-family: var(--font-display);
+    font-size: var(--text-page-title);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-display);
+  }
+  .product-title:focus { outline: none; }
+  .product-title:focus-visible { outline: var(--focus-ring); }
+
+  .product-tabs {
+    display: flex;
+    padding: 0 var(--space-4);
+  }
+  .product-tab {
+    --tab-bg: var(--accent-soft);
+    --tab-ink: var(--ink-soft);
+    margin-bottom: calc(var(--hairline) * -1);
+    padding: var(--space-4) var(--space-9);
+    border: var(--hairline) solid var(--line);
+    border-bottom-color: var(--tab-bg);
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: var(--tab-bg);
+    color: var(--tab-ink);
+    font-size: var(--text-md);
+    font-weight: var(--weight-strong);
+  }
+  .product-tab:hover { --tab-ink: var(--ink); }
+  .product-tab[aria-selected="true"] {
+    --tab-bg: var(--panel);
+    --tab-ink: var(--accent-deep);
+    position: relative;
+  }
+  .product-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    padding: var(--space-7);
+    border: var(--hairline) solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+  }
+  .product-panel:empty { min-height: var(--space-12); }
+}

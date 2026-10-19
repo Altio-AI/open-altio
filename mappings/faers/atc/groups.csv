@@ -1,0 +1,135 @@
+substance,atc_code,reason
+insulin,A10A,WHO's insulin class
+calcium,A12AA,"WHO's calcium class (Tums is also an antacid, A02AC01)"
+"vitamins, unspecified",A11,WHO's vitamin class
+potassium,A12BA,WHO's potassium class
+"vitamin d, unspecified",A11CC,WHO's vitamin D class
+iron,B03A,WHO's iron class
+magnesium,A12CC,WHO's magnesium class
+"immunoglobulins, unspecified",J06BA,WHO's normal immunoglobulin class
+covid-19 vaccine,J07BN,WHO's Covid vaccine class
+"estrogens, unspecified",G03C,WHO's estrogen class
+"vitamin b, unspecified",A11EA,WHO's B-complex class
+intrauterine contraceptive device,G02BA,WHO's IUD class
+"probiotics, unspecified",A07FA,WHO's probiotic class
+zinc,A12CB,WHO's zinc class
+"thyroid hormones, unspecified",H03AA,WHO's thyroid hormone class
+influenza vaccine,J07BB,WHO's flu vaccine class
+"nutrients, unspecified",V06,WHO's general nutrients class
+"antibiotics, unspecified",J01,the dictionary names only a class; WHO's class for it
+"contraceptives, unspecified",G03A,the dictionary names only a class; WHO's class for it
+"g-csf, unspecified",L03AA,WHO's colony stimulating factor class
+"penicillins, unspecified",J01C,WHO's penicillin class
+bismuth,A07BB,WHO's bismuth class
+pneumococcal vaccine,J07AL,WHO's pneumococcal vaccine class
+varicella zoster vaccine,J07BK,WHO's varicella zoster vaccine class
+"diuretics, unspecified",C03,the dictionary names only a class; WHO's class for it
+follitropin,G03GA,WHO's gonadotropin class
+"antineoplastics, unspecified",L01,the dictionary names only a class; WHO's class for it
+"analgesics, unspecified",N02,the dictionary names only a class; WHO's class for it
+"benzodiazepines, unspecified",N05,"WHO's psycholeptics class, which holds both sleep and anxiety benzodiazepines"
+"antidepressants, unspecified",N06A,the dictionary names only a class; WHO's class for it
+gadolinium,V08CA,WHO's MRI contrast class
+"nonsteroideal antiinflammatories, unspecified",M01A,the dictionary names only a class; WHO's class for it
+"statins, unspecified",C10AA,the dictionary names only a class; WHO's class for it
+"antihistamines, unspecified",R06A,the dictionary names only a class; WHO's class for it
+"stomatological preparations, unspecified",A01A,WHO's mouth preparations class
+"beta blockers, unspecified",C07A,the dictionary names only a class; WHO's class for it
+"antidiabetics, unspecified",A10,the dictionary names only a class; WHO's class for it
+"lipid modifying agents, unspecified",C10A,the dictionary names only a class; WHO's class for it
+"peritoneal dialytics, unspecified",B05D,WHO's peritoneal dialysis class
+"peginterferons, unspecified",L03AB,WHO's interferon class
+"calcium channel blockers, unspecified",C08,the dictionary names only a class; WHO's class for it
+aluminium,A02AB,WHO's aluminium antacid class
+interferon alfa,L03AB,WHO's interferon class
+arginine,V06DD,WHO's amino acid class
+"angiotensin converting enzyme inhibitors, unspecified",C09A,the dictionary names only a class; WHO's class for it
+"cough preparations, unspecified",R05,WHO's cough and cold class
+peginterferon alfa,L03AB,WHO's interferon class
+"opioids, unspecified",N02A,the dictionary names only a class; WHO's class for it
+"laxatives, unspecified",A06A,the dictionary names only a class; WHO's class for it
+low molecular weight heparin,B01AB,WHO's heparin class
+"muscle relaxants, unspecified",M03,the dictionary names only a class; WHO's class for it
+"antithrombotics, unspecified",B01A,the dictionary names only a class; WHO's class for it
+"antacids, unspecified",A02A,the dictionary names only a class; WHO's class for it
+copper,A12CX,WHO's other minerals class
+"allergens, unspecified",V01AA,WHO's allergen extract class
+gm-csf,L03AA,WHO's colony stimulating factor class
+tetanus vaccine,J07AM,WHO's tetanus vaccine class
+"nasal preparations, unspecified",R01,the dictionary names only a class; WHO's class for it
+"proton pump inhibitors, unspecified",A02BC,the dictionary names only a class; WHO's class for it
+"epoetin, unspecified",B03XA,WHO's antianaemic class
+technetium tc 99m,V09,WHO's diagnostic radiopharmaceutical class
+"hypnotics and sedatives, unspecified",N05C,the dictionary names only a class; WHO's class for it
+taurine,V06DD,WHO's amino acid class
+"contrast media, unspecified",V08,the dictionary names only a class; WHO's class for it
+hpv vaccine,J07BM,WHO's papillomavirus vaccine class
+"antihemorrhoids, unspecified",C05A,WHO's haemorrhoid class
+"anesthetics, unspecified",N01,the dictionary's group word; WHO's class for it
+"thyroid therapy, unspecified",H03,the dictionary names only a class; WHO's class for it
+"antiemetics and antinauseants, unspecified",A04A,the dictionary's group word; WHO's class for it
+tyrosine,V06DD,the dictionary's group word; WHO's class for it
+"bisphosphonates, unspecified",M05BA,the dictionary's group word; WHO's class for it
+"antipsychotics, unspecified",N05A,the dictionary's group word; WHO's class for it
+"antiasthmatics, unspecified",R03,the dictionary's group word; WHO's class for it
+thrombopoietin,B02BX,WHO's other haemostatics class
+manganese,A12CX,the dictionary's group word; WHO's class for it
+"selective serotonin reuptake inhibitors, unspecified",N06AB,the dictionary names only a class; WHO's class for it
+"anxiolytics, unspecified",N05B,the dictionary names only a class; WHO's class for it
+"thiazides, unspecified",C03A,the dictionary's group word; WHO's class for it
+"immunosuppressants, unspecified",L04A,the dictionary's group word; WHO's class for it
+boron,A12CX,the dictionary's group word; WHO's class for it
+hib vaccine,J07AG,WHO's Hib vaccine class
+"sulfonamides, unspecified",J01E,the dictionary's group word; WHO's class for it
+theanine,V06DD,the dictionary's group word; WHO's class for it
+"antiepileptics, unspecified",N03A,the dictionary's group word; WHO's class for it
+pertussis vaccine,J07AJ,the dictionary's group word; WHO's class for it
+"solutions for parenteral nutrition, unspecified",B05BA,WHO's parenteral nutrition class
+rotavirus vaccine,J07BH,WHO's rotavirus vaccine class
+rabies vaccine,J07BG,WHO's rabies vaccine class
+other non-therapeutic products,V07A,WHO's own group name
+polio vaccine,J07BF,WHO's polio vaccine class
+"vaccines, unspecified",J07,the dictionary's group word; WHO's class for it
+"angiotensin ii receptor blockers, unspecified",C09CA,the dictionary's group word; WHO's class for it
+"cephalosporin, unspecified",J01D,the dictionary's group word; WHO's class for it
+typhoid vaccine,J07AP,WHO's typhoid vaccine class
+"organic nitrates, unspecified",C01DA,the dictionary's group word; WHO's class for it
+mecapegfilgrastim,L03AA,WHO's colony stimulating factor class
+"sunscreen agents, unspecified",D02B,WHO's sunscreen class
+valine,V06DD,the dictionary's group word; WHO's class for it
+other respiratory system products,R07A,the dictionary's group word; WHO's class for it
+"platelet aggregation inhibitors excl. heparin, unspecified",B01AC,the dictionary's group word; WHO's class for it
+"other analgesics and antipyretics, unspecified",N02B,the dictionary's group word; WHO's class for it
+yellow fever vaccine,J07BL,WHO's yellow fever vaccine class
+"mitogen-activated protein kinase inhibitors, unspecified",L01EE,the dictionary names only a class; WHO's class for it
+molybdenum,A12CX,the dictionary's group word; WHO's class for it
+phenylalanine,V06DD,the dictionary's group word; WHO's class for it
+zinc products,D02AB,WHO's skin zinc products class
+cephalosporin c,J01D,the dictionary's group word; WHO's class for it
+tick-borne encephalitis vaccine,J07BA,WHO's encephalitis vaccine class
+threonine,V06DD,the dictionary's group word; WHO's class for it
+vitamin d1,A11CC,the dictionary's group word; WHO's class for it
+leucine,V06DD,the dictionary's group word; WHO's class for it
+"tricyclic antidepressants, unspecified",N06AA,the dictionary's group word; WHO's class for it
+isoleucine,V06DD,the dictionary's group word; WHO's class for it
+iodine (123 i),V09AB,WHO's iodine-123 class
+rubella vaccine,J07BJ,the dictionary's group word; WHO's class for it
+"antivirals, unspecified",J05,the dictionary's group word; WHO's class for it
+vanadium,A12CX,the dictionary's group word; WHO's class for it
+cholera vaccine,J07AE,WHO's cholera vaccine class
+bile salts,A05AA,WHO's bile acid class
+histidine,V06DD,the dictionary's group word; WHO's class for it
+japanese encephalitis vaccine,J07BA,WHO's encephalitis vaccine class
+mumps vaccine,J07BE,the dictionary's group word; WHO's class for it
+"tumor necrosis factor inhibitors, unspecified",L04AB,the dictionary names only a class; WHO's class for it
+g-csf,L03AA,WHO's colony stimulating factor class
+measles vaccine,J07BD,the dictionary's group word; WHO's class for it
+herpes simplex 1 vaccine,J07B,WHO's viral vaccine class
+rsv vaccine,J07BX,WHO's other viral vaccines class
+anthrax vaccine,J07AC,WHO's anthrax vaccine class
+immunoglobulin anti respiratory syncytial vir,J06BB,WHO's specific immunoglobulin class
+"car t-cells, unspecified",L01XL,the dictionary names only a class; WHO's class for it
+immunoglobulin human anti-smallpox,J06BB,WHO's specific immunoglobulin class
+desmeninol,V06DD,WHO's amino acid class
+staphylococcus vaccine,J07AX,the dictionary's group word; WHO's class for it
+selenium,A12CE,WHO's selenium class

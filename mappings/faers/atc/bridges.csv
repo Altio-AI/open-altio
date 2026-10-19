@@ -1,0 +1,354 @@
+who_name,substance,evidence
+"c1-inhibitor, plasma derived",c1-inhibitor,WHO names the source; the dictionary does not
+aclidinium bromide,aclidinium,WHO names the salt; the dictionary names the active part
+antithymocyte immunoglobulin (rabbit),antithymocyte immunoglobulin,WHO names the source; the dictionary does not
+ascorbic acid (vit c),vitamin c,the dictionary names vitamins by letter
+azilsartan medoxomil,azilsartan,WHO names the ester; the dictionary names the active part
+beta-lactamase inhibitor,clavulanic acid,WHO's class word in a combination name
+beta-lactamase inhibitor,sulbactam,WHO's class word in a combination name
+beta-lactamase inhibitor,tazobactam,WHO's class word in a combination name
+bictegravir,bictegravir,WHO codes it only in combinations
+biotin,vitamin b7,the dictionary names vitamins by letter
+calcium folinate,folinic acid,WHO names the salt; the dictionary names the acid
+calcium levofolinate,levofolinic acid,WHO names the salt; the dictionary names the acid
+carbasalate calcium,carbasalate,WHO names the salt; the dictionary names the active part
+casirivimab,casirivimab,WHO codes it only in combinations
+certolizumab pegol,certolizumab,WHO names the pegylated form; the dictionary names the active part
+chondroitin sulfate,chondroitin,WHO names the salt; the dictionary names the active part
+ciclosporin,cyclosporine,US name (USAN) in the dictionary for WHO's INN
+cilastatin,cilastatin,WHO codes it only in combinations
+cilgavimab,cilgavimab,WHO codes it only in combinations
+coagulation factor viii,factor viii,the dictionary drops 'coagulation'
+colecalciferol,vitamin d3,the dictionary names vitamins by letter
+comt inhibitor,entacapone,WHO's class word in a combination name
+cyanocobalamin,vitamin b12,the dictionary names vitamins by letter
+dabigatran etexilate,dabigatran,WHO names the ester; the dictionary names the active part
+decarboxylase inhibitor,benserazide,WHO's class word in a combination name
+decarboxylase inhibitor,carbidopa,WHO's class word in a combination name
+dexamfetamine,dextroamphetamine,US name (USAN) in the dictionary for WHO's INN
+diuretics,hydrochlorothiazide,WHO's class word in a combination name
+docusate sodium,docusate,WHO names the salt; the dictionary names the active part
+dornase alfa (desoxyribonuclease),dornase alfa,WHO adds the enzyme's name; the dictionary does not
+elexacaftor,elexacaftor,WHO codes it only in combinations
+ergocalciferol,vitamin d2,the dictionary names vitamins by letter
+erythropoietin,epoetin alfa,WHO codes every epoetin as erythropoietin
+fluticasone furoate,fluticasone,WHO names the ester; the dictionary names the active part
+folic acid,vitamin b9,the dictionary names vitamins by letter
+glatiramer acetate,glatiramer,WHO names the salt; the dictionary names the active part
+glecaprevir,glecaprevir,WHO codes it only in combinations
+imdevimab,imdevimab,WHO codes it only in combinations
+imipenem,imipenem,WHO codes it only in combinations
+ipratropium bromide,ipratropium,WHO names the salt; the dictionary names the active part
+iron,iron,WHO's word for any iron salt in a combination name; the dictionary's too
+lactobacillus,lactobacillus spp,the dictionary names the genus
+ledipasvir,ledipasvir,WHO codes it only in combinations
+levothyroxine sodium,levothyroxine,WHO names the salt; the dictionary names the active part
+liothyronine sodium,liothyronine,WHO names the salt; the dictionary names the active part
+lopinavir,lopinavir,WHO codes it only in combinations
+lumacaftor,lumacaftor,WHO codes it only in combinations
+metamizole sodium,metamizole,WHO names the salt; the dictionary names the active part
+methylnaltrexone bromide,methylnaltrexone,WHO names the salt; the dictionary names the active part
+methylthioninium chloride,methylthioninium,WHO names the salt; the dictionary names the active part
+nirmatrelvir,nirmatrelvir,WHO codes it only in combinations
+norelgestromin,norelgestromin,WHO codes it only in combinations
+norgestimate,norgestimate,WHO codes it only in combinations
+olmesartan medoxomil,olmesartan,WHO names the ester; the dictionary names the active part
+ombitasvir,ombitasvir,WHO codes it only in combinations
+paritaprevir,paritaprevir,WHO codes it only in combinations
+patiromer calcium,patiromer,WHO names the salt; the dictionary names the active part
+pentosan polysulfate sodium,pentosan polysulfate,WHO names the salt; the dictionary names the active part
+phytomenadione,vitamin k,the dictionary names vitamins by letter
+pibrentasvir,pibrentasvir,WHO codes it only in combinations
+plastic iud with progestogen,levonorgestrel,WHO names the hormonal IUD by the device; the dictionary names its hormone
+polycarbophil calcium,polycarbophil,WHO names the salt; the dictionary names the active part
+potassium-sparing agents,amiloride,WHO's class word in a combination name
+potassium-sparing agents,spironolactone,WHO's class word in a combination name
+potassium-sparing agents,triamterene,WHO's class word in a combination name
+potassium,potassium,WHO's word for any potassium salt in a combination name; the dictionary's too
+pyridoxine (vit b6),vitamin b6,the dictionary names vitamins by letter
+retinol (vit a),vitamin a,the dictionary names vitamins by letter
+riboflavin (vit b2),vitamin b2,the dictionary names vitamins by letter
+rocuronium bromide,rocuronium,WHO names the salt; the dictionary names the active part
+sacubitril,sacubitril,WHO codes it only in combinations
+senna glycosides,senna spp,the dictionary names the plant
+sodium oxybate,oxybate sodium,the dictionary puts the salt last
+sulfonylureas,glibenclamide,WHO's class word in a combination name
+sulfonylureas,glimepiride,WHO's class word in a combination name
+sulfonylureas,glipizide,WHO's class word in a combination name
+tenofovir alafenamide,tenofovir,WHO names the prodrug; the dictionary names the active part
+tenofovir disoproxil,tenofovir,WHO names the prodrug; the dictionary names the active part
+tezacaftor,tezacaftor,WHO codes it only in combinations
+thiamine (vit b1),vitamin b1,the dictionary names vitamins by letter
+tiotropium bromide,tiotropium,WHO names the salt; the dictionary names the active part
+tixagevimab,tixagevimab,WHO codes it only in combinations
+tocopherol (vit e),vitamin e,the dictionary names vitamins by letter
+umeclidinium bromide,umeclidinium,WHO names the salt; the dictionary names the active part
+velpatasvir,velpatasvir,WHO codes it only in combinations
+vilanterol,vilanterol,WHO codes it only in combinations
+vitamin b12,vitamin b12,WHO's own word in a combination name; the dictionary's too
+voxilaprevir,voxilaprevir,WHO codes it only in combinations
+xanomeline,xanomeline,WHO codes it only in combinations
+omega-3-triglycerides incl. other esters and acids,unsaturated fatty acids,the dictionary's word for omega-3 fatty acids; DiAna's ATC file gives this code
+insulin (human),insulin human,"FDA's active ingredient INSULIN HUMAN is human insulin; the drug name, not this field, says fast, NPH, premixed or inhaled"
+"multienzymes (lipase, protease etc.)",multienzymes,WHO adds a bracket
+glycopyrronium bromide,glycopyrronium,"WHO names the bromide for tablets, injections and inhalers; plain glycopyrronium is its skin product"
+artificial tears and other indifferent preparations,artificial tears,DiAna's ATC file gives this code; checked against WHO's index
+coagulation factor ix,factor ix,"WHO adds ""coagulation"""
+ispaghula (psylla seeds),plantago spp,WHO's word for psyllium
+silicones,simeticone,WHO files it under silicones; not dimeticone's lice code
+alfa1 antitrypsin,alpha-1-antitrypsin,WHO's spelling
+erythrocytes,red blood cells,WHO's word: erythrocytes
+radium (223ra) dichloride,radium-223 dichloride,WHO writes the isotope in brackets
+potassium clorazepate,clorazepic acid,WHO names the potassium salt
+methyldopa (levorotatory),methyldopa,WHO adds a bracket; the drug sold is the levorotatory form
+lutetium (177lu) oxodotreotide,lutetium (177lu) dotatate,WHO's name: oxodotreotide
+pentamidine isethionate,pentamidine,WHO names the salt
+calcitonin (salmon synthetic),calcitonin,calcitonin sold in the US is salmon calcitonin
+vasopressin (argipressin),vasopressin,WHO adds a bracket
+polystyrene sulfonate,sodium polystyrene sulfonate,"WHO drops ""sodium"""
+"perflutren, phospholipid microspheres",perflutren,WHO names the two microsphere forms
+"perflutren, human albumin microspheres",perflutren,WHO names the two microsphere forms
+thrombocytes,platelets,WHO's word: thrombocytes
+fluocinolone acetonide,fluocinolone,WHO names the acetonide; route picks the code
+ingenol mebutate,ingenol,WHO names the ester
+potassium canrenoate,canrenoic acid,WHO names the potassium salt
+inotuzumab ozogamicin,inotuzumab,WHO names the conjugate
+carbamide,urea,WHO's word: carbamide; route picks skin or drip
+guaiazulen,guaiazulene,WHO's spelling
+coagulation factor viia,factor viia,"WHO adds ""coagulation"""
+adefovir dipivoxil,adefovir,WHO names the ester
+"sulfur hexafluoride, phospholipid microspheres",sulfur hexafluoride,WHO names the microspheres
+4-aminosalicylic acid,aminosalicylic acid,WHO writes 4-aminosalicylic acid
+factor viii inhibitor bypassing activity,factor viii inhibitor bypassing fraction,WHO's wording
+anti-d (rh) immunoglobulin,anti-d immunoglobulin,WHO adds a bracket
+orphenadrine (citrate),orphenadrine,WHO names the citrate (muscle relaxant) and the chloride (Parkinson's); product picks
+orphenadrine (chloride),orphenadrine,WHO names the citrate (muscle relaxant) and the chloride (Parkinson's); product picks
+blood plasma,plasma,WHO's word: blood plasma
+"potassium phosphate, incl. combinations with other potassium salts",potassium phosphate,WHO's wording
+ceftaroline fosamil,ceftaroline,WHO names the prodrug
+sodium iodide (131i),iodine (131 i),WHO names sodium iodide (131I)
+erythropoietin,epoetin beta,WHO codes every epoetin as erythropoietin
+ibritumomab tiuxetan (90y),ibritumomab tiuxetan,WHO adds the isotope
+"hepatitis b, purified antigen",hepatitis b vaccine,WHO's vaccine wording
+drotrecogin alfa (activated),drotrecogin alfa,"WHO adds ""(activated)"""
+ethyl esters of iodised fatty acids,ethiodized oil,WHO's wording
+medicinal charcoal,"charcoal, activated",WHO's word: medicinal charcoal
+house dust mites,"allergens, house dust & mite",WHO's wording
+etrasimod,etrasimod arginine,the dictionary names the salt; WHO names the drug
+omacetaxine mepesuccinate,omacetaxine,WHO names the ester
+botulinum toxin,daxibotulinumtoxin a-lanm,WHO codes every botulinum toxin as one
+maralixibat chloride,maralixibat,WHO names the salt
+technetium (99mtc) tetrofosmin,technetium tc 99m tetrofosmin,WHO writes the isotope another way
+tapinarof,benvitimod,WHO's name: tapinarof
+cytomegalovirus immunoglobulin,immunoglobulin cytomegalovirus,WHO's wording
+technetium (99mtc) sestamibi,technetium (99m tc) sestamibi,WHO writes the isotope another way
+"fibrinogen, human",factor i,WHO's word: fibrinogen
+calaspargase pegol,calaspargase pegol-mknl,the dictionary keeps FDA's four-letter suffix
+natural phospholipids,poractant alfa,WHO's word: natural phospholipids
+etamsylate,etamsilate,WHO's spelling
+iodine ioflupane (123i),ioflupane (123i),WHO writes the isotope another way
+thiosulfate,sodium thiosulfate,"WHO drops ""sodium"""
+strontium ranelate,ranelic acid,WHO names the strontium salt
+amezinium metilsulfate,amezinium,WHO names the salt
+nitrofural,nitrofurazone,the INN is nitrofural
+tryptophan,"tryptophan, l-",WHO's spelling
+hepatitis b immunoglobulin,immunoglobulin antihepatitis b,WHO's wording
+"hepatitis a, inactivated, whole virus",hepatitis a vaccine,WHO's vaccine wording
+tositumomab/iodine (131i) tositumomab,tositumomab,WHO names the regimen with its iodine part
+lutropin alfa,lutropin,WHO names lutropin alfa
+sodium monofluorophosphate,sodium fluorophosphate,WHO writes monofluorophosphate
+eplontersen,eplontersen sodium,the dictionary names the salt; WHO names the drug
+sulfaisodimidine,sulfisomidine,WHO's spelling
+natural phospholipids,beractant,WHO's word: natural phospholipids
+"chondrocytes, autologous",chondrocytes,"WHO adds ""autologous"""
+strontium (89sr) chloride,strontium (89 sr) chloride,WHO writes the isotope another way
+coagulation factor xiii,factor xiii,"WHO adds ""coagulation"""
+ergoloid mesylates,dihydroergotoxine,WHO's name: ergoloid mesylates
+digitalis antitoxin,digoxin-specific antibody fragments,WHO's word: digitalis antitoxin
+porfimer sodium,porfimer,WHO names the salt
+elapegademase,elapegademase-lvlr,the dictionary keeps FDA's four-letter suffix
+otilonium bromide,otilonium,WHO names the salt
+enalapril,enalaprilat,WHO files it under enalapril
+pyrithione zinc,pyrithione,WHO names the zinc salt
+von willebrand factor,vonicog alfa,WHO's word: von Willebrand factor
+animals,"allergens, animals",WHO's wording
+sofpironium bromide,sofpironium,WHO names the salt
+iobenguane (131i),iobenguane (131 i),WHO writes the isotope another way; route picks scan or treatment
+edetates,edetic acid,WHO's word: edetates
+mivacurium chloride,mivacurium,WHO names the salt
+indium (111in) pentetreotide,indium (111 in) pentetreotide,WHO writes the isotope another way
+ceftobiprole medocaril,ceftobiprole,WHO names the prodrug
+piflufolastat (18f),piflufolastat F18,WHO writes the isotope another way
+uridine triacetate,uridine,WHO names the triacetate
+technetium (99mtc) tilmanocept,technetium tc 99m tilmanocept,WHO writes the isotope another way
+fosfocreatine,creatine phosphate,WHO's word: fosfocreatine
+aminobutyric acid,gamma-aminobutyric acid,WHO's word: aminobutyric acid
+olipudase alfa,olipudase alfa-rpcp,the dictionary keeps FDA's four-letter suffix
+coagulation factor vii,factor vii,"WHO adds ""coagulation"""
+technetium (99mtc) medronic acid,technetium tc 99m medronate,DiAna's ATC file gives this code; checked against WHO's index
+colestyramine,cholestyramine,the INN spelling is colestyramine
+rubidium (82rb) chloride,rubidium (82 rb) chloride,WHO writes the isotope another way
+technetium (99mtc) oxidronic acid,technetium tc 99m oxidronate,DiAna's ATC file gives this code; checked against WHO's index
+samarium (153sm) lexidronam,samarium (153 sm) lexidronam,DiAna's ATC file gives this code; checked against WHO's index
+iobenguane (123i),iobenguane (123 i),WHO writes the isotope another way
+cimetropium bromide,cimetropium,DiAna's ATC file gives this code; checked against WHO's index
+thallium (201tl) chloride,thallium,WHO names the chloride
+lanthanum carbonate,lanthanum,WHO names the carbonate
+technetium (99mtc) mertiatide,technetium tc 99m mertiatide,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) mebrofenin,technetium tc 99m mebrofenin,DiAna's ATC file gives this code; checked against WHO's index
+agni casti fructus,vitex spp,DiAna's ATC file gives this code; checked against WHO's index
+oxitropium bromide,oxitropium,DiAna's ATC file gives this code; checked against WHO's index
+varicella/zoster immunoglobulin,immunoglobulin varicella-zoster,DiAna's ATC file gives this code; checked against WHO's index
+ethacridine lactate,ethacridine,DiAna's ATC file gives this code; checked against WHO's index
+adipiodone,adipiodone meglumine,the dictionary names the salt; WHO names the drug
+dihydroxialumini sodium carbonate,dihydroxyaluminum sodium carbonate,DiAna's ATC file gives this code; checked against WHO's index
+timepidium bromide,timepidium,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) human albumin,technetium tc 99m albumin,DiAna's ATC file gives this code; checked against WHO's index
+pipecuronium bromide,pipecuronium,DiAna's ATC file gives this code; checked against WHO's index
+insects,"allergens, insects",WHO's wording
+pyridoxine (vit b6),pyridoxine,WHO adds a bracket
+coagulation factor x,factor x,DiAna's ATC file gives this code; checked against WHO's index
+fluclorolone,fluclorolone acetonide,the dictionary names the ester; WHO names the drug
+sodium tartrate,potassium sodium tartrate,the dictionary names the salt; WHO names the drug
+technetium (99mtc) pyrophosphate,technetium tc 99m pyrophosphate,DiAna's ATC file gives this code; checked against WHO's index
+tiemonium iodide,tiemonium,DiAna's ATC file gives this code; checked against WHO's index
+etofylline nicotinate,etofylline,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) bicisate,technetium tc 99m bicisate,DiAna's ATC file gives this code; checked against WHO's index
+smallpox and mpox vaccines,smallpox vaccine,DiAna's ATC file gives this code; checked against WHO's index
+bretylium tosilate,bretylium,DiAna's ATC file gives this code; checked against WHO's index
+iproniazide,iproniazid,DiAna's ATC file gives this code; checked against WHO's index
+suramin sodium,suramin,WHO names the salt or ester
+calcium pangamate,pangamic acid,WHO names the salt or ester
+technetium (99mtc) pentetic acid,technetium tc 99m pentetate,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) macrosalb,macrosalb (99mtc),DiAna's ATC file gives this code; checked against WHO's index
+tebipenem pivoxil,tebipenem,DiAna's ATC file gives this code; checked against WHO's index
+rubidium (82rb) chloride,rubidium,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) sulfur colloid,technetium tc 99m sulfur colloid,DiAna's ATC file gives this code; checked against WHO's index
+decamethrin,deltamethrin,DiAna's ATC file gives this code; checked against WHO's index
+cytisinicline,cytisine,DiAna's ATC file gives this code; checked against WHO's index
+dihydroergocryptine mesylate,dihydroergocryptine,DiAna's ATC file gives this code; checked against WHO's index
+pancreozymin (cholecystokinin),pancreozymin,WHO adds a bracket
+tosylchloramide sodium,tosylchloramide,WHO names the salt or ester
+prifinium bromide,prifinium,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) votumumab,votumumab,DiAna's ATC file gives this code; checked against WHO's index
+doxacurium chloride,doxacurium,WHO names the salt or ester
+iodine (125i) human albumin,iodinated (125 i) human serum albumin,DiAna's ATC file gives this code; checked against WHO's index
+iodine iofetamine (123i),iofetamine (123 i),DiAna's ATC file gives this code; checked against WHO's index
+dibunate,sodium dibunate,the dictionary names the salt; WHO names the drug
+sodium iopodate,iopodic acid,WHO names the salt or ester
+calcium iopodate,iopodic acid,WHO names the salt or ester
+iodine (131i) human albumin,iodinated (131 i) human serum albumin,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) arcitumomab,technetium-99m arcitumomab,DiAna's ATC file gives this code; checked against WHO's index
+nicotinyl alcohol (pyridylcarbinol),nicotinyl alcohol,WHO adds a bracket
+magnesium pidolate,pidolic acid,DiAna's ATC file gives this code; checked against WHO's index
+rose bengal sodium,rose bengal,WHO names the salt or ester
+technetium (99mtc) gluceptate,technetium tc 99m gluceptate,DiAna's ATC file gives this code; checked against WHO's index
+cycloguanil embonate,cycloguanil,WHO names the salt
+fluorocholine (18f),fluorocholine (f18),DiAna's ATC file gives this code; checked against WHO's index
+malaria vaccines,malaria vaccine,DiAna's ATC file gives this code; checked against WHO's index
+polyestradiol phosphate,polyestradiol,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) depreotide,technetium tc 99m depreotide,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) exametazime,technetium tc 99m exametazime,DiAna's ATC file gives this code; checked against WHO's index
+tibezonium iodide,tibezonium,WHO names the salt or ester
+tidiacic arginine,tidiacic,WHO names the salt or ester
+acriflavinium chloride,acriflavinium,DiAna's ATC file gives this code; checked against WHO's index
+aldesulfone sodium,aldesulfone,WHO names the salt or ester
+"encephalitis, tick borne immunoglobulin",immunoglobulin anti-tickborne encephalitis,DiAna's ATC file gives this code; checked against WHO's index
+iodine (131i) norcholesterol,iodine (131 i) norcholesterol,DiAna's ATC file gives this code; checked against WHO's index
+krypton (81mkr) gas,krypton (81m kr),DiAna's ATC file gives this code; checked against WHO's index
+leptospira vaccines,leptospirosis vaccine,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) disofenin,technetium tc 99m disofenin,DiAna's ATC file gives this code; checked against WHO's index
+technetium (99mtc) teboroxime,technetium tc 99m teboroxime,DiAna's ATC file gives this code; checked against WHO's index
+plastic iud with progestogen,intrauterine contraceptive device;levonorgestrel,"Mirena, Kyleena, Skyla and Liletta: WHO codes the hormonal IUD as one product"
+"calcium, combinations with vitamin d and/or other drugs",calcium;vitamin d3,calcium with vitamin D3: WHO classes calcium with vitamin D as one class
+"buprenorphine, combinations",buprenorphine;naloxone,Suboxone and Zubsolv: WHO codes the pair
+"calcium, combinations with vitamin d and/or other drugs","calcium;vitamin d, unspecified",WHO codes calcium with vitamin D as a class
+multivitamins with minerals,"minerals, unspecified;vitamins, unspecified",WHO's class for the mix
+vaginal ring with progestogen and estrogen,ethinylestradiol;etonogestrel,NuvaRing: WHO codes the ring
+ordinary salt combinations,aluminium;magnesium,WHO's antacid mix
+foslevodopa and decarboxylase inhibitor,foscarbidopa;foslevodopa,WHO names carbidopa by class (decarboxylase inhibitor)
+imipenem and cilastatin,imipenem,one part named alone; WHO codes only the pair
+ordinary salt combinations and antiflatulents,aluminium;magnesium;simeticone,WHO's antacid plus antiflatulent mix
+lopinavir and ritonavir,lopinavir,one part named alone; WHO codes only the pair
+pertussis vaccines,diphtheria vaccine;pertussis vaccine;tetanus vaccine,WHO's class for pertussis vaccine mixes
+antidiarrheal microorganisms,bacillus spp;clostridium spp;enterococcus spp,WHO's class for probiotic mixes
+multivitamins and iron,"iron;vitamins, unspecified",WHO names the mix
+"measles, combinations with mumps and rubella, live attenuated",measles vaccine;mumps vaccine;rubella vaccine,WHO names the mix
+"calcium, combinations with vitamin d and/or other drugs",calcium;magnesium;zinc,WHO's class for calcium mixes
+"measles, combinations with mumps, rubella and varicella, live attenuated",measles vaccine;mumps vaccine;rubella vaccine;varicella zoster vaccine,WHO names the mix
+valsartan and sacubitril,sacubitril,one part named alone; WHO codes only the pair
+multivitamins and calcium,"calcium;vitamins, unspecified",WHO names the mix
+sofosbuvir and ledipasvir,ledipasvir,one part named alone; WHO codes only the pair
+casirivimab and imdevimab,casirivimab,one part named alone; WHO codes only the pair
+altizide and potassium-sparing agents,altizide,one part named alone; WHO codes it with a potassium-sparing agent
+"emtricitabine, tenofovir alafenamide and bictegravir",bictegravir,one part named alone; WHO codes only the triple
+imipenem and cilastatin,cilastatin,one part named alone; WHO codes only the pair
+nirmatrelvir and ritonavir,nirmatrelvir,one part named alone; WHO codes only the pair
+nivolumab and relatlimab,relatlimab,one part named alone; WHO codes only the pair
+"tegafur, combinations",gimeracil,one part named alone; WHO codes tegafur mixes
+"tegafur, combinations",oteracil,one part named alone; WHO codes tegafur mixes
+clidinium and psycholeptics,clidinium,one part named alone; WHO codes it with a psycholeptic
+norgestimate and ethinylestradiol,norgestimate,one part named alone; daily or phased pill picks the code
+sofosbuvir and velpatasvir,velpatasvir,one part named alone; WHO codes only the pair
+pitofenone and analgesics,pitofenone,one part named alone; WHO codes it with analgesics
+tixagevimab and cilgavimab,tixagevimab,one part named alone; WHO codes only the pair
+gestodene and ethinylestradiol,gestodene,one part named alone; daily or phased pill picks the code
+ivacaftor and tezacaftor,tezacaftor,"one part named alone; two products, so two codes"
+"deutivacaftor, tezacaftor and vanzacaftor",tezacaftor,"one part named alone; two products, so two codes"
+ceftolozane and beta-lactamase inhibitor,ceftolozane,one part named alone; WHO codes only the pair
+panipenem and betamipron,panipenem,one part named alone; WHO codes only the pair
+glecaprevir and pibrentasvir,pibrentasvir,one part named alone; WHO codes only the pair
+glecaprevir and pibrentasvir,glecaprevir,one part named alone; WHO codes only the pair
+"ivacaftor, tezacaftor and elexacaftor",elexacaftor,one part named alone; WHO codes only the triple
+"calcium, combinations with vitamin d and/or other drugs","calcium;magnesium;vitamin d, unspecified",WHO's class for calcium mixes
+norelgestromin and ethinylestradiol,norelgestromin,one part named alone; WHO codes only the pair
+sodium benzoate and sodium phenylacetate,sodium phenylacetate,one part named alone; WHO codes only the pair
+artemether and lumefantrine,lumefantrine,one part named alone; WHO codes only the pair
+"sofosbuvir, velpatasvir and voxilaprevir",voxilaprevir,one part named alone; WHO codes only the triple
+meropenem and vaborbactam,vaborbactam,one part named alone; WHO codes only the pair
+ivacaftor and lumacaftor,lumacaftor,one part named alone; WHO codes only the pair
+sulfametrole and trimethoprim,sulfametrole,one part named alone; WHO codes only the pair
+panipenem and betamipron,betamipron,one part named alone; WHO codes only the pair
+butizide and potassium-sparing agents,butizide,one part named alone; WHO codes it with a potassium-sparing agent
+quinupristin/dalfopristin,quinupristin,one part named alone; WHO codes only the pair
+quinupristin/dalfopristin,dalfopristin,one part named alone; WHO codes only the pair
+"nicotinic acid, combinations",laropiprant,one part named alone; WHO codes nicotinic acid mixes
+olanzapine and samidorphan,samidorphan,one part named alone; WHO codes only the pair
+artenimol and piperaquine,piperaquine,one part named alone; WHO codes only the pair
+"immunoglobulins, normal human, for extravascular adm.",human immunoglobulin g,FDA's active ingredient names normal human immunoglobulin; route picks drip or under the skin
+"immunoglobulins, normal human, for extravascular adm.",immune globulin,FDA's active ingredient names normal human immunoglobulin; route picks drip or under the skin
+"immunoglobulins, normal human, for intravascular adm.",human immunoglobulin g,FDA's active ingredient names normal human immunoglobulin; route picks drip or under the skin
+"immunoglobulins, normal human, for intravascular adm.",immune globulin,FDA's active ingredient names normal human immunoglobulin; route picks drip or under the skin
+"covid-19, rna-based vaccine",tozinameran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",bnt162b2,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",raxtozinameran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",famtozinameran\tozinameran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",riltozinameran\tozinameran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",tozinameran\famtozinameran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",tozinameran\riltozinameran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",elasomeran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",mrna-1273,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",cx-024414,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",andusomeran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",davesomeran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",imelasomeran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",elasomeran\imelasomeran,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine",elasomeran\davesomeran,FDA's active ingredient names the vaccine
+nicotinic acid,niacin,"FDA's active ingredient niacin is nicotinic acid, a lipid drug and a vasodilator"
+thyroid gland preparations,"thyroid, porcine",FDA's active ingredient names porcine thyroid
+thyroid gland preparations,thyroid,FDA's active ingredient names porcine thyroid
+thyroid gland preparations,"thyroid, porcine\thyroid, unspecified",FDA's active ingredient names porcine thyroid
+"covid-19, viral vector, non-replicating",azd-1222,FDA's active ingredient names the vaccine
+"covid-19, viral vector, non-replicating",chadox1 ncov-19,FDA's active ingredient names the vaccine
+"immunoglobulins, normal human, for extravascular adm.",human immunoglobulin g\hyaluronidase recombinant human,HyQvia: immunoglobulin G given under the skin with hyaluronidase
+"immunoglobulins, normal human, for extravascular adm.",human immunoglobulin g\hyaluronidase (human recombinant),HyQvia: immunoglobulin G given under the skin with hyaluronidase
+"multienzymes (lipase, protease etc.)",pancrelipase,FDA's active ingredient pancrelipase is WHO's multienzymes
+"multienzymes (lipase, protease etc.)",pancrelipase lipase\pancrelipase protease\pancrelipase amylase,FDA's active ingredient pancrelipase is WHO's multienzymes
+nicotinamide,niacinamide,FDA's active ingredient niacinamide is nicotinamide
+"covid-19, viral vector, non-replicating",ad26.cov2.s,FDA's active ingredient names the vaccine
+thyroid gland preparations,levothyroxine\liothyronine,"FDA writes levothyroxine with liothyronine for porcine thyroid (NP Thyroid, THYROID)"
+calcitonin (salmon synthetic),calcitonin salmon,FDA's active ingredient names salmon calcitonin
+"covid-19, protein subunit",nvx-cov2373,FDA's active ingredient names the vaccine
+"covid-19, protein subunit",sars-cov-2 recombinant spike protein,FDA's active ingredient names the vaccine
+"covid-19, rna-based vaccine","covid-19 vaccine, mrna",FDA's spellings of an RNA Covid-19 vaccine
+"covid-19, rna-based vaccine",zapomeran,FDA's spellings of an RNA Covid-19 vaccine

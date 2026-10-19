@@ -1,0 +1,107 @@
+# "What we do not do" on the methods page, in page order. Plain English, no em dashes.
+# A text may quote the funnel's duplicate counts ({duplicates[cases]:,}, {not_compared_share:.1f}),
+# methods.json's numbers, counted over the cases the release shows ({rxnorm[suspect_records]:,},
+# {unmapped_share:.2f}, {coded_share:.1f}), and rule values ({rules[<rule>][<value>]});
+# methods.fill_limits fills them whenever the numbers are written (numbers.write). An entry that
+# `needs` a part of the numbers (drug_names, rxnorm, label_flags) is left out of a release without it.
+# Remove an entry in the same change that starts doing the thing.
+
+- id: missing_fields_never_duplicates
+  title: Duplicates with missing fields are often missed
+  text: >-
+    The first duplicate rule compares two cases only when the event date, age, sex, country, drugs and
+    reactions are all given in both. In this release {duplicates[not_compared_by_aeolus]:,} of
+    {duplicates[cases]:,} cases ({not_compared_share:.1f}%) have at least one of them not given (blank,
+    unknown or a filler such as sex NS), so that rule cannot check them. The second rule, the same
+    manufacturer case number from the same sender, can still group them when they carry a number. We never
+    match a field that is not given to anything, and we do not yet score partial agreement.
+
+- id: no_values_changed
+  title: No FDA value is changed
+  text: >-
+    We never correct, fill in or delete a value FDA published. Everything we derive sits in separate columns
+    and tables whose names end in _T, next to the original.
+
+- id: fda_codes_not_regrouped
+  title: Report types and seriousness are not reworked
+  text: >-
+    We keep FDA's report type as FDA gives it. Unlike DiAna, we do not count 30-day and 5-day reports as
+    expedited 15-day reports: in FDA's rules a 30-day report is a device malfunction on a drug-device combination
+    with no adverse event, and a 5-day report asks for remedial action. A case is serious when FDA gives at least
+    one outcome; a case with none is never called non-serious, and an expedited one says it was sent for serious
+    reactions without a criterion. How often a drug was taken is shown in FDA's own words, not turned into an E2B
+    interval.
+
+- id: unmapped_drug_names
+  title: Some drug names find no ingredient
+  needs: drug_names
+  text: >-
+    Each drug is read to its ingredients through the DiAna dictionary, and through FDA's own active-ingredient
+    field where the name is not in it. {unmapped_share:.2f}% of drug records, one drug of one report
+    ({drug_names[unmapped_records]:,} of {drug_names[drug_records]:,}), still find none: rare spellings,
+    misspellings, foreign brands and the newest products. They keep FDA's spelling, and a search of the drug
+    names finds them.
+
+- id: fewer_roles_than_diana
+  title: Our drug counts are lower than DiAna's own
+  needs: drug_names
+  text: >-
+    A drug's counts take only the roles ticked, by default the reports that name it the primary or the
+    secondary suspect. DiAna's own tool counts a drug in every role, background drugs included, so its counts
+    for the same drug are higher.
+
+- id: combinations_counted_under_each_ingredient
+  title: A combination counts under each of its ingredients
+  needs: drug_names
+  text: >-
+    By default a drug's page counts any product containing it, so a valsartan count includes the reports of
+    Entresto, sacubitril and valsartan together. Those reports are still judged against valsartan's own label,
+    not Entresto's. Choose the exact product to count valsartan alone.
+
+- id: rxnorm_us_drugs_only
+  title: Some drugs have no RxNorm code
+  needs: rxnorm
+  text: >-
+    Each drug record gets the RxNorm code of its drug, the US standard for naming drugs, from NLM's list of
+    drugs prescribable in the US today. {coded_share:.1f}% of suspect drug records
+    ({rxnorm[coded_records]:,} of {rxnorm[suspect_records]:,}) have one. The rest have none:
+    drugs sold only outside the US, and drugs no longer sold there, are not on the list; a drug RxNorm files
+    under a different parent drug, such as an antibody-drug conjugate under its antibody, gets none, so it is
+    never read against another drug's label; and an element named alone, such as potassium where the medicine
+    is potassium chloride, gets none, because which salt it was is not known. A drug with no code shows Not
+    compared, no label found.
+
+- id: no_meddra_recoding
+  title: The downloads carry FDA's MedDRA terms as written
+  text: >-
+    Reaction and indication terms are published exactly as FDA received them. Reading them to today's MedDRA
+    terms uses MedDRA's licensed files, so that mapping is kept in the licensed part of a release, for people
+    who hold MedDRA, and never in the public tables or the downloads.
+
+- id: meddra_splits_stay
+  title: Older reports stay under the term they were coded in
+  text: >-
+    When MedDRA later makes a narrower preferred term out of an existing one, the reports coded before stay
+    under the term FDA coded them in: reading old terms to today's cannot tell which of them the new term
+    would have taken, and FDA does not publish the reporter's own words. A search on such a term finds no
+    report from before it existed. MedDRA's standardized queries (SMQs) hold the terms of a split together.
+
+- id: label_flags_read_todays_label
+  title: The label flags read today's US label and judge no cause
+  needs: label_flags
+  text: >-
+    A drug's reactions are compared with its US prescription label as DailyMed publishes it today, not the
+    label in force when the report was made. Only the label's safety sections and its indications are read. A
+    label phrase the fixed rules cannot settle stays Can't tell until a person has reviewed it, and no model's
+    answer is ever shown as decided. A flag says whether the label lists the reaction, never whether the drug
+    caused it. A drug with no US prescription label shows Not compared, no label found: in this release
+    {label_flags[records][no_label]:,} suspect drug records have an RxNorm code but no label,
+    and {label_flags[records][no_rxnorm_code]:,} have no code.
+
+- id: statistics_not_signals
+  title: The statistics do not judge signals
+  text: >-
+    The Statistics tab says which ingredient and reaction pairs are reported together more often than expected.
+    We do not judge whether a pair is a signal or caused by the drug. Within each age band and each sex we work
+    out only the ROR, one band or sex at a time, never one ROR adjusted for age and sex together, and we do
+    not work out the statistics by time to onset.

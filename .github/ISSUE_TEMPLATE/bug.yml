@@ -1,0 +1,54 @@
+name: Report a bug
+description: Something works differently from its docs, its rule or its help text.
+title: "Bug: "
+labels: ["type: bug", "status: needs-triage"]
+body:
+  - type: textarea
+    id: own-words
+    attributes:
+      label: In your own words
+      description: What happened, what you expected instead, and the shortest way to make it happen again (from a fresh `open-altio demo` if you can).
+    validations:
+      required: true
+  - type: checkboxes
+    id: seen
+    attributes:
+      label: Seen it yourself
+      options:
+        - label: I've seen this happen myself
+          required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it happened
+      options:
+        - The explorer on my machine
+        - The open-altio command
+        - Building a release
+        - A notebook
+        - open.altioai.com
+        - Somewhere else
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: What you ran, or where you were
+      placeholder: "open-altio build, or the explorer: All cases, Filters, Country"
+  - type: textarea
+    id: error
+    attributes:
+      label: What it printed
+      description: The error or the output, pasted as it is.
+      render: text
+  - type: input
+    id: release
+    attributes:
+      label: Release
+      placeholder: "2026Q2, or the demo release"
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of open-altio doctor or open-altio report
+      description: Run `open-altio doctor` and paste what it prints. If you came here from `open-altio report`, this is filled in already.
+      render: text

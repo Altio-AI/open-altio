@@ -1,0 +1,409 @@
+sheet,part,what,sheet_codes,sheet_records,sheet_cases
+A1,A,"Fish oil, Lovaza, Vascepa",C10AX06,179241,168792
+A2,A,"Humulin N, Humulin R, Humulin 70/30, Novolin",A10AB01 A10AC01 A10AD01 A10AE01 A10AF01,72142,47566
+A3,A,"Creon, Zenpep, Pancreaze",A09AA02,58115,51280
+A4,A,"Robinul, Lonhala, Seebri; and inside Breztri, Bevespi, Trimbow, Ultibro",A03AB02 R03BB06,42570,39017
+A5,A,"Refresh, Systane, Miebo",S01XA20,28237,25292
+A6,A,"BeneFIX, Alprolix, Idelvion",B02BD04,24277,8177
+A7,A,"Metamucil, Fybogel (psyllium)",A06AC01,20622,19267
+A8,A,"Gas-X, simethicone",A03AX13,15472,14464
+A9,A,"Prolastin, Zemaira, Glassia",B02AB02,14561,9041
+A10,A,Red cell transfusions,B05AX01,11753,7760
+A11,A,Xofigo,V10XX03,10442,5486
+A12,A,Tranxene,N05BA05,8411,7717
+A13,A,Aldomet,C02AB01,7578,6813
+A14,A,Lutathera,V10XX04,7366,5866
+A15,A,"Pentacarinat, Pentam",P01CX01,6554,6072
+A16,A,"Miacalcin, Fortical",H05BA01,6532,6032
+A17,A,"Vasostrict, Pitressin",H01BA01,6317,4870
+A18,A,"Kayexalate, Kionex",V03AE01,6168,5799
+A19,A,"Definity, Optison",V08DA04 V08DA01,6028,5755
+A20,A,Platelet transfusions,B05AX02,5919,3970
+A21,A,"Yutiq, Iluvien, Derma-Smoothe",C05AA10 D07AC04 S01BA15 S02BA08,5885,5222
+A22,A,Picato,D06BX02,5539,5238
+A23,A,Records that say only GOLD,V10AX06,5464,5009
+A24,A,"Kanrenol, Luvion",C03DA02,4807,4546
+A25,A,Besponsa,L01FB01,4674,3073
+A26,A,"Urea creams (Keratinamin, Urepearl)",D02AE01 B05BC02,4564,4285
+A27,A,"Azunol, Marzulene",S01XA01,4486,4046
+A28,A,NovoSeven,B02BD08,4468,2961
+A29,A,Hepsera,J05AF08,4467,3829
+A30,A,"Lumason, SonoVue",V08DA05,4271,2031
+A31,A,"PAS, Paser granules",J04AA01,4187,3326
+A32,A,FEIBA,B02BD03,3798,2031
+A33,A,"RhoGAM, Rhophylac, WinRho",J06BB01,3294,2485
+A34,A,Norflex; Disipal,M03BC01 N04AB02,3273,3092
+A35,A,Fresh frozen plasma,B05AX03,3175,2611
+A36,A,Potassium phosphate drips,B05XA06,2646,2212
+A37,A,Teflaro,J01DI02,2318,1800
+A38,A,Radioactive iodine,V10XA01 V09FX03,2220,1857
+A39,A,"NeoRecormon, Recormon",B03XA01,2215,1920
+A40,A,Zevalin,V10XX02,2084,1523
+A41,A,"Engerix-B, Recombivax HB",J07BC01,1998,1693
+A42,A,Xigris,B01AD10,1878,1812
+A43,A,Lipiodol,V08AD01,1769,1596
+A44,A,Activated charcoal,A07BA01,1614,1259
+A45,A,"Odactra, Acarizax",V01AA03,1578,1208
+A46,A,"Calcium pantothenate, pantothenic acid, panthenol",A11HA30 D03AX03 S01XA12,1561,1390
+A47,A,Velsipity,L04AE05,1532,1426
+A48,A,Synribo,L01XX40,1447,1238
+A49,A,"Interferon beta, 1a or 1b not named",L03AB02,1232,1120
+A50,A,Daxxify,M03AX01,1217,1064
+A51,A,Livmarli,A05AX04,1210,957
+A52,A,Myoview heart scan,V09GA02,1149,706
+A53,A,Vtama (tapinarof),D05AX07,1011,997
+A54,A,CytoGam,J06BB09,1001,702
+A55,A,Cardiolite heart scan,V09GA01,985,882
+A56,A,"RiaSTAP, Fibryga (fibrinogen)",B02BB01,949,717
+A57,A,Asparlas,L01XX86,908,744
+A58,A,"Hepa-Merz, Cetornan",A05BA06,884,782
+A59,A,Curosurf,R07AA02,876,732
+A60,A,Dicynone,B02BX01,824,729
+A61,A,DaTscan,V09AB03,764,496
+A62,A,Pedmark,V03AB06,752,622
+A63,A,ATG (horse),L04AA03,734,568
+A64,A,Protelos,M05BX03,726,713
+A65,A,Risumic,C01CA25,685,645
+A66,A,Nitrofurazone (Furacin),B05CA03 D08AF01 D09AA03 P01CC02 S01AX04,655,412
+A67,A,Tryptophan,N06AX02,612,596
+A68,A,"HepaGam B, HyperHEP B",J06BB04,576,499
+A69,A,"Havrix, Vaqta",J07BC02,543,483
+A70,A,Bexxar,V10XA53,540,311
+A71,A,Luveris,G03GA07,513,445
+A72,A,"Biotene, Colgate toothpastes",A01AA02 A12CD02,507,485
+A73,A,"Oxyquinoline, Bag Balm",G01AC30,485,354
+A74,A,Wainua,N07XX21,467,465
+A75,A,Histatrol skin-test control,L03AX14 V04CG03,458,396
+A76,A,Novodigal,C01AA52,438,421
+A77,A,Phocytan,B05CX01 V04CA02 V06DC01,434,375
+A78,A,Elkosin,J01EB01,405,343
+A79,A,Survanta,R07AA02,401,371
+A80,A,"Carticel, MACI",M09AX02,401,387
+A81,A,"Glutamic acid, monosodium glutamate",A09AB01,397,364
+A82,A,Metastron,V10BX01,397,349
+A83,A,"Corifact, Fibrogammin",B02BD07,395,231
+A84,A,Hydergine,C04AE01,393,326
+A85,A,"DigiFab, Digibind",V03AB24,363,314
+A86,A,Photofrin,L01XD01,359,342
+A87,A,Revcovi,L03AX21,344,293
+A88,A,Bare lutetium-177 (radiochemical),V10XX04,340,226
+A89,A,Spasmomen,A03AB06,317,302
+A90,A,Enalaprilat injection,C09AA02,280,269
+A91,A,"Head and Shoulders, DermaZinc",D11AX12,278,258
+A92,A,"Bengay, Myoflex (only inside mixes)",N02BA03 N02BA04 N02BA12,271,244
+A93,A,Vonvendi,B02BD10,266,105
+A94,A,"Arsenic, Arsenicum album",L01XX27,259,221
+A95,A,Cat hair allergen extracts,V01AA11,248,226
+A96,A,Sofdra,D11AA02,236,225
+A97,A,"Fiber Choice, Benefiber with inulin",V04CH01,234,216
+A98,A,Azedra,V09IX02 V10XA02,229,159
+A99,A,"Edetate disodium, Calcium Disodium Versenate",V03AB03,224,197
+A100,A,Mivacron,M03AC10,214,209
+A101,A,OctreoScan,V09IB01,210,129
+A102,A,Zevtera,J01DI01,208,175
+A103,A,Pylarify,V09IX16,206,197
+A104,A,"Vistogard, Xuriden",A16AX13,193,191
+A105,A,Lymphoseek,V09IA09,189,187
+A106,A,Neoton (phosphocreatine),C01EB06,185,146
+A107,A,GABA supplements,N03AG03,164,132
+A108,A,Xenpozyme,A16AB25,163,104
+A109,A,Factor VII concentrate,B02BD05,154,123
+A110,A,MDP bone scan,V09BA02,151,135
+A111,A,Questran,C10AC01,144,139
+A112,A,Cardiogen-82,V09GX04,142,116
+A113,A,HDP bone scan (TechneScan HDP),V09BA01,139,137
+A114,A,Samarium (153 sm) lexidronam,V10BX02,136,131
+A115,A,AdreView,V09IX01,134,86
+A116,A,Cimetropium,A03BB05,130,110
+A117,A,Lactobacillus probiotic capsules,G01AX14,129,129
+A118,A,Thallium-201 heart scan,V09GX01,128,122
+A119,A,Fosrenol,V03AE03,123,111
+A120,A,Technetium tc 99m mertiatide,V09CA03,109,103
+A121,A,Ammonia inhalants (smelling salts),V09GX05,106,106
+A122,A,Technetium tc 99m mebrofenin,V09DA04,97,81
+A123,A,Agnus castus (chaste tree),G02CX03,93,88
+A124,A,Oxitropium,R03BB02,90,87
+A125,A,Immunoglobulin varicella-zoster,J06BB03,85,78
+A126,A,Ethacridine,B05CA08 D08AA01,82,77
+A127,A,"Indium-111, agent not named",V09IB01,77,43
+A128,A,Cholografin,V08AC04,70,45
+A129,A,Dihydroxyaluminum sodium carbonate,A02AB04,68,66
+A130,A,Timepidium,A03AB19,59,53
+A131,A,Technetium tc 99m albumin,V09GA04,57,49
+A132,A,Pipecuronium,M03AC06,56,50
+A133,A,Bee and wasp venom extracts,V01AA07,49,44
+A134,A,Nicotinamide with pyridoxine (only inside mixes),A11HA02,45,28
+A135,A,Factor x,B02BD13,41,34
+A136,A,Fluclorolone acetonide cream,D07AC02,41,41
+A137,A,Rochelle salt laxative,A06AD21,35,35
+A138,A,"Orotic acid, potassium orotate",A12CC09,34,34
+A139,A,Technetium tc 99m pyrophosphate,V09BA03,34,34
+A140,A,Tiemonium,A03AB17,34,29
+A141,A,Imidazole,N02BA16,30,29
+A142,A,Etofylline,C04AD04,27,25
+A143,A,Gallium-67 citrate scans,V09HX01,26,25
+A144,A,Technetium tc 99m bicisate,V09AA02,26,23
+A145,A,Smallpox vaccine,J07BX01,23,21
+A146,A,Bretylium,C01BD02,21,20
+A147,A,Iproniazid,N06AF05,20,18
+A148,A,Suramin,P01CX02,19,17
+A149,A,Pangamic acid,A12AA11,17,17
+A150,A,Technetium tc 99m pentetate,V09CA01 V09EA01,16,16
+A151,A,TechneScan MAA lung scan,V09EB01,15,15
+A152,A,Tebipenem,J01DH06,15,13
+A153,A,Rubidium,V09GX04,14,13
+A154,A,Technetium tc 99m sulfur colloid,V09DB05,13,11
+A155,A,"Zirconium silicate, zirconium-89",V03AE10,13,13
+A156,A,Deltamethrin,P03BA03,12,9
+A157,A,Cytisine,N07BA04,9,7
+A158,A,Dihydroergocryptine,N04BC03,8,7
+A159,A,Cholecystokinin,V04CK02,8,7
+A160,A,Tosylchloramide,D08AX04,8,8
+A161,A,Prifinium,A03AB18,7,7
+A162,A,Votumumab,V09IA04,7,7
+A163,A,Sodium chromate (51Cr),V09CX04,6,6
+A164,A,Doxacurium,M03AC07,6,6
+A165,A,Iodinated (125 i) human serum albumin,V09GB02,6,6
+A166,A,Iofetamine (123 i),V09AB01,6,6
+A167,A,Sodium dibunate,R05DB16,6,6
+A168,A,Iopodic acid,V08AC08 V08AC10,5,5
+A169,A,Iodinated (131 i) human serum albumin,V09XA03,4,3
+A170,A,CEA-Scan,V09IA06,4,4
+A171,A,Nicotinyl alcohol,C04AC02 C10AD05,3,3
+A172,A,Pidolic acid,A12CC08,3,3
+A173,A,Rose bengal,S01JA02,3,3
+A174,A,Technetium tc 99m gluceptate,V09CA04,3,3
+A175,A,Cycloguanil embonate,P01BB02,2,2
+A176,A,Fluorocholine (f18),V09IX07,2,2
+A177,A,Mosquirix,J07XA01,2,2
+A178,A,Estradurin,L02AA02,2,2
+A179,A,Technetium tc 99m depreotide,V09IA05,2,1
+A180,A,Ceretec,V09AA01,2,2
+A181,A,Tibezonium,A01AB15,2,2
+A182,A,Tidiacic,A05BA07,2,2
+A183,A,Acriflavinium,R02AA13,1,1
+A184,A,Aldesulfone,J04BA03,1,1
+A185,A,Immunoglobulin anti-tickborne encephalitis,J06BB12,1,1
+A186,A,NP-59 adrenal scan,V09XA01,1,1
+A187,A,Krypton-81m lung scan,V09EX01,1,1
+A188,A,Leptospirosis vaccine,J07AX01,1,1
+A189,A,Hepatolite,V09DA01,1,1
+A190,A,Cardiotec,V09GA03,1,1
+B1,B,"Mirena, Liletta, Kyleena, Skyla",G02BA03,175482,150065
+B2,B,"Caltrate D, Calcichew D3, Adcal-D3",A12AX,77716,73785
+B3,B,"Suboxone, Zubsolv",N07BC51,44226,33193
+B4,B,"Os-Cal, calcium with vitamin D",A12AX,44153,43103
+B5,B,"Multivitamins with minerals, Ensure",A11AA,26121,25022
+B6,B,"NuvaRing, EluRyng",G02BB01,25041,22510
+B7,B,"Gaviscon, Maalox",A02AD01,14848,13772
+B8,B,Vyalev,N04BA07,11912,7364
+B9,B,Rolaids; calcium-magnesium tablets,A12AX,6843,6566
+B10,B,Primaxin,J01DH51,4964,4167
+B11,B,"Mylanta, Maalox Advanced",A02AF02,4394,4150
+B12,B,TPN drip feeds,V06DB,2624,2333
+B13,B,Kaletra,J05AR10,2307,2091
+B14,B,"Boostrix, Adacel (Tdap)",J07AJ,2237,2066
+B15,B,Bio-Three,A07FA,2131,1992
+B16,B,Multivitamin with iron,A11AA01,1673,1644
+B17,B,"M-M-R II, Priorix",J07BD52,1648,1424
+B18,B,Calcium-magnesium-zinc tablets,A12AX,1244,1224
+B19,B,ProQuad,J07BD54,937,761
+B20,B,Entresto,C09DX04,839,734
+B21,B,Gaviscon Advance; potassium-sodium drips,A12BA A12CA,778,734
+B22,B,Panvitan,A11AA02,754,735
+B23,B,Harvoni,J05AP51,598,545
+B24,B,REGEN-COV,J06BD07,574,534
+B25,B,Aldactazine,C03EA04,348,346
+B26,B,Biktarvy,J05AR20,324,302
+B27,B,Primaxin,J01DH51,319,298
+B28,B,Paxlovid,J05AE30,302,286
+B29,B,Opdualag,L01FY02,219,202
+B30,B,"Teysuno, TS-1",L01BC53,198,168
+B31,B,"Teysuno, TS-1",L01BC53,190,163
+B32,B,Librax,A03CA02,142,134
+B33,B,Ortho Tri-Cyclen,G03AA11 G03AB09,122,118
+B34,B,Epclusa,J05AP55,112,105
+B35,B,Litalgin,A03DA02,108,91
+B36,B,Evusheld,J06BD03,105,102
+B37,B,Gestodene pills,G03AA10 G03AB06,101,80
+B38,B,Symdeko or Alyftrek,R07AX31 R07AX33,77,69
+B39,B,Zerbaxa,J01DI54,75,65
+B40,B,Carbenin,J01DH55,71,70
+B41,B,Mavyret,J05AP57,68,62
+B42,B,Mavyret,J05AP57,55,51
+B43,B,Trikafta,R07AX32,38,36
+B44,B,CalMag D,A12AX,35,34
+B45,B,Sulfadoxine,P01BF09,31,29
+B46,B,"Xulane, Evra patch",G03AA13,29,25
+B47,B,Ammonul,A16AX30,27,20
+B48,B,Coartem,P01BF01,25,25
+B49,B,Vosevi,J05AP56,24,24
+B50,B,Vabomere,J01DH52,22,21
+B51,B,Orkambi,R07AX30,20,17
+B52,B,Xanthine,R03DA20,19,19
+B53,B,Lidaprim,J01EE03,14,9
+B54,B,Carbenin,J01DH55,12,12
+B55,B,Calcium or sodium fluoride,A12CD51,11,11
+B56,B,Butizide with spironolactone,C03EA14,8,8
+B57,B,Synercid,J01FG02,8,8
+B58,B,Synercid,J01FG02,7,6
+B59,B,Tredaptive,C10AD52,6,5
+B60,B,Lybalvi,N05AH53,6,6
+B61,B,Eurartesim,P01BF05,4,4
+C1,C,"Hizentra, Privigen, Gammagard, Gamunex",J06BA01 J06BA02,147940,89229
+C2,C,"Pfizer-BioNTech, Comirnaty",J07BN01,48289,27848
+C3,C,Paragard,G02BA02,46658,43285
+C4,C,"Moderna, Spikevax",J07BN01,34208,19041
+C5,C,"Niaspan, niacin",C10AD02 C04AC01,12743,12077
+C6,C,"Armour Thyroid, Nature-Throid",H03AA05,11728,10889
+C7,C,"AstraZeneca, Vaxzevria, Covishield",J07BN02,7957,2955
+C8,C,HyQvia,J06BA01,5490,3990
+C9,C,"Pancrelipase, pancreatin, Kreon",A09AA02,5193,4759
+C10,C,"Nicotinamide, Nicobion",A11HA01,3228,3024
+C11,C,Janssen,J07BN02,2498,2038
+C12,C,Records named THYROID,H03AA03,2322,2282
+C13,C,"Miacalcin, Fortical",H05BA01,1513,1363
+C14,C,Novavax,J07BN04,21,19
+C15,C,"Kostaive and generic ""mRNA"" spellings",J07BN01,0,0
+D1,D,"Humalog, Lantus, NovoLog when the type is not read",A10A,933812,555956
+D2,D,"Calcium, Tums, Os-Cal, Caltrate",A12AA,298103,269574
+D3,D,Multivitamin,A11,281107,273612
+D4,D,"Klor-Con, potassium chloride",A12BA,243737,222138
+D5,D,Vitamin D,A11CC,231185,226898
+D6,D,"Ferrous sulfate, Venofer",B03A,221017,201359
+D7,D,Magnesium oxide,A12CC,204058,186404
+D8,D,"Hizentra, Privigen, Gammagard when FDA's field is empty",J06BA,182550,112792
+D9,D,"Pfizer, Moderna, AstraZeneca when the brand is not read",J07BN,122299,69864
+D10,D,Premarin,G03C,78131,68019
+D11,D,"Niaspan, niacin, nicotinamide",A11,68493,55811
+D12,D,Vitamin B complex,A11EA,60499,59084
+D13,D,IUD not named; Paragard when FDA's field is empty,G02BA,54531,50793
+D14,D,Probiotics,A07FA,37538,35883
+D15,D,Zinc supplements,A12CB,36492,34809
+D16,D,"Armour Thyroid, Thyradin when FDA's field is empty",H03AA,23890,22488
+D17,D,"Flu vaccine, Fluzone",J07BB,20915,18530
+D18,D,"Dietary supplement, PreserVision, Airborne",V06,17418,16086
+D19,D,Antibiotics (unnamed),J01,11085,10768
+D20,D,Birth control pill (unnamed),G03A,9395,9333
+D21,D,G-CSF (unnamed),L03AA,8741,7431
+D22,D,Penicillin,J01C,8048,7759
+D23,D,Pepto-Bismol,A07BB,7742,7155
+D24,D,"Pneumovax 23, Prevnar 13",J07AL,7394,6157
+D25,D,"Shingrix, Zostavax, Varivax",J07BK,6722,5877
+D26,D,Selenium supplements,A12CE,6565,6331
+D27,D,Water pill (unnamed),C03,6510,6427
+D28,D,"Gonal-f, Follistim",G03GA,5706,4389
+D29,D,Chemotherapy (unnamed),L01,5628,5434
+D30,D,Pain medication (unnamed),N02,4820,4728
+D31,D,Benzodiazepine (unnamed),N05,4121,4084
+D32,D,Antidepressant (unnamed),N06A,4021,3976
+D33,D,Gadolinium contrast (agent not named),V08CA,3423,1905
+D34,D,NSAID (unnamed),M01A,3330,3259
+D35,D,Statin (unnamed),C10AA,3243,3124
+D36,D,"Minerals, Ringer's solution, Lacri-Lube, Pedialyte",A12,3058,2849
+D37,D,Antihistamine (unnamed),R06A,2993,2627
+D38,D,"Magic mouthwash, Biotene, Listerine",A01A,2978,2881
+D39,D,Beta blocker (unnamed),C07A,2869,2823
+D40,D,Diabetes medication (unnamed),A10,2747,2711
+D41,D,Cholesterol medication (unnamed),C10A,2678,2665
+D42,D,Dianeal,B05D,2604,1964
+D43,D,Peginterferon (unnamed),L03AB,2379,2267
+D44,D,Heart medication (unnamed),C,2188,2158
+D45,D,Calcium channel blocker (unnamed),C08,2129,2103
+D46,D,Aluminium hydroxide,A02AB,2109,1867
+D47,D,"Interferon alfa, 2a or 2b not named",L03AB,2084,1834
+D48,D,Arginine supplements,V06DD,2043,1940
+D49,D,ACE inhibitor (unnamed),C09A,2023,1999
+D50,D,"Zicam, cough syrup",R05,2009,1925
+D51,D,"Peginterferon alfa, 2a or 2b not named",L03AB,1941,1775
+D52,D,Opioid (unnamed),N02A,1581,1552
+D53,D,"""Allergy medication""",A07EB R01AC R03BC,1574,1553
+D54,D,Laxative (unnamed),A06A,1548,1537
+D55,D,LMWH (unnamed),B01AB,1507,1209
+D56,D,Muscle relaxant (unnamed),M03,1437,1413
+D57,D,Blood thinner (unnamed),B01A,1401,1370
+D58,D,Antacid (unnamed),A02A,1373,1348
+D59,D,Copper supplements,A12CX,1319,1211
+D60,D,Allergy shots,V01AA,1222,1100
+D61,D,Leukine (sargramostim),L03AA,1092,887
+D62,D,Tetanus toxoid,J07AM,1076,1018
+D63,D,Nasal spray (unnamed),R01,988,971
+D64,D,PPI (unnamed),A02BC,898,870
+D65,D,"Epoetin, epoetin zeta",B03XA,894,847
+D66,D,Technetium scans (agent not named),V09,866,679
+D67,D,Sleeping pill (unnamed),N05C,862,854
+D68,D,Taurine supplements,V06DD,813,791
+D69,D,Contrast media (unnamed),V08,792,596
+D70,D,Gardasil,J07BM,760,582
+D71,D,Preparation H,C05A,680,605
+D72,D,Anesthetics (unnamed),N01,658,616
+D73,D,Thyroid medication (unnamed),H03,656,652
+D74,D,Antiemetics and antinauseants (unnamed),A04A,651,639
+D75,D,Tyrosine,V06DD,647,614
+D76,D,Bisphosphonates (unnamed),M05BA,619,604
+D77,D,Antipsychotics (unnamed),N05A,569,552
+D78,D,Antiasthmatics (unnamed),R03,563,553
+D79,D,Recombinant thrombopoietin (TPIAO),B02BX,506,361
+D80,D,Manganese,A12CX,499,446
+D81,D,SSRI (unnamed),N06AB,415,411
+D82,D,"Anxiolytics (unnamed), some barbiturates",N05B,407,401
+D83,D,Thiazides (unnamed),C03A,406,398
+D84,D,Immunosuppressants (unnamed),L04A,405,398
+D85,D,"Sodium lactate, Ringer's lactate",A12CA,401,303
+D86,D,Boron,A12CX,385,383
+D87,D,"ActHIB, PedvaxHIB",J07AG,380,325
+D88,D,Sulfonamides (unnamed),J01E,367,356
+D89,D,Theanine,V06DD,354,338
+D90,D,Antiepileptics (unnamed),N03A,343,338
+D91,D,Pertussis vaccine,J07AJ,321,311
+D92,D,Intralipid,B05BA,320,224
+D93,D,"Rotarix, RotaTeq",J07BH,318,281
+D94,D,Antimicrobials (unnamed),J,315,312
+D95,D,"RabAvert, Imovax Rabies",J07BG,307,216
+D96,D,"""All other non-therapeutic products""",V07A,285,255
+D97,D,Polio vaccine (IPV),J07BF,279,220
+D98,D,Vaccines (unnamed),J07,273,243
+D99,D,Angiotensin ii receptor blockers (unnamed),C09CA,247,240
+D100,D,Titanium dioxide,A12CX,214,194
+D101,D,Cephalosporin (unnamed),J01D,213,204
+D102,D,"Typhim Vi, Vivotif",J07AP,212,208
+D103,D,Organic nitrates (unnamed),C01DA,211,202
+D104,D,Mecapegfilgrastim (China),L03AA,187,130
+D105,D,Coppertone,D02B,171,161
+D106,D,Valine,V06DD,167,160
+D107,D,Other respiratory system products,R07A,164,164
+D108,D,Platelet aggregation inhibitors excl. heparin (unnamed),B01AC,147,139
+D109,D,Other analgesics and antipyretics (unnamed),N02B,145,141
+D110,D,Stamaril,J07BL,143,140
+D111,D,MEK inhibitor (unnamed),L01EE,128,20
+D112,D,Molybdenum,A12CX,119,117
+D113,D,Phenylalanine,V06DD,119,116
+D114,D,Calamine lotion,D02AB,116,106
+D115,D,Prevnar 7 (diphtheria carrier protein),J07AF,115,93
+D116,D,Cephalosporin c,J01D,109,105
+D117,D,"FSME-Immun, Encepur",J07BA,96,82
+D118,D,Threonine,V06DD,92,90
+D119,D,Vitamin d1,A11CC,80,79
+D120,D,Leucine,V06DD,72,71
+D121,D,Tricyclic antidepressants (unnamed),N06AA,72,72
+D122,D,Isoleucine,V06DD,71,66
+D123,D,Sodium iodide I-123 thyroid scan,V09AB,68,63
+D124,D,Rubella vaccine,J07BJ,51,50
+D125,D,Antivirals (unnamed),J05,48,42
+D126,D,Vanadium,A12CX,42,41
+D127,D,Dukoral,J07AE,41,36
+D128,D,"Ox bile, Desicol",A05AA,36,36
+D129,D,Histidine,V06DD,31,30
+D130,D,Ixiaro,J07BA,30,28
+D131,D,Mumps vaccine,J07BE,28,27
+D132,D,TNF inhibitor (unnamed),L04AB,18,18
+D133,D,G-CSF (unnamed),L03AA,15,15
+D134,D,Measles vaccine,J07BD,12,12
+D135,D,Herpes simplex vaccine (trial),J07B,10,8
+D136,D,RSV vaccine (unnamed),J07BX,9,9
+D137,D,BioThrax,J07AC,6,6
+D138,D,RespiGam,J06BB,5,5
+D139,D,CAR-T cells (unnamed),L01XL,3,3
+D140,D,Vaccinia immune globulin,J06BB,2,2
+D141,D,Desmeninol calcium (a methionine supplement),V06DD,1,1
+D142,D,Staphylococcus vaccine,J07AX,1,1

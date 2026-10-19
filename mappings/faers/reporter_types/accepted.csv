@@ -1,0 +1,8 @@
+fda_value,e2b_code,evidence
+MD,1,FDA's README: physician
+PH,2,FDA's README: pharmacist
+OT,3,FDA's README: other health-professional
+HP,3,Not in FDA's README; takes OT's place from 2020 (OT about 20% of cases to 2019 and none from 2020; HP 22% from 2020; MD and PH flat)
+RN,3,Not in FDA's README; a registered nurse is a health professional who is neither physician nor pharmacist
+LW,4,FDA's README: lawyer
+CN,5,FDA's README: consumer

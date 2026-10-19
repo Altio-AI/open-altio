@@ -1,0 +1,6 @@
+source,value,family,records,drugs,reason
+dose_form,dry powder,by_mouth,12,"tobramycin 11 (TOBI Podhaler), formoterol 1 (Foradil)","Every record that pins a dry powder to by mouth is an inhalation powder written with an oral route. In FAERS a dry powder is treprostinil or tobramycin, both inhaled."
+dose_form,dry powder,nasal,1,tobramycin 1 (TOBI Podhaler),"The one record that pins a dry powder to the nose is an inhalation powder written with a nasal route. FAERS has no glucagon or sumatriptan nasal powder written as a dry powder."
+dose_form,pre-filled syringe,under_tongue,8,"tocilizumab 6 (Actemra), omalizumab 1 (Xolair), somatropin 1 (Nutropin)","Every record that pins a pre-filled syringe to under the tongue is an injection written as sublingual. FAERS's midazolam pre-filled syringes are intravenous or have no route."
+drugname,pre-filled,under_tongue,1,adalimumab 1 (Humira),The one record that pins the word pre-filled to under the tongue is an injection pen written as sublingual.
+drugname,prefilled,under_tongue,0,,"No record pins it; it goes with its spelling pre-filled, whose only support is a mistake."

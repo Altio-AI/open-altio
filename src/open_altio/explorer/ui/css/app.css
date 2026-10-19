@@ -1,0 +1,598 @@
+/* Open Altio's pages: what the shared stylesheets before this one do not already draw, from the
+   page layouts, the charts and the case dialog to the filters menu, Tables and SQL.
+   SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  a.row, a.product-tab, a.brand-home, a.btn, a.menu-item { text-decoration: none; }
+  a.row .icon, button.row .icon { color: var(--ink-faint); }
+  a.row:hover { --row-bg: var(--mist); --row-ink: var(--ink); }
+  .oa-prod-row .chat-open { --row-ink: var(--ink-soft); }
+  .oa-prod-row .row-current { --row-bg: var(--accent-soft); --row-ink: var(--accent); }
+  .oa-prod-row[draggable="true"] { cursor: grab; }
+  .oa-prod-row.oa-dragging { opacity: 0.45; }
+  .oa-prod-row[data-drop="before"] { box-shadow: inset 0 2px 0 var(--accent); }
+  .oa-prod-row[data-drop="after"] { box-shadow: inset 0 -2px 0 var(--accent); }
+  .menu .menu-item .icon, .menu .menu-item .icon svg { width: var(--icon-sm); height: var(--icon-sm); }
+  .menu .menu-note { max-width: 260px; white-space: normal; }
+  .oa-side-note { padding: var(--space-3) var(--row-pad-x) var(--space-3) var(--row-indent); color: var(--ink-faint); font-size: var(--text-note); }
+
+  /* ---- the side panel and the folded rail: every icon they share at the same height ----
+     Both start --side-edge from the window's top and end --side-edge from its foot, with --side-pad
+     inside their border; rows and rail buttons are --side-row high, --side-gap apart, their icons
+     --side-icon. The fold button's row comes first, then a break (the rail draws a line in it), then
+     Home, All cases, Tables and SQL, Rules, a host's places and Products. Settings, with what a host
+     adds around it, sits on the foot.
+     The rail is as wide as the panel's icon column needs, so the icons line up sideways too. */
+  .frame {
+    --side-edge: var(--space-6);
+    --side-pad: var(--space-5);
+    --side-row: 44px;
+    --side-gap: var(--space-1);
+    --side-icon: 20px;
+    --side-line: var(--space-3);
+  }
+  .side-panel {
+    --panel-pad-y: var(--side-pad);
+    --panel-pad-x: var(--side-pad);
+    gap: var(--side-gap);
+    align-self: stretch;
+    max-height: none;
+  }
+  .side-panel > :is(.side-brand, .oa-side-row, .oa-side-you) { flex: none; }
+  .side-brand {
+    height: var(--side-row);
+    padding: 0 0 0 calc(var(--row-pad-x) + (var(--side-icon) - var(--mark-width)) / 2);
+    margin-bottom: calc(2 * var(--side-line) + var(--hairline) + var(--side-gap));
+  }
+  .side-collapse { width: var(--side-row); height: var(--side-row); }
+  .side-panel :is(.oa-side-row, .oa-prod-head) { height: var(--side-row); }
+  .side-panel :is(.side-collapse, .oa-side-row, .oa-prod-head) > .icon:first-child,
+  .side-panel :is(.side-collapse, .oa-side-row, .oa-prod-head) > .icon:first-child svg { width: var(--side-icon); height: var(--side-icon); }
+  /* Products is the last place in the top group; the person's products fill the room under it and
+     scroll there, so a long list moves nothing else */
+  .oa-prod-head { flex: none; padding: 0 var(--row-pad-x); gap: var(--row-pad-x); }
+  .oa-side-products { flex: 1 1 0; min-height: calc(2.25 * var(--side-row)); gap: var(--side-gap); }
+  .oa-prod-list { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: var(--space-1); overflow-y: auto; scrollbar-width: thin; }
+  .oa-side-you { gap: var(--side-gap); margin-top: var(--space-6); }
+
+  .oa-faint { color: var(--ink-faint); }
+  .oa-dot { margin: 0 var(--space-4); color: var(--ink-pale); }
+  .oa-link { padding: 0; border: 0; background: none; color: var(--link); font: inherit; text-decoration: underline; cursor: pointer; }
+  /* A link that sits in the interface (in a title or a header line, beside counts, in a list, a
+     table cell or a card, beside a chip) is known by its colour and place, and is underlined only
+     while pointed at or focused; a link inside a sentence keeps its underline. */
+  :is(:is(.product-title, .oa-countline, .oa-strip, .oa-pane-head, .oa-cmq-head, .oa-class-how, .oa-links, .oa-plain-list, .oa-list, .oa-yours-list, td, th) :is(a, .oa-link), .oa-yours-notice, .oa-rule-link):not(:hover, :focus-visible) { text-decoration: none; }
+  .oa-note { color: var(--ink-soft); font-size: var(--text-sm); }
+  .oa-empty { padding: var(--space-11) 0; color: var(--ink-soft); text-align: center; }
+
+  /* one tag look everywhere, its own font and size whatever it sits in: a tag inside a serif heading
+     or a bold title stays the same tag */
+  .oa-chip {
+    display: inline-block; padding: 0 var(--space-3); border-radius: var(--radius-mark);
+    background: var(--accent-soft); color: var(--accent);
+    font-family: var(--font-sans); font-size: var(--text-tag); font-weight: var(--weight-regular); font-style: normal;
+    line-height: 18px; letter-spacing: var(--tracking-caps); text-transform: uppercase; vertical-align: middle; white-space: nowrap;
+  }
+  :is(td, th, .oa-rule-state) .oa-chip { vertical-align: baseline; }
+  .oa-chip-aside { background: var(--warn-soft); color: var(--warn); }
+  .oa-chip-serious { background: var(--danger-soft); color: var(--danger); }
+  .oa-chips { display: inline-flex; gap: var(--space-2); margin-left: var(--space-4); vertical-align: middle; }
+  .oa-era { color: var(--ink-faint); font-size: var(--text-tag); letter-spacing: var(--tracking-caps); }
+
+  .field-input[aria-invalid="true"] { border-color: var(--warn); }
+
+  .oa-plain { min-height: 100vh; }
+  .oa-plain-head { padding: var(--space-8) var(--space-11); }
+
+  /* ---- home ---- */
+  .oa-home { gap: var(--space-6); }
+  .oa-find { position: relative; margin-top: var(--space-6); }
+  .oa-find .search-input { padding-top: var(--space-5); padding-bottom: var(--space-5); font-size: var(--text-row); }
+  .oa-find-results { position: absolute; z-index: 5; top: calc(100% + var(--space-3)); left: 0; right: 0; max-height: 60vh; overflow-y: auto; }
+  .oa-home-section { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-8); }
+  .oa-home-section .section-head { padding-left: 0; }
+  .oa-result { display: flex; align-items: center; }
+  .oa-result .result-open { flex: 1 1 auto; min-width: 0; text-decoration: none; }
+  .oa-result .oa-pin { margin-right: var(--space-4); }
+  .oa-result:hover { --result-row-bg: var(--mist); }
+  .oa-result .result-title { color: var(--ink); }
+  /* product tiles: two to a row, one fixed size */
+  .oa-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
+  .oa-tile {
+    --panel-pad-y: var(--space-8); --panel-pad-x: var(--space-9);
+    display: grid; grid-template-rows: auto auto 1fr auto; gap: var(--space-2);
+    height: 150px; color: var(--ink); text-decoration: none; transition: border-color var(--motion-fast);
+  }
+  .oa-tile:hover, .oa-tile-slot:hover > .oa-tile { border-color: var(--accent-line); }
+  .oa-tile-slot { position: relative; min-width: 0; }
+  .oa-tile-slot :is(.oa-tile-name, .oa-tile-names) { padding-right: var(--hit-target); }
+  .oa-tile-slot > .oa-pin { position: absolute; top: var(--space-4); right: var(--space-4); opacity: 0; transition: opacity var(--motion-fast); }
+  .oa-tile-slot:is(:hover, :focus-within) > .oa-pin, .oa-tile-slot > .oa-pin[aria-pressed="true"] { opacity: 1; }
+  .oa-tile .skeleton-row { width: 70%; margin: var(--space-2) 0; }
+  .oa-tile-name { overflow: hidden; color: var(--accent-deep); font-family: var(--font-display); font-size: 19px; font-weight: var(--weight-medium); text-overflow: ellipsis; white-space: nowrap; }
+  .oa-tile-names { overflow: hidden; color: var(--ink-faint); font-size: var(--text-sm); text-overflow: ellipsis; white-space: nowrap; }
+  .oa-tile-stats { align-self: center; color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-tile-stats strong { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-tile-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-6); font-size: var(--text-sm); }
+  .oa-spark { display: inline-flex; align-items: flex-end; gap: 2px; width: 120px; height: 22px; }
+  .oa-spark i { flex: 1 1 0; height: max(2px, calc(var(--h) * 22px)); border-radius: 1px 1px 0 0; background: var(--accent-line); }
+  .oa-tile:hover .oa-spark i { background: color-mix(in srgb, var(--blue) 45%, var(--panel)); }
+  .oa-release-card { --panel-pad-y: var(--space-8); --panel-pad-x: var(--space-9); display: flex; flex-direction: column; gap: var(--space-5); color: var(--ink-soft); font-size: var(--text-row); }
+  .oa-release-card strong { color: var(--ink); font-weight: var(--weight-medium); }
+  .oa-links { display: flex; flex-wrap: wrap; gap: var(--space-10); font-size: var(--text-md); }
+
+  /* ---- a product's page, all cases ---- */
+  .oa-scope .product-title { margin-top: var(--space-11); margin-bottom: 0; }
+  .oa-release .product-title { margin-bottom: 0; }
+  .oa-subtitle { min-height: 1.55em; margin: var(--space-2) 0 var(--space-9); color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-panel { gap: var(--space-7); padding: var(--space-8); }
+  .oa-toolbar { display: flex; align-items: center; gap: var(--space-6); min-height: var(--hit-target); }
+  /* a product's drug, which both tabs count: which products, and FDA's roles as tick boxes. Over the
+     tabs where the page is narrow; beside them where it has room, with no height of its own there, so
+     the tabs, the panel and everything in it stand where they stand on All cases */
+  .oa-scope { container: scope / inline-size; }
+  .oa-tabs-row { display: flex; flex-direction: column-reverse; gap: var(--space-6); }
+  .oa-drugbar { display: flex; align-items: center; }
+  /* the line itself, one box: the Statistics tab's one tip is over all of it */
+  .oa-drugline { display: flex; flex: 1 1 100%; flex-wrap: wrap; align-items: center; column-gap: var(--space-10); row-gap: var(--space-4); }
+  @container scope (min-width: 860px) {
+    .oa-tabs-row { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: var(--space-10); }
+    .oa-tabs-row .product-tabs { flex: 0 0 auto; }
+    .oa-drugbar { align-self: center; height: 0; }
+    .oa-drugline { flex: 0 0 auto; flex-wrap: nowrap; }
+  }
+  .oa-unit { --view-switch-half: 164px; flex: 0 0 auto; }
+  .oa-roles { display: inline-flex; align-items: center; gap: var(--space-1); }
+  .oa-roles .field-label { margin-right: var(--space-3); }
+  .oa-roles .oa-choice { flex: 0 0 auto; gap: var(--space-3); padding-inline: var(--space-4); }
+  /* where the drug's line changes nothing (the Statistics tab): pale and in place, colour alone */
+  .oa-unit[aria-disabled="true"] .view-switch-half, .oa-roles[aria-disabled="true"] .field-label { color: var(--ink-pale); }
+  .oa-roles[aria-disabled="true"] .oa-choice { --menu-item-bg: transparent; --menu-item-ink: var(--ink-pale); cursor: not-allowed; }
+  .oa-roles[aria-disabled="true"] .oa-choice .menu-choice-words { color: var(--ink-pale); }
+  .oa-roles[aria-disabled="true"] .oa-choice .oa-tick { border-color: var(--ink-pale); }
+  .oa-roles[aria-disabled="true"] .oa-choice[aria-checked="true"] .oa-tick { background: var(--ink-pale); }
+  /* the pin: pressed, its head filled in the accent; in a title it adds nothing to the line's height */
+  .oa-pin[aria-pressed="true"], .oa-pin[aria-pressed="true"]:hover { color: var(--accent); }
+  .oa-pin[aria-pressed="true"] .pin-head { fill: currentColor; }
+  .oa-title-end { white-space: nowrap; }
+  .product-title .oa-pin { margin: calc(-1 * var(--space-4)) 0 calc(-1 * var(--space-4)) var(--space-4); vertical-align: middle; }
+  /* the spellings count sits on the middle of the title's small letters */
+  .oa-title-spellings { margin-left: var(--space-7); font-family: var(--font-sans); font-size: var(--text-md); letter-spacing: normal; line-height: 1; vertical-align: middle; }
+  .oa-result-head { padding-inline: var(--space-7); border-bottom: var(--hairline) solid var(--line); }
+  /* a button's icon and its svg the same size, so the icon sits centred on the words */
+  :is(.oa-toolbar, .oa-pager, .dialog-foot) .btn :is(.icon, .icon svg) { width: 15px; height: 15px; }
+  /* the words' box holds their descenders, so the icon goes up to meet the letters' middle */
+  :is(.oa-toolbar, .oa-pager, .dialog-foot) .btn .icon { transform: translateY(-1.5px); }
+  .oa-countline { flex: 1 1 auto; margin: 0 var(--space-4); color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-dup-tick { position: relative; display: inline-flex; align-items: baseline; gap: var(--space-3); cursor: pointer; }
+  .oa-dup-tick .oa-tick { align-self: center; }
+  .oa-dup-tick input { position: absolute; left: 0; top: 50%; width: 16px; height: 16px; margin: 0; transform: translateY(-50%); opacity: 0; cursor: pointer; }
+  .oa-dup-tick .oa-tick .icon { visibility: hidden; }
+  .oa-dup-tick input:checked + .oa-tick { border-color: var(--accent); background: var(--accent); }
+  .oa-dup-tick input:checked + .oa-tick .icon { visibility: visible; }
+  .oa-dup-tick input:focus-visible + .oa-tick { box-shadow: 0 0 0 3px var(--accent-soft); }
+  .oa-countline strong { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-count-skeleton { display: inline-block; width: 280px; vertical-align: middle; }
+  .oa-clear { flex: 0 0 auto; padding-top: var(--space-1); font-size: var(--text-sm); }
+  /* the filters in force: one line that always keeps its height */
+  .oa-strip { display: flex; align-items: center; gap: var(--space-6); height: 40px; padding: 0 var(--space-5); border-radius: var(--radius-sm); background: var(--accent-soft); font-size: var(--text-md); overflow: hidden; }
+  .oa-strip-items { display: flex; align-items: center; gap: var(--space-8); flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+  .oa-strip:has(> .oa-strip-lead) { height: auto; min-height: 40px; padding-block: var(--space-2); }
+  .oa-strip-item { display: inline-flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; max-width: 420px; }
+  .oa-strip-edit { display: inline-flex; align-items: baseline; gap: var(--space-3); min-width: 0; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
+  .oa-strip-name { color: var(--ink-soft); }
+  .oa-strip-value { overflow: hidden; text-overflow: ellipsis; }
+  .oa-strip-edit:hover .oa-strip-value { text-decoration: underline; }
+  .oa-strip-x { min-width: 22px; min-height: 22px; padding: 0; }
+  .oa-strip-x .icon, .oa-strip-x .icon svg { width: 12px; height: 12px; }
+  #oa-body { transition: opacity var(--motion-fast); }
+  #oa-body[data-state="loading"] { opacity: 0.5; }
+
+  /* the charts */
+  .oa-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-7); }
+  .oa-chart {
+    display: flex; flex-direction: column; gap: var(--space-6);
+    min-height: 300px; padding: var(--space-8) var(--space-9);
+    border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--panel);
+  }
+  .oa-chart-wide { grid-column: 1 / -1; min-height: 0; }
+  .oa-chart .chart-sentence { font-size: var(--text-md); color: var(--ink-soft); }
+  .oa-chart .chart-lead { color: var(--ink); }
+  .oa-chart-skeleton { height: 100%; min-height: 200px; }
+  .oa-chart .chart-rows { gap: var(--space-4); font-size: var(--text-md); }
+  .oa-chart .chart-rows li { grid-template-columns: minmax(0, 38%) 1fr 72px; }
+  .oa-chart .chart-row-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .oa-chart .chart-track { height: 12px; border-radius: 2px; background: var(--mist); }
+  .oa-chart .chart-fill { border-radius: 2px; min-width: 2px; }
+  .oa-chart .chart-count { text-align: right; }
+  .oa-chart li[data-state="chosen"] .chart-fill { background: var(--blue); }
+  .oa-chart li[data-state="chosen"] .chart-row-label { color: var(--accent); font-weight: var(--weight-medium); }
+  .oa-cols { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: var(--space-3); height: 210px; padding-top: var(--space-4); border-bottom: 0; }
+  .oa-col-slot { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--space-3); min-width: 0; }
+  .oa-col-bar { width: 100%; max-width: 56px; height: calc(var(--share) * 170px); min-height: 2px; padding: 0; border: 0; border-radius: 3px 3px 0 0; background: var(--accent); cursor: pointer; }
+  .oa-col-bar:hover, .oa-col-bar:focus-visible { background: var(--blue); }
+  .oa-col-empty { width: 100%; height: 0; }
+  .oa-col-label { height: 16px; padding-top: var(--space-2); border-top: var(--hairline) solid var(--line); width: 100%; color: var(--ink-faint); font-size: var(--text-tag); text-align: center; font-variant-numeric: tabular-nums; }
+  .oa-col-bar.oa-bar-chosen { background: var(--blue); }
+  /* the chart over time: its sentence and the grain on one line; a wide range scrolls inside the chart */
+  .oa-chart-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4) var(--space-8); flex-wrap: wrap; }
+  .oa-chart-head .chart-sentence { margin: 0; }
+  .oa-grains { margin: 0; }
+  .oa-cols-scroll { overflow-x: auto; scrollbar-width: thin; padding-bottom: var(--space-6); }
+  /* fine grains: the gap shrinks with the bar, so a day is still a bar and not a hairline */
+  .oa-cols[data-grain="month"] { gap: var(--space-2); }
+  .oa-cols:is([data-grain="week"], [data-grain="day"]) { gap: 1px; }
+  .oa-cols:is([data-grain="week"], [data-grain="day"]) .oa-col-label { overflow: visible; white-space: nowrap; border-top: 0; }
+  .oa-chart-skeleton { display: block; height: 230px; }
+  .oa-chart-note { margin: var(--space-4) 0 0; color: var(--ink-faint); font-size: var(--text-sm); }
+  /* how many cases give the field, under the title; Not given greyed and set apart at the bottom */
+  .oa-chart-given { margin: 0 0 var(--space-4); }
+  .oa-chart .oa-chart-none { margin-top: var(--space-4); padding-top: var(--space-4); border-top: var(--hairline) solid var(--line); }
+  .oa-chart .oa-chart-none .chart-fill { background: var(--ink-pale); }
+  .oa-chart .oa-chart-none .chart-row-label { color: var(--ink-faint); }
+  .oa-none { color: var(--ink-faint); }
+
+  /* the cases list */
+  .oa-cases-frame { border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); overflow-x: auto; }
+  .oa-cases { table-layout: fixed; min-width: 980px; font-size: var(--text-md); }
+  .oa-cases th, .oa-cases td { padding: var(--space-5) var(--space-5); }
+  .oa-cases thead th { font-size: var(--text-xs); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+  .oa-cases tbody tr:last-child td { border-bottom: 0; }
+  .oa-cases td { line-height: 1.4; }
+  .oa-cases td.oa-wrap { white-space: normal; }
+  .oa-num { font-variant-numeric: tabular-nums; }
+  .oa-more { color: var(--ink-faint); font-size: var(--text-sm); }
+  .oa-table-skeleton { display: flex; flex-direction: column; gap: var(--space-6); padding: var(--space-6) 0; min-height: 320px; }
+  .oa-table-skeleton .skeleton-row { width: 100%; margin: 0; }
+  .oa-pager { display: flex; align-items: center; gap: var(--space-6); color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-pager > span:first-child { margin-right: auto; }
+  .btn:disabled { opacity: 0.45; cursor: default; }
+
+  /* every header that sorts carries the up and down chevrons; the lit one is the way it is sorted */
+  .oa-sortable { display: inline-flex; align-items: center; gap: var(--space-2); }
+  .oa-sort { width: 9px; height: 14px; flex: 0 0 auto; fill: none; stroke-width: 1.6; }
+  .oa-sort path { stroke: var(--ink-pale); }
+  .oa-sortable:hover .oa-sort path { stroke: var(--ink-faint); }
+  .oa-sort[data-sort="desc"] .oa-sort-down, .oa-sort[data-sort="asc"] .oa-sort-up { stroke: var(--accent); }
+  .oa-sortable:has(.oa-sort[data-sort="desc"]), .oa-sortable:has(.oa-sort[data-sort="asc"]) { color: var(--ink); }
+
+  /* a word that explains itself on hover */
+  .oa-has-tip { cursor: help; text-decoration: underline dotted var(--ink-pale); }
+
+  input[type="search"]::-webkit-search-cancel-button { appearance: none; }
+  /* text boxes: a quiet line when focused, never a heavy ring */
+  .field-input:focus-visible, .search-input:focus-visible, .chat-rename-input:focus-visible, .oa-value-input:focus-visible,
+  .oa-release .oa-sql-text:focus-visible {
+    outline: none; border-color: color-mix(in srgb, var(--blue) 55%, var(--panel)); box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  /* a filter menu's note that other filters narrow its counts */
+  .oa-under { color: var(--warn); font-weight: var(--weight-medium); }
+
+  /* ---- the filters menu: its rows, and the chosen row's options beside them ---- */
+  .menu.oa-filter-menu:popover-open { display: grid; grid-template-columns: 230px 400px; height: min(540px, 76vh); padding: 0; overflow: hidden; }
+  .oa-filter-rows { display: flex; flex-direction: column; padding: var(--space-3); border-right: var(--hairline) solid var(--line); }
+  .oa-filter-row { --menu-item-ink: var(--ink); padding: var(--space-4) var(--space-5); }
+  .oa-filter-row[aria-expanded="true"] { --menu-item-bg: var(--mist); }
+  .oa-filter-row .filter-value { max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+  .oa-filter-row > .icon, .oa-filter-row > .icon svg { width: var(--icon-chevron); height: var(--icon-chevron); color: var(--ink-faint); }
+  .oa-filter-row .filter-value:empty + .icon { margin-left: auto; }
+  .oa-filter-options { display: flex; flex-direction: column; min-height: 0; padding: var(--space-3); overflow-y: auto; }
+  .oa-choices { display: flex; flex-direction: column; }
+  /* a choice: a box to tick (a dot for one-of) at the left, never a filled row */
+  .oa-choice { align-items: baseline; gap: var(--space-5); padding-top: var(--space-4); padding-bottom: var(--space-4); }
+  .oa-choice .oa-tick { align-self: flex-start; margin-top: calc((1lh - 16px) / 2); }
+  .oa-choice .menu-choice-words { flex: 1 1 auto; min-width: 0; white-space: normal; }
+  .oa-choice-note { color: var(--ink-faint); font-size: var(--text-sm); }
+  .oa-tick { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 16px; height: 16px; border: 1.5px solid var(--ink-faint); border-radius: 4px; background: var(--panel); }
+  .oa-tick .icon, .oa-tick .icon svg { width: 12px; height: 12px; color: var(--on-accent); stroke-width: 2.4; }
+  .oa-choice[aria-checked="true"] .oa-tick { border-color: var(--accent); background: var(--accent); }
+  /* partly ticked: a grey dash in the plain box, so only a real tick is lit */
+  .oa-choice[aria-checked="mixed"] .oa-tick :is(.icon, svg) { color: var(--ink-faint); }
+  .oa-tick-radio { border-radius: 50%; }
+  .oa-choice[aria-checked="true"] .oa-tick-radio { background: var(--panel); box-shadow: inset 0 0 0 3.5px var(--accent); }
+  .oa-choice:is([aria-checked="true"], [aria-checked="mixed"]) .menu-choice-words { color: var(--ink); }
+  .oa-choice[data-state="empty"] { --menu-item-ink: var(--ink-pale); }
+  .oa-choice[data-state="empty"] .oa-tick { border-color: var(--ink-pale); }
+  .oa-pane-head { display: flex; align-items: center; gap: 0; }
+  .oa-pane-head .menu-heading { padding-right: var(--space-2); }
+  .oa-plus { min-width: 30px; min-height: 30px; padding: var(--space-2); }
+  .oa-plus .icon, .oa-plus .icon svg { width: var(--icon-sm); height: var(--icon-sm); }
+  .oa-pane-none { padding: var(--space-4) var(--space-5); color: var(--ink-faint); font-size: var(--text-md); white-space: normal; }
+  /* the kinds under the box: All, PTs, LLTs, SMQs, CMQs, each with its matches */
+  .oa-kinds { gap: var(--space-7); margin: 0 var(--space-3) var(--space-2); flex: 0 0 auto; }
+  .oa-kind { display: inline-flex; align-items: baseline; gap: var(--space-2); }
+  .oa-kind-count { color: var(--ink-faint); font-size: var(--text-xs); font-variant-numeric: tabular-nums; }
+  .oa-kind[aria-selected="true"] .oa-kind-count { color: var(--ink-soft); }
+  /* Received by FDA: two days, both included, and whole years at a press */
+  .oa-day { font-variant-numeric: tabular-nums; }
+  .oa-day-note { padding: var(--space-4) var(--space-3) 0; color: var(--ink-soft); font-size: var(--text-sm); white-space: normal; }
+  .oa-year-quick { display: flex; flex-wrap: wrap; gap: var(--space-3); padding: 0 var(--space-3); }
+  .oa-year-quick .oa-smq-scope[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  /* Reactions: the heading and the box stay put, only the results scroll */
+  .oa-filter-options:is([data-kind="reactions"], [data-kind="drugs"], [data-kind="spellings"]) { overflow: hidden; }
+  .oa-filter-options .oa-roles { padding: 0 var(--space-1) var(--space-2) var(--space-5); }
+  .oa-term-results { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+  .oa-term-results .skeleton-row { margin: var(--space-4) var(--space-5); width: 70%; }
+  .oa-group-row { display: flex; align-items: stretch; border-radius: var(--radius-sm); }
+  .oa-group-row > .oa-choice, .oa-group-row > .oa-smq { flex: 1 1 auto; min-width: 0; }
+  .oa-group-row:hover { background: var(--mist); }
+  .oa-group-row:hover > .oa-choice, .oa-group-row:hover > .oa-smq { --menu-item-bg: transparent; background: transparent; }
+  .oa-expand { align-self: stretch; width: 34px; min-width: 34px; min-height: 0; height: auto; margin: 0; padding: 0; border-radius: var(--radius-sm); }
+  .oa-expand:hover { background: var(--line); }
+  .oa-expand .icon, .oa-expand .icon svg { width: var(--icon-sm); height: var(--icon-sm); transition: transform var(--motion-fast); }
+  .oa-expand[aria-expanded="false"] .icon { transform: rotate(-90deg); }
+  .oa-group-terms { display: flex; flex-direction: column; margin: 0 0 var(--space-4) var(--space-9); padding-left: var(--space-4); border-left: var(--hairline) solid var(--line); }
+  .oa-group-terms .skeleton-row { margin: var(--space-3) var(--space-4); width: 60%; }
+  .oa-group-note { padding: var(--space-2) var(--space-5) var(--space-3); color: var(--ink-faint); font-size: var(--text-sm); white-space: normal; }
+  .oa-group-edit { align-self: flex-start; margin: var(--space-3) var(--space-5); font-size: var(--text-sm); }
+  .oa-smq { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4) var(--space-5); border-radius: var(--radius-sm); }
+  .oa-smq:hover { background: var(--mist); }
+  .oa-smq-name { color: var(--ink); font-size: var(--text-menu); }
+  .oa-smq-scopes { display: flex; gap: var(--space-3); }
+  .oa-smq-scope { padding: var(--space-1) var(--space-4); border: var(--hairline) solid var(--line); border-radius: var(--radius-pill); background: var(--panel); color: var(--ink-soft); font-size: var(--text-sm); cursor: pointer; }
+  .oa-smq-scope:hover { border-color: var(--accent-line); color: var(--accent); }
+  .oa-menu-search { margin: var(--space-2) var(--space-3) var(--space-3); }
+
+  .oa-years-pick { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); padding: var(--space-2) var(--space-3); }
+  .oa-filter-options .menu-footnote { margin-top: auto; }
+
+  /* ---- the case dialog ---- */
+  .oa-case-dialog { width: min(1080px, calc(100vw - var(--space-11))); max-height: calc(100vh - var(--space-11)); }
+  .oa-case-dialog .dialog-title { display: flex; align-items: center; font-family: var(--font-display); font-size: var(--text-brand); font-weight: var(--weight-medium); color: var(--accent-deep); }
+  .oa-case-title { display: flex; flex: 1 1 auto; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-8); min-width: 0; }
+  .oa-case-why { flex: 1 1 360px; color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-case-why p { margin: 0; }
+  .oa-case-why[data-aside="true"] { color: var(--warn); }
+  .oa-case-body { display: flex; flex-direction: column; gap: var(--space-4); color: var(--ink); }
+  /* a long case scrolls; its tables never shrink to fit the dialog */
+  .oa-case-body > * { flex-shrink: 0; }
+  .oa-case-body .dialog-body p { margin: 0; }
+  .oa-case-lead { margin: 0 0 var(--space-4); color: var(--ink); font-size: var(--text-row); }
+  /* the case's parts, one under the other in the order a reviewer reads a case */
+  .oa-case-part { display: flex; flex-direction: column; gap: var(--space-4); }
+  .oa-case-sub { margin: var(--space-2) 0 0; color: var(--ink-soft); font-size: var(--text-md); font-weight: var(--weight-regular); }
+  .oa-case-cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4) var(--space-11); }
+  .oa-case-pair { align-items: start; }  /* the patient beside the report, each as long as its own fields */
+  .oa-fields { grid-template-columns: 160px 1fr; font-size: var(--text-md); }
+  .oa-fields dd { display: block; }
+  /* a grey line about the value above it (FDA's own value, where ours came from, a rule's link, a
+     reason) sits on a line of its own under that value, flush with it, never beside it */
+  .oa-fda { display: block; margin-top: var(--space-1); color: var(--ink-faint); font-size: var(--text-sm); }
+  .oa-rule-tag { margin-left: var(--space-3); color: var(--link); font-size: var(--text-sm); text-decoration: underline; white-space: nowrap; }
+  .oa-case-note { display: block; margin-top: var(--space-1); color: var(--ink-faint); font-size: var(--text-sm); }
+  .oa-case-note .oa-rule-tag { display: block; margin-left: 0; white-space: normal; }
+  .oa-case-line { display: block; }
+  .oa-case-flag { margin: 0 0 var(--space-2); }
+  /* a flag longer than a chip's usual word wraps rather than run past its box */
+  :is(.oa-case-flag, .oa-cases) .oa-chip-serious { max-width: 100%; white-space: normal; }
+  /* a MedDRA term's current PT under FDA's text (meddra.js); on the case list, a quiet tag beside it */
+  .oa-pt { display: block; margin-top: var(--space-1); color: var(--ink-soft); font-size: var(--text-sm); }
+  .oa-cases .oa-pt { display: inline; margin: 0 0 0 var(--space-2); color: var(--ink-faint); }
+  .oa-pt-note { margin: 0 0 var(--space-4); color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-pt-note .oa-rule-tag { margin-left: 0; font-size: inherit; }
+  .oa-case-scroll { overflow-x: auto; border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); }
+  .oa-case-scroll .case-table { font-size: var(--text-md); }
+  /* a row's cells set their first lines on one baseline, whatever the font, also where a cell starts
+     with FDA's own smaller line */
+  .oa-case-scroll .case-table td, .oa-case-scroll .case-table th { padding: var(--space-4) var(--space-5); white-space: normal; vertical-align: baseline; }
+  /* a case's drugs fit the window from 1280 px: the role, the name as reported and what it was used for
+     narrower columns, the rest an equal share each, every word wrapping inside its cell; narrower
+     than that, the table scrolls with its first column held */
+  .oa-case-drugs { table-layout: fixed; min-width: 1000px; }
+  .oa-case-drugs .oa-cd-role { width: 52px; }
+  .oa-case-drugs .oa-cd-short { width: 120px; }
+  .oa-case-drugs :is(td, th) { overflow-wrap: anywhere; }
+  /* the quiet row between a case's suspect drugs and the drugs taken alongside them; it is not held
+     as a first column is (held, it would cover the line above it), its words stay in view while the
+     table scrolls sideways instead, and it does not light up as a drug's row does */
+  .oa-case-drugs.oa-freeze .oa-case-divider th { position: static; padding-block: var(--space-2); color: var(--ink-faint); font-size: var(--text-sm); font-weight: var(--weight-regular); }
+  .oa-case-drugs .oa-case-divider span { display: inline-block; position: sticky; left: var(--space-5); }
+  .oa-case-drugs.oa-freeze tbody tr.oa-case-divider:hover > th { background: var(--panel); }
+  .oa-case-scroll .case-table tbody tr { cursor: default; }
+  .oa-case-scroll .case-table tbody tr:last-child td { border-bottom: 0; }
+  .oa-list { display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--text-md); }
+  /* the reactions sit side by side as far as the window's width allows, so a long case is not one tall column */
+  .oa-reac-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: var(--space-6) var(--space-10); }
+  .dialog-foot .btn { padding: var(--space-3) var(--space-6); }
+
+  /* ---- other dialogs ---- */
+  .oa-dialog { width: min(600px, calc(100vw - var(--space-11))); }
+  .oa-dialog .dialog-body { display: flex; flex-direction: column; gap: var(--space-5); }
+  .oa-dialog .dialog-body p { margin: 0; }
+  .oa-dialog-lead { color: var(--ink-soft); }
+  .oa-cmq-dialog { width: min(920px, calc(100vw - var(--space-11))); }
+  .oa-cmq-cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+  .oa-cmq-col { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+  .oa-cmq-col .oa-kinds { margin: 0; }
+  .oa-cmq-head { display: flex; align-items: center; justify-content: space-between; height: 34px; margin-top: 0; }
+  .oa-cmq-head .oa-link { font-size: var(--text-sm); }
+  .oa-cmq-list.oa-cmq-in { height: auto; min-height: 120px; max-height: 362px; }
+  .oa-cmq-add { margin: 0; padding-left: 0; }
+  .oa-cmq-cols .menu-heading { padding-left: 0; }
+  .oa-cmq-list { height: 300px; overflow-y: auto; border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); padding: var(--space-2); }
+  .oa-cmq-list .menu-item { width: 100%; }
+  .oa-danger-btn { color: var(--warn); }
+  .oa-setting-row > .btn { flex-shrink: 0; white-space: nowrap; } /* a setting's button keeps to one line */
+  .oa-spacer { flex: 1 1 auto; }
+  .dialog-foot .oa-danger-btn { margin-right: auto; }
+  .oa-setting-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-10); padding: var(--space-7) 0; }
+  .oa-setting-row + .oa-setting-row { border-top: var(--hairline) solid var(--line); }
+  .oa-setting-name { color: var(--ink); font-weight: var(--weight-medium); }
+  .oa-setting-row .oa-note { max-width: 640px; margin-top: var(--space-2); }
+  .oa-dialog .oa-fields { margin-bottom: var(--space-8); }
+  .oa-export-table { table-layout: fixed; min-width: 480px; font-size: var(--text-md); }
+  .oa-export-table :is(th, td) { padding: var(--space-4) var(--space-6); vertical-align: middle; }
+  .oa-export-table tbody tr:last-child :is(th, td) { border-bottom: 0; }
+  .oa-export-table tbody th { color: var(--ink); font-weight: var(--weight-regular); }
+  #oa-export-files { margin-bottom: var(--space-4); }
+  .oa-file { margin-left: var(--space-4); color: var(--ink-faint); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--text-sm); }
+  .oa-export-table .oa-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .oa-fits { color: var(--ok); }
+  .oa-export-format { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-8); }
+  .oa-export-format .slide-switch { align-self: flex-start; }
+  .slide-switch-part:disabled { color: var(--ink-pale); cursor: not-allowed; }
+
+  .oa-col { padding: 0; border: 0; background: none; color: var(--accent); cursor: pointer; }
+
+  .oa-sql-editor { --panel-pad-y: var(--space-5); --panel-pad-x: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); height: 460px; }
+  .oa-sql-text { flex: 1 1 auto; min-height: 0; padding: var(--space-4); border: 0; resize: none; color: var(--ink); background: transparent; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--text-md); line-height: 1.6; }
+  .oa-sql-foot { display: flex; align-items: center; justify-content: space-between; }
+  .oa-sql-table { font-size: var(--text-md); }
+  .oa-sql-bar { display: flex; align-items: center; gap: var(--space-5); color: var(--ink-soft); font-size: var(--text-md); white-space: nowrap; }
+  .oa-sql-pager { display: inline-flex; align-items: center; gap: var(--space-1); margin-left: var(--space-6); }
+  .oa-sql-pager .icon-btn { min-width: 32px; min-height: 32px; }
+  .oa-sql-pager .icon-btn:disabled { opacity: 0.35; }
+  .oa-sql-bar strong { color: var(--ink); }
+  .oa-sql-bar .btn :is(.icon, .icon svg) { width: 15px; height: 15px; }
+  .oa-sql-bar .btn .icon { transform: translateY(-1.5px); }
+  .oa-sql-table th, .oa-sql-table td { padding: var(--space-4) var(--space-5); white-space: nowrap; }
+
+  /* ---- the release's title ---- */
+  .oa-title-row { display: flex; align-items: center; gap: var(--space-6); margin-top: var(--space-11); }
+  .oa-title-row .product-title { margin-top: 0 !important; }
+  .oa-chip-quiet { background: var(--mist); color: var(--ink-soft); }
+
+  /* ---- the release: groups of tables, each opening to its columns ---- */
+  .oa-release .product-panel { gap: var(--space-10); }
+
+  .oa-release-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-10); }
+  .oa-release-bar .oa-note { max-width: 680px; }
+
+  .oa-coltable { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  .oa-coltable :is(td, th) { padding: var(--space-2) var(--space-4); border-bottom: var(--hairline) solid var(--line); text-align: left; vertical-align: top; }
+  .oa-coltable thead th { color: var(--ink-faint); font-weight: var(--weight-regular); letter-spacing: var(--tracking-caps); text-transform: uppercase; font-size: var(--text-xs); }
+  .oa-coltable td:first-child { width: 230px; white-space: nowrap; }
+  .oa-coltable td:nth-child(2) { width: 110px; }
+
+  .oa-sql-foot { gap: var(--space-6); }
+  .oa-sql-foot .note-faint { margin-left: auto; }
+  .oa-sql-foot .btn :is(.icon, .icon svg) { width: 15px; height: 15px; }
+
+  .oa-cite-text { --panel-pad-y: var(--space-7); --panel-pad-x: var(--space-8); color: var(--ink-soft); font-size: var(--text-md); box-shadow: none; }
+
+  /* ---- top right of every page: how current the data is, then Improve this ---- */
+  .frame-page { position: relative; }
+  .oa-corner { position: absolute; z-index: 5; top: var(--space-8); right: var(--space-11); display: flex; align-items: center; gap: var(--space-8); }
+  .oa-asof { margin: 0; color: var(--ink-faint); font-size: var(--text-sm); white-space: nowrap; }
+  .oa-improve { z-index: 5; box-shadow: var(--shadow); }
+  .oa-plain-head { display: flex; align-items: center; justify-content: space-between; }
+  .oa-plain-head .oa-corner { position: static; }
+  .oa-improve :is(.icon, .icon svg) { width: 15px; height: 15px; }
+  .oa-improve .icon { transform: translateY(-1px); }
+  .oa-note-dialog textarea { width: 100%; }
+  .oa-note-part { display: flex; align-items: center; gap: var(--space-4); color: var(--ink-soft); font-size: var(--text-sm); }
+  .oa-point { border: var(--hairline) solid var(--line); }
+  .oa-point .icon svg { stroke-width: 1.6; }
+  .oa-note-tag { display: inline-flex; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--accent); font-size: var(--text-md); }
+  .oa-note-x { padding: 0 var(--space-2); border: 0; background: none; color: inherit; font-size: var(--text-base); cursor: pointer; }
+  .oa-note-ask { display: block; color: var(--ink-soft); }
+  .oa-note-dialog .oa-note-offline { margin: 0; font-size: var(--text-md); }
+  .oa-note-email { margin-top: var(--space-4); }
+  .oa-note-dialog .dialog-body > p.oa-note-privacy { margin: 0; }
+  /* every form: an asterisk marks what is required, a quiet word what is optional */
+  .oa-req { color: var(--warn); font-weight: var(--weight-medium); }
+  .oa-optional { margin-left: var(--space-2); color: var(--ink-faint); font-size: var(--text-sm); font-weight: var(--weight-regular); }
+  .oa-outlined { outline: 2px dashed var(--accent) !important; outline-offset: 2px; }
+
+  .oa-toasts { position: fixed; z-index: 60; left: 50%; bottom: 72px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+  .oa-toast { padding: 8px 14px; border-radius: var(--radius-btn); background: var(--accent-deep); color: var(--on-accent); font-size: var(--text-md); box-shadow: var(--shadow); }
+  .oa-tip { position: fixed; z-index: 70; transform: translate(-50%, -100%); padding: 4px 8px; border-radius: var(--radius-sm); background: var(--accent-deep); color: var(--on-accent); font-size: var(--text-sm); pointer-events: none; white-space: nowrap; }
+}
+
+/* Dark: the same tokens, darker values. */
+:root[data-theme="dark"] {
+  --accent: #9fbde0;
+  --link: #9fbde0;
+  --accent-deep: #dbe6f3;
+  --blue: #6d9bd0;
+  --ink: #e3e8ef;
+  --ink-soft: #a9b4c2;
+  --ink-faint: #7d8898;
+  --page: #11161d;
+  --panel: #19202a;
+  --line: #2a3340;
+  --warn: #e0a37c;
+  --danger: #f07a7a;
+  --ok: #6fc394;
+  --mark-bg: #4a4220;
+  --view-switch-track: #222b37;
+  --on-accent: #11161d;
+  --ink-pale: #4a5463;
+  color-scheme: dark;
+}
+
+html[data-note-pointing] * { cursor: crosshair !important; }
+
+/* Open Altio's later layouts (numbers, text boxes, Tables and SQL): components, like the rest. */
+@layer components {
+  /* A column of numbers is right-aligned, and so is its title: never numbers right under a title on the left. */
+  :is(table) :is(th, td).oa-num { text-align: right; font-variant-numeric: tabular-nums; }
+  :is(table) th.oa-num .oa-sortable { justify-content: flex-end; }
+
+  /* Every text box can be made taller by dragging its corner, never shorter than three lines. */
+  textarea.field-input { resize: vertical; min-height: calc(3lh + 16px); }
+
+  /* Tables and SQL: one page. The catalogue stays in view at the left; the table picked, the SQL box
+     and the results stack at the right. */
+  .oa-release .oa-release-bar { align-items: flex-start; margin-top: var(--space-2); }
+  .oa-release .oa-release-bar .oa-subtitle { max-width: 640px; margin: 0; }
+  .oa-release-acts { display: flex; gap: var(--space-4); flex: 0 0 auto; }
+  .oa-workspace { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: var(--space-8); align-items: start; margin-top: var(--space-9); }
+  .oa-catalogue { --panel-pad-y: var(--space-6); --panel-pad-x: var(--space-5); position: sticky; top: calc(var(--space-6) - var(--space-8)); display: flex; flex-direction: column; gap: var(--space-4); max-height: calc(100vh - 2 * var(--space-6)); overflow-y: auto; font-size: var(--text-md); }
+  .oa-cat-key { margin: 0; color: var(--ink-soft); font-size: var(--text-sm); line-height: 1.5; }
+  .oa-cat-cols, .oa-cat-pick { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: var(--space-4); align-items: baseline; }
+  .oa-cat-cols { padding: var(--space-3) calc(32px + var(--space-3)) var(--space-2) var(--space-4); border-bottom: var(--hairline) solid var(--line); color: var(--ink-faint); font-size: var(--text-xs); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+  .oa-cat-group { display: flex; flex-direction: column; padding-top: var(--space-6); }
+  .oa-cat-group-head { display: flex; align-items: center; justify-content: space-between; padding-left: var(--space-4); }
+  .oa-cat-group-name { margin: 0; color: var(--accent-deep); font-size: var(--text-md); font-weight: var(--weight-strong); }
+  .oa-cat-group-line { margin: var(--space-1) 0 var(--space-3); padding: 0 var(--space-4); color: var(--ink-soft); font-size: var(--text-sm); line-height: 1.5; }
+  .oa-cat-row { display: grid; grid-template-columns: minmax(0, 1fr) 32px; gap: var(--space-3); align-items: center; border-radius: var(--radius-sm); }
+  .oa-cat-row:hover { background: var(--mist); }
+  .oa-cat-row[data-current="true"] { background: var(--accent-soft); }
+  .oa-cat-pick { padding: var(--space-3) var(--space-4); border: 0; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .oa-cat-pick code { white-space: normal; overflow-wrap: anywhere; }
+  .oa-cat-rows { color: var(--ink-soft); text-align: right; font-variant-numeric: tabular-nums; }
+  .oa-cat-hit { grid-column: 1 / -1; color: var(--ink-faint); font-size: var(--text-sm); }
+  .oa-cat-row .icon-btn, .oa-cat-group-head .icon-btn { width: 32px; height: 32px; min-width: 32px; min-height: 32px; }
+  .oa-work { display: flex; flex-direction: column; gap: var(--space-8); min-width: 0; }
+  .oa-table-card { --panel-pad-y: var(--space-7); --panel-pad-x: var(--space-8); display: flex; flex-direction: column; gap: var(--space-4); }
+  .oa-card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); }
+  .oa-card-name { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+  .oa-card-name h2 { margin: 0; font-size: inherit; font-weight: var(--weight-regular); }
+  .oa-card-acts { display: flex; gap: var(--space-3); flex: 0 0 auto; }
+  .oa-card-acts .btn :is(.icon, .icon svg), .oa-release-acts .btn :is(.icon, .icon svg) { width: 15px; height: 15px; }
+  .oa-card-what { margin: 0; color: var(--ink); font-size: var(--text-base); }
+  .oa-card-facts { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: var(--space-2) var(--space-6); margin: 0; font-size: var(--text-md); line-height: 1.5; }
+  .oa-card-facts dt { color: var(--ink-faint); }
+  .oa-card-facts dd { margin: 0; color: var(--ink-soft); }
+  .oa-card-cols-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); margin-top: var(--space-4); }
+  .oa-card-sub { margin: 0; color: var(--ink-faint); font-size: var(--text-xs); font-weight: var(--weight-regular); letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+  .oa-col-find { flex: 0 1 260px; }
+  .oa-card-cols { max-height: 300px; overflow-y: auto; border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); }
+  .oa-card-cols .oa-coltable { table-layout: fixed; }
+  .oa-card-cols .oa-coltable thead th { position: sticky; top: 0; background: var(--frame-ground); z-index: 1; }
+  .oa-card-cols .oa-coltable :is(td, th) { padding: var(--space-3) var(--space-5); vertical-align: top; }
+  .oa-card-cols .oa-coltable td:first-child, .oa-card-cols .oa-coltable td:nth-child(2) { width: auto; }
+  /* the card's columns: name, type and where it is from take what they need, the words the rest */
+  .oa-coltable .oa-cc-name { width: 240px; }
+  .oa-coltable .oa-cc-type { width: 84px; }
+  .oa-coltable .oa-cc-from { width: 104px; }
+  .oa-card-cols .oa-coltable tbody tr:last-child td { border-bottom: 0; }
+  .oa-release .oa-sql-editor { height: auto; gap: var(--space-4); --panel-pad-y: var(--space-6); --panel-pad-x: var(--space-7); }
+  .oa-sql-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-6); font-size: var(--text-sm); }
+  .oa-release .oa-sql-text { min-height: 220px; flex: 0 0 auto; resize: vertical; border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); }
+  .oa-release .oa-sql-foot .btn :is(.icon, .icon svg) { width: 15px; height: 15px; }
+  #oa-sql-result:empty { display: none; }
+  #oa-sql-result { display: flex; flex-direction: column; gap: var(--space-4); scroll-margin-top: var(--space-8); }
+  .oa-cat-cols { padding-right: calc(32px + var(--space-3) + var(--space-4)); }
+  .oa-cat-cols .oa-num { text-align: right; }
+  #oa-sql-result .dashboard-frame { overflow-x: auto; }
+
+  /* a search box in a row of controls sits level with them: no top gap from the shared search-bar */
+  .oa-col-find, .oa-table-find { margin: 0; }
+
+  .oa-plain-list { margin: var(--space-3) 0 0; padding-left: var(--space-8); display: flex; flex-direction: column; gap: var(--space-3); }
+  .oa-download-list a { overflow-wrap: anywhere; }
+  .oa-downloads-off { margin: var(--space-4) 0 0; }
+}

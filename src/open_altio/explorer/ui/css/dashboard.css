@@ -1,0 +1,31 @@
+/* Framed tables of figures. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .dashboard-frame { border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--panel); overflow-x: auto; }
+  .dashboard-table { width: 100%; border-collapse: collapse; font-size: var(--text-row); }
+  .dashboard-table th, .dashboard-table td {
+    padding: var(--space-6) var(--space-5);
+    border-bottom: var(--hairline) solid var(--line);
+    text-align: left;
+    vertical-align: top;
+    font-weight: var(--weight-regular);
+  }
+  .dashboard-table thead th {
+    color: var(--ink-faint);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+  }
+  .dashboard-table tbody th { min-width: var(--dashboard-head-min); }
+
+  /* A wide table (oa-freeze) that scrolls sideways inside its frame keeps its first column in view,
+     its head in line, like a frozen column. The column covers what scrolls under it, so it takes the
+     row's ground, and a hairline marks its edge while the table has more to scroll. */
+  table.oa-freeze :is(th, td):first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); }
+  table.oa-freeze thead :is(th, td):first-child { z-index: 2; }
+  :is(.oa-stats, .case-table).oa-freeze tbody tr:hover > :first-child { background: var(--mist); }
+  :is(.dashboard-frame, .oa-cases-frame, .oa-case-scroll, .oa-card-cols):has(> table.oa-freeze) { container-type: scroll-state; }
+  @container scroll-state(scrollable: x) {
+    table.oa-freeze :is(th, td):first-child { box-shadow: inset calc(-1 * var(--hairline)) 0 var(--line); }
+  }
+}

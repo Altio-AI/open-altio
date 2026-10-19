@@ -1,0 +1,505 @@
+source,value,families,reason
+FDA route field,auricular (otic),ear,
+FDA route field,auricular use,ear,
+FDA route field,intra-aural,ear,
+FDA route field,intracochlear,ear;injected,"Into the inner ear, given by injection or a drug-releasing implant, so both the ear and injection families fit."
+FDA route field,buccal,under_tongue,
+FDA route field,buccal use,under_tongue,
+FDA route field,transbuccal,under_tongue,
+FDA route field,cutaneous,skin;transdermal,"On the skin; patches acting in the body (fentanyl, nicotine, estradiol) are also applied cutaneously and get reported this way."
+FDA route field,cutaneous use,skin;transdermal,"On the skin; transdermal patches are also applied cutaneously and get reported this way."
+FDA route field,epilesional use,other;skin,"Applied to a lesion: usually a skin wound, but also surgical bleeding sites (fibrin sealants), which fit no listed family."
+FDA route field,dental,injected;other;under_tongue,"Dental products include anaesthetic injections, gels and rinses on the gums, and pastes or varnishes on the teeth (which fit no listed family)."
+FDA route field,dental use,injected;other;under_tongue,"Dental products include anaesthetic injections, gels and rinses on the gums, and pastes or varnishes on the teeth (which fit no listed family)."
+FDA route field,periodontal,injected;other;under_tongue,"Into the gum pocket: anaesthetic gels on the gum, deposits placed in the pocket (minocycline microspheres, doxycycline gel, chlorhexidine chip), or injections."
+FDA route field,periodontal use,injected;other;under_tongue,"Into the gum pocket: anaesthetic gels on the gum, deposits placed in the pocket (minocycline microspheres, doxycycline gel, chlorhexidine chip), or injections."
+FDA route field,endocervical,other;vaginal,"Into the cervical canal, reached through the vagina; dinoprostone gels and inserts for ripening the cervix are labelled endocervical or vaginal."
+FDA route field,endocervical use,other;vaginal,"Into the cervical canal, reached through the vagina; dinoprostone gels and inserts for ripening the cervix are labelled endocervical or vaginal."
+FDA route field,endosinusial,injected;nasal,"Into the sinuses through the nose: rinses and sprays, or a steroid-releasing sinus implant."
+FDA route field,endosinusial use,injected;nasal,"Into the sinuses through the nose: rinses and sprays, or a steroid-releasing sinus implant."
+FDA route field,intrasinal,injected;nasal,"Into the sinuses through the nose: rinses and sprays, or a steroid-releasing sinus implant."
+FDA route field,endotracheal,inhaled;injected,"Down the windpipe to the lungs: surfactants instilled into the lungs, or injection solutions (epinephrine, lidocaine) given through a breathing tube."
+FDA route field,epidural,injected,
+FDA route field,epidural use,injected,
+FDA route field,intracaudal,injected,Caudal epidural injection.
+FDA route field,extra-amniotic,injected;other,"Infused between the membranes and the womb wall, usually by a catheter through the cervix (prostaglandins, saline)."
+FDA route field,extraamniotic use,injected;other,"Infused between the membranes and the womb wall, usually by a catheter through the cervix (prostaglandins, saline)."
+FDA route field,hemodialysis,injected;other,"Dialysis fluids and products added to the circuit fit other, and many drugs are injected into the dialysis line (iron, epoetin, heparin)."
+FDA route field,intra corpus cavernosum,injected,
+FDA route field,intra-amniotic,injected,
+FDA route field,intraamniotic use,injected,
+FDA route field,arterial administration,injected,
+FDA route field,intra-arterial,injected,
+FDA route field,intraarterial use,injected,
+FDA route field,intra-articular,injected,
+FDA route field,intraarticular use,injected,
+FDA route field,intra-uterine,other,"Into the womb: hormone or copper devices placed in it, or fluids instilled into it; none of the listed families fits."
+FDA route field,intrauterine,other,"Into the womb: hormone or copper devices placed in it, or fluids instilled into it; none of the listed families fits."
+FDA route field,intrauterine use,other,"Into the womb: hormone or copper devices placed in it, or fluids instilled into it; none of the listed families fits."
+FDA route field,intracardiac,injected,
+FDA route field,intracardiac use,injected,
+FDA route field,intracavernosa,injected,
+FDA route field,intracavernous,injected,
+FDA route field,intracavernous use,injected,
+FDA route field,intracerebral,injected,
+FDA route field,intracerebroventricular use,injected,
+FDA route field,intraventricular,injected,
+FDA route field,intra-cervical,injected;other;vaginal,"Into the cervix: dinoprostone gel into the canal (labelled endocervical or vaginal), or injection into the cervix."
+FDA route field,intracervical,injected;other;vaginal,"Into the cervix: dinoprostone gel into the canal (labelled endocervical or vaginal), or injection into the cervix."
+FDA route field,intracervical use,injected;other;vaginal,"Into the cervix: dinoprostone gel into the canal (labelled endocervical or vaginal), or injection into the cervix."
+FDA route field,intracisternal,injected,
+FDA route field,intracorneal,eye;injected,"Injection into the cornea, so both the eye and injection families fit."
+FDA route field,intracoronary,injected,
+FDA route field,intracoronary use,injected,
+FDA route field,intradermal,injected,
+FDA route field,intradermal use,injected,
+FDA route field,intraepidermal,injected;skin,"Pricked or scratched into the top layer of the skin (allergen tests, some vaccines), between an injection and a skin application."
+FDA route field,skin scarification,injected;skin,"Scratched into the skin (smallpox vaccine), between an injection and a skin application."
+FDA route field,intradiscal,injected,
+FDA route field,intradiscal (intraspinal),injected,
+FDA route field,intraspinal,injected,
+FDA route field,intrahepatic,injected,
+FDA route field,intralesional,injected,
+FDA route field,intralesional use,injected,
+FDA route field,intralymphatic,injected,
+FDA route field,intramedullar,injected,
+FDA route field,intramedullar (bone marrow),injected,
+FDA route field,intramedullary,injected,
+FDA route field,intrameningeal,injected,
+FDA route field,intramusc-dtoid,injected,Intramuscular into the deltoid.
+FDA route field,intramusc-glut,injected,Intramuscular into the gluteus.
+FDA route field,intramuscular,injected,
+FDA route field,intramuscular injection,injected,
+FDA route field,intramuscular use,injected,
+FDA route field,intracameral,eye;injected,"Injection into the front chamber of the eye, so both the eye and injection families fit."
+FDA route field,intracameral use,eye;injected,"Injection into the front chamber of the eye, so both the eye and injection families fit."
+FDA route field,intraocular,eye;injected,"Into the eye, by injection or implant or during eye surgery, so both the eye and injection families fit."
+FDA route field,intraocular use,eye;injected,"Into the eye, by injection or implant or during eye surgery, so both the eye and injection families fit."
+FDA route field,intravitreal,eye;injected,"Injection or implant into the eye, so both the eye and injection families fit."
+FDA route field,intravitreal use,eye;injected,"Injection or implant into the eye, so both the eye and injection families fit."
+FDA route field,subretinal,eye;injected,"Injection under the retina (gene therapy), so both the eye and injection families fit."
+FDA route field,subretinal use,eye;injected,"Injection under the retina (gene therapy), so both the eye and injection families fit."
+FDA route field,intrapericardial,injected,
+FDA route field,intrapericardial use,injected,
+FDA route field,intraperitoneal,injected;other,"Into the abdominal cavity: chemotherapy or other injections, or peritoneal dialysis fluid (other)."
+FDA route field,intraperitoneal injection,injected,
+FDA route field,intraperitoneal use,injected;other,"Into the abdominal cavity: chemotherapy or other injections, or peritoneal dialysis fluid (other)."
+FDA route field,intrapleural,injected;other,"Into the chest cavity: instilled through a tube or needle, or talc blown in (talc aerosol), which is not an injection."
+FDA route field,intrapleural use,injected;other,"Into the chest cavity: instilled through a tube or needle, or talc blown in (talc aerosol), which is not an injection."
+FDA route field,intra-bursal,injected,
+FDA route field,intrasynovial,injected,
+FDA route field,intratumor,injected,
+FDA route field,intratumoral use,injected,
+FDA route field,intrathecal,injected,
+FDA route field,intrathecal use,injected,
+FDA route field,subarachnoid,injected,
+FDA route field,intrathoracic,injected;other,"Into the chest cavity: injections or instillations through a tube, or talc blown into the pleura."
+FDA route field,intrabronchial,inhaled;injected,"Into the airways to the lungs, through a bronchoscope: instilled solutions (often injection products) reaching the lungs."
+FDA route field,intratrachael,inhaled;injected,"Misspelling of intratracheal: surfactants instilled into the lungs, or injection solutions given down a breathing tube."
+FDA route field,intratracheal,inhaled;injected,"Down the windpipe to the lungs: surfactants instilled into the lungs, or injection solutions given down a breathing tube."
+FDA route field,transtracheal,inhaled;injected,"Through the windpipe wall: lidocaine injected for airway anaesthesia, or oxygen given into the airway."
+FDA route field,intraven bolus,injected,
+FDA route field,intravenous bolus,injected,
+FDA route field,intravenous bolus use,injected,
+FDA route field,intravenous boluses,injected,
+FDA route field,intravenous?bolus,injected,Intravenous bolus with a garbled separator.
+FDA route field,iv bolus,injected,
+FDA route field,iv push,injected,
+FDA route field,drop for injection,injected,Reads as an intravenous drip.
+FDA route field,infusion,injected,
+FDA route field,intraven drip,injected,
+FDA route field,intravenous drip,injected,
+FDA route field,intravenous infusion,injected,
+FDA route field,iv drip,injected,
+FDA route field,iv infusion,injected,
+FDA route field,intravenous,injected,
+FDA route field,intravenous (not otherwise specified),injected,
+FDA route field,intravenous (not specified),injected,
+FDA route field,intravenous administration,injected,
+FDA route field,intravenous injection,injected,
+FDA route field,intravenous use,injected,
+FDA route field,intravenously,injected,
+FDA route field,iv,injected,
+FDA route field,intravesical,other,Into the bladder.
+FDA route field,intravesical instillation,other,Into the bladder.
+FDA route field,intravesical use,other,Into the bladder.
+FDA route field,intravesically,other,Into the bladder.
+FDA route field,iontophoresis,skin;transdermal,"Driven through the skin by a current: local anaesthesia or steroid for the skin and joints, or a system acting in the body (fentanyl iontophoretic system)."
+FDA route field,intranasal,nasal,
+FDA route field,intranasally,nasal,
+FDA route field,nasal,nasal,
+FDA route field,nasal use,nasal,
+FDA route field,occlusive dressing,skin;transdermal,"Covered with an occlusive dressing: mostly creams for the skin (steroids, anaesthetic cream), but nitroglycerin ointment acting in the body is also covered this way."
+FDA route field,occlusive dressing technique,skin;transdermal,"Covered with an occlusive dressing: mostly creams for the skin (steroids, anaesthetic cream), but nitroglycerin ointment acting in the body is also covered this way."
+FDA route field,conjunctival,eye,
+FDA route field,intracanalicular,eye,An insert placed in the tear duct opening of the eye (dexamethasone insert).
+FDA route field,ocular,eye;injected,"Eye products include drops and ointments, and also injections and implants into the eye that are often reported as ocular."
+FDA route field,ocular use,eye;injected,"Eye products include drops and ointments, and also injections and implants into the eye that are often reported as ocular."
+FDA route field,ophthalmic,eye;injected,"Eye products include drops and ointments, and also injections and implants into the eye that are often reported as ophthalmic."
+FDA route field,opthalmic,eye;injected,"Misspelling of ophthalmic; eye products include drops and ointments, and also injections and implants into the eye."
+FDA route field,by mouth,by_mouth;under_tongue,"By mouth covers swallowed products and products held in the mouth (nicotine gum and lozenges, mouth rinses, oral transmucosal fentanyl)."
+FDA route field,ingested,by_mouth,
+FDA route field,ingesting,by_mouth,
+FDA route field,ingestion,by_mouth,
+FDA route field,injested,by_mouth,"Misspelling of ingested (swallowed), not injected."
+FDA route field,intraoral,by_mouth;injected;under_tongue,"Inside the mouth: products absorbed or acting in the mouth, products then swallowed, or dental injections into the gums."
+FDA route field,oral,by_mouth;under_tongue,"Oral covers swallowed products and products held in the mouth (nicotine gum and lozenges, mouth rinses, oral transmucosal fentanyl)."
+FDA route field,oral use,by_mouth;under_tongue,"Oral covers swallowed products and products held in the mouth (nicotine gum and lozenges, mouth rinses, oral transmucosal fentanyl)."
+FDA route field,orale,by_mouth;under_tongue,"Oral in another language; covers swallowed products and products held in the mouth."
+FDA route field,orally,by_mouth;under_tongue,"Oral covers swallowed products and products held in the mouth (nicotine gum and lozenges, mouth rinses, oral transmucosal fentanyl)."
+FDA route field,per oral,by_mouth;under_tongue,"Oral covers swallowed products and products held in the mouth (nicotine gum and lozenges, mouth rinses, oral transmucosal fentanyl)."
+FDA route field,po,by_mouth;under_tongue,"Per os (by mouth); covers swallowed products and products held in the mouth such as nicotine gum or lozenges."
+FDA route field,tablet,by_mouth;under_tongue;vaginal,"A dose form, not a route: tablets are swallowed, but there are also sublingual and buccal tablets and vaginal tablets."
+FDA route field,oromucosal,under_tongue,
+FDA route field,oromucosal use,under_tongue,
+FDA route field,oropharingeal,by_mouth;under_tongue,"Misspelling of oropharyngeal: mouth and throat products, some held in the mouth (sprays, lozenges, rinses), some swallowed (swish and swallow suspensions)."
+FDA route field,oropharyngeal,by_mouth;under_tongue,"Mouth and throat products, some held in the mouth (sprays, lozenges, rinses), some swallowed (swish and swallow suspensions)."
+FDA route field,oropharyngeal use,by_mouth;under_tongue,"Mouth and throat products, some held in the mouth (sprays, lozenges, rinses), some swallowed (swish and swallow suspensions)."
+FDA route field,transmucosal,nasal;under_tongue,"Through a mucous membrane: mostly buccal or sublingual products, but transmucosal fentanyl also comes as nasal sprays."
+FDA route field,catheter,injected;other,"Through a catheter: into a vein, the spine or the epidural space (injected), or into the bladder or a dialysis line (other)."
+FDA route field,enteral,by_mouth,"Into the gut, usually through a feeding tube."
+FDA route field,extracorporeal,injected;other,"Into blood circulating outside the body: photopheresis solution (other), or anticoagulants injected into the circuit."
+FDA route field,extracorporeal use,injected;other,"Into blood circulating outside the body: photopheresis solution (other), or anticoagulants injected into the circuit."
+FDA route field,g tube,by_mouth,Through a stomach tube.
+FDA route field,g-tube,by_mouth,Through a stomach tube.
+FDA route field,gastric tube,by_mouth,Through a stomach tube.
+FDA route field,gastric use,by_mouth,
+FDA route field,gastroenteral,by_mouth,
+FDA route field,gastroenteral use,by_mouth,
+FDA route field,gastrostomy tube,by_mouth,Through a stomach tube.
+FDA route field,implantation,eye;injected;nasal,"Implants go under the skin or into tissue (injected), into the eye (dexamethasone and fluocinolone implants) or into the sinuses (mometasone sinus implant)."
+FDA route field,insufflation,inhaled;nasal;other,"Blowing a powder or gas into the nose, the airways, or a body cavity such as the pleura (talc)."
+FDA route field,intestinal use,by_mouth,"Into the intestine through a tube (levodopa intestinal gel), the nearest listed family."
+FDA route field,intracavitary,injected;other,"Into a body cavity: pleural, peritoneal or pericardial instillations (injected), or the bladder (other)."
+FDA route field,intracavity,injected;other,"Into a body cavity: pleural, peritoneal or pericardial instillations (injected), or the bladder (other)."
+FDA route field,intraductal,injected;other,"Into a duct (breast, bile, salivary), by injection of contrast or drug or by instillation through a catheter."
+FDA route field,intraduodenal,by_mouth,"Into the duodenum through a tube (levodopa intestinal gel), the nearest listed family."
+FDA route field,intraluminal,injected;other,"Into the lumen of a tube or vessel: catheter lock solutions and instillations through a catheter."
+FDA route field,irrigation,eye;nasal;other;skin,"Rinsing: bladder and surgical irrigations (other), wound irrigation (skin), eye irrigating solutions, and nasal or sinus rinses."
+FDA route field,jejunal,by_mouth,Into the small bowel through a tube; nearest listed family.
+FDA route field,jejunal tube,by_mouth,Into the small bowel through a tube; nearest listed family.
+FDA route field,nasogastric,by_mouth,Through a tube into the stomach.
+FDA route field,nasogastric tube,by_mouth,Through a tube into the stomach.
+FDA route field,nephrostomy,other,Into the kidney through a nephrostomy tube.
+FDA route field,ng tube,by_mouth,Through a tube into the stomach.
+FDA route field,ng-tube,by_mouth,Through a tube into the stomach.
+FDA route field,other,,Says nothing about how the drug was given.
+FDA route field,per semen,,"Exposure of a partner through semen; says nothing about how the product itself was given."
+FDA route field,percutaneous j tube,by_mouth,Into the small bowel through a tube; nearest listed family.
+FDA route field,percutaneous j-tube,by_mouth,Into the small bowel through a tube; nearest listed family.
+FDA route field,percutaneous jejunal tube,by_mouth,Into the small bowel through a tube; nearest listed family.
+FDA route field,percutaneous-j tube,by_mouth,Into the small bowel through a tube; nearest listed family.
+FDA route field,subdural,injected,
+FDA route field,ureteral,other,Into the ureter (mitomycin for the upper urinary tract).
+FDA route field,via g-tube,by_mouth,Through a stomach tube.
+FDA route field,via j-tube,by_mouth,Into the small bowel through a tube; nearest listed family.
+FDA route field,via ng-tube,by_mouth,Through a tube into the stomach.
+FDA route field,infiltration,injected,
+FDA route field,injectable,eye;injected,"Injected, with the site not stated; injections into the eye (aflibercept, ranibizumab) are a major class."
+FDA route field,injection,eye;injected,"Injected, with the site not stated; injections into the eye (aflibercept, ranibizumab) are a major class."
+FDA route field,injection not otherwise specified,eye;injected,"Injected, with the site not stated; injections into the eye (aflibercept, ranibizumab) are a major class."
+FDA route field,interstitial,injected,
+FDA route field,intraosseous use,injected,
+FDA route field,intravascular,injected,
+FDA route field,parenteral,injected,
+FDA route field,percutaneous,injected;skin;transdermal,"Through the skin: needle procedures and injections, skin prick tests and scarification, and absorption through the skin."
+FDA route field,soft tissue,injected,
+FDA route field,submucosal,injected,
+FDA route field,submucosal use,injected,
+FDA route field,periarticular,injected,
+FDA route field,periarticular use,injected,
+FDA route field,perineural,injected,
+FDA route field,perineural use,injected,
+FDA route field,rectal,rectal,
+FDA route field,rectal suppository,rectal,
+FDA route field,rectal use,rectal,
+FDA route field,rectum,rectal,
+FDA route field,by nebulizer,inhaled,
+FDA route field,inhalaltion,inhaled,Misspelling of inhalation.
+FDA route field,inhalation,inhaled,
+FDA route field,inhalation use,inhaled,
+FDA route field,inhalation via nebulizer,inhaled,
+FDA route field,inhalational,inhaled,
+FDA route field,inhale via nebulizer,inhaled,
+FDA route field,inhaled,inhaled,
+FDA route field,inhaled via spacer,inhaled,
+FDA route field,inhaled via spacer with paediatric mask,inhaled,
+FDA route field,nebulisation use,inhaled,
+FDA route field,nebuliser,inhaled,
+FDA route field,nebulized,inhaled,
+FDA route field,nebulizer,inhaled,
+FDA route field,respiratory,inhaled;nasal,"The respiratory tract includes the nose, so nasal sprays as well as inhaled products can be reported this way."
+FDA route field,respiratory (inhalation),inhaled,
+FDA route field,via nebulizer,inhaled,
+FDA route field,retrobulbar,eye;injected,"Injection behind the eyeball for eye surgery or eye disease, so both the eye and injection families fit."
+FDA route field,retrobulbar use,eye;injected,"Injection behind the eyeball for eye surgery or eye disease, so both the eye and injection families fit."
+FDA route field,subconjunctival,eye;injected,"Injection under the conjunctiva of the eye, so both the eye and injection families fit."
+FDA route field,subconjunctival use,eye;injected,"Injection under the conjunctiva of the eye, so both the eye and injection families fit."
+FDA route field,sunconjunctival,eye;injected,"Misspelling of subconjunctival: injection under the conjunctiva of the eye."
+FDA route field,intrapump injection,injected,Injected into an implanted pump (for example an intrathecal pump refill).
+FDA route field,sc,injected,
+FDA route field,sq,injected,
+FDA route field,subcutaneous,injected,
+FDA route field,subcutaneous injection,injected,
+FDA route field,subcutaneous use,injected,
+FDA route field,subcutaneously,injected,
+FDA route field,subq,injected,
+FDA route field,under the skin,injected,
+FDA route field,subdermal,injected,
+FDA route field,sublingual,under_tongue,
+FDA route field,sublingual use,under_tongue,
+FDA route field,topical,ear;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,"Topical means applied to a body surface: the skin, but also eye, ear, nose, mouth, rectal and vaginal surfaces, surgical sites (topical thrombin), and gels absorbed through the skin."
+FDA route field,topically,ear;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,"Topical means applied to a body surface: the skin, but also eye, ear, nose, mouth, rectal and vaginal surfaces, surgical sites (topical thrombin), and gels absorbed through the skin."
+FDA route field,transdermal,skin;transdermal,"Through the skin; local patches (lidocaine, diclofenac) are also often reported as transdermal."
+FDA route field,transdermal use,skin;transdermal,"Through the skin; local patches (lidocaine, diclofenac) are also often reported as transdermal."
+FDA route field,transammmary,,"Misspelling of transmammary: a baby exposed through breast milk; says nothing about how the product was given."
+FDA route field,transmammary,,"A baby exposed through breast milk; says nothing about how the product was given."
+FDA route field,transplacental,,"A fetus exposed through the placenta; says nothing about how the product was given."
+FDA route field,not applicable,,Says nothing about how the drug was given.
+FDA route field,not provided,,Says nothing about how the drug was given.
+FDA route field,route of administration not applicable,,Says nothing about how the drug was given.
+FDA route field,unk,,Says nothing about how the drug was given.
+FDA route field,unknown,,Says nothing about how the drug was given.
+FDA route field,urethral,other,Into the urethra (alprostadil urethral pellet; lidocaine urethral gel).
+FDA route field,urethral use,other,Into the urethra (alprostadil urethral pellet; lidocaine urethral gel).
+FDA route field,vaginal,vaginal,
+FDA route field,vaginal use,vaginal,
+FDA dose form field,caplet,by_mouth,
+FDA dose form field,capsule,by_mouth;inhaled;vaginal,"Most capsules are swallowed, but inhaler capsules (tiotropium) and soft progesterone or clindamycin capsules used vaginally are also capsules."
+FDA dose form field,"capsule, hard",by_mouth;inhaled,"Most hard capsules are swallowed, but inhalation powder comes in hard capsules for inhalers."
+FDA dose form field,"capsule, soft",by_mouth;vaginal,"Most soft capsules are swallowed, but soft progesterone capsules and clindamycin ovules are given vaginally."
+FDA dose form field,capsules,by_mouth;inhaled;vaginal,"Most capsules are swallowed, but inhaler capsules (tiotropium) and soft progesterone or clindamycin capsules used vaginally are also capsules."
+FDA dose form field,chewable tablet,by_mouth,
+FDA dose form field,coated tablet,by_mouth,
+FDA dose form field,dispersible tablet,by_mouth,
+FDA dose form field,er tablets,by_mouth,
+FDA dose form field,extended release tablet,by_mouth,
+FDA dose form field,extended-release oral suspension,by_mouth,
+FDA dose form field,extended-release tablet,by_mouth,
+FDA dose form field,film coated tablet,by_mouth,
+FDA dose form field,film-coated tablet,by_mouth,
+FDA dose form field,gastro-resistant coated tablet,by_mouth,
+FDA dose form field,gastro-resistant tablet,by_mouth,
+FDA dose form field,lozenge,by_mouth;under_tongue,"Lozenges dissolve in the mouth: some act through the mouth lining (nicotine, fentanyl), others are swallowed with saliva (cough and throat lozenges labelled oral)."
+FDA dose form field,medicated chewing-gum,by_mouth;under_tongue,"Nicotine gum is absorbed through the mouth lining, while other medicated gums release drug that is swallowed; gums are often labelled oral."
+FDA dose form field,"modified-release capsule, hard",by_mouth,
+FDA dose form field,modified-release tablet,by_mouth,
+FDA dose form field,oral solution,by_mouth,
+FDA dose form field,oral suspension,by_mouth,
+FDA dose form field,orodispersible tablet,by_mouth;under_tongue,"Most dissolve on the tongue and are swallowed, but some are absorbed in the mouth (selegiline, desmopressin and buprenorphine melts)."
+FDA dose form field,oros (oral osmotic) therapeutic system tablet,by_mouth,
+FDA dose form field,powder for oral solution,by_mouth,
+FDA dose form field,powder for oral suspension,by_mouth,
+FDA dose form field,prolonged-release capsule,by_mouth,
+FDA dose form field,prolonged-release tablet,by_mouth,
+FDA dose form field,slow release capsules,by_mouth,
+FDA dose form field,sublingual tablet,under_tongue,
+FDA dose form field,sustained release tablets,by_mouth,
+FDA dose form field,syrup,by_mouth,
+FDA dose form field,tablet,by_mouth;under_tongue;vaginal,"Most tablets are swallowed, but there are also sublingual and buccal tablets and vaginal tablets."
+FDA dose form field,"tablet, film coated",by_mouth,
+FDA dose form field,tablets,by_mouth;under_tongue;vaginal,"Most tablets are swallowed, but there are also sublingual and buccal tablets and vaginal tablets."
+FDA dose form field,cutaneous patch,skin;transdermal,"A patch on the skin: local patches (lidocaine, capsaicin) and transdermal patches acting in the body are both reported this way."
+FDA dose form field,cutaneous foam,skin,
+FDA dose form field,cutaneous liquid,skin;transdermal,"A liquid on the skin: mostly local, but some act in the body through the skin (testosterone or estradiol solutions)."
+FDA dose form field,cutaneous solution,skin;transdermal,"A solution on the skin: mostly local, but some act in the body through the skin (testosterone or estradiol solutions)."
+FDA dose form field,foam,rectal;skin;vaginal,"Foams are made for the skin and scalp, the rectum (budesonide, hydrocortisone) and the vagina (contraceptive foam)."
+FDA dose form field,gel,by_mouth;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,"Gels are made for the skin, for the body through the skin (testosterone, estradiol), and for the eye, nose, mouth, rectum, vagina, urethra (other) and intestine by tube; only ear, inhaled and injected are left out."
+FDA dose form field,shampoo,skin,
+FDA dose form field,matrix patch,skin;transdermal,"Matrix patches are mostly transdermal systems acting in the body, but local patches are also built this way."
+FDA dose form field,patch,skin;transdermal,"Patches are either transdermal, acting in the body (fentanyl, nicotine), or local on the skin (lidocaine, diclofenac)."
+FDA dose form field,trans-therapeutic-system,transdermal,
+FDA dose form field,transdermal patch,skin;transdermal,"Transdermal patches act in the body, but local patches (lidocaine) are often reported as transdermal patches."
+FDA dose form field,transdermal system,transdermal,
+FDA dose form field,microspheres,injected;other,"Mostly injectable depots and contrast agents, but minocycline microspheres are placed in gum pockets rather than injected."
+FDA dose form field,powder and solvent for suspension for injection,injected,
+FDA dose form field,prolonged-release suspension for injection,injected,
+FDA dose form field,dispersion for infusion,injected,
+FDA dose form field,intravenous infusion,injected,
+FDA dose form field,liposome injection,injected,
+FDA dose form field,lyophilized powder,injected;other,"Mostly freeze-dried powders for injection, but BCG for the bladder and topical thrombin for bleeding surgical sites are also freeze-dried powders."
+FDA dose form field,powder and solvent for solution for infusion,injected,
+FDA dose form field,powder for solution for infusion,injected,
+FDA dose form field,concentrate for solution for infusion,injected,
+FDA dose form field,gel for injection,injected,
+FDA dose form field,implant,eye;injected;nasal,"Implants go under the skin or into tissue (injected), into the eye (dexamethasone and fluocinolone implants) or into the sinuses (mometasone sinus implant)."
+FDA dose form field,infusion,injected,
+FDA dose form field,"infusion, solution",injected,
+FDA dose form field,injection,eye;injected,"Injected, with the site not stated; injections into the eye (aflibercept, ranibizumab) are a major class."
+FDA dose form field,injection for infusion,injected,
+FDA dose form field,"injection, powder, lyophilized, for solution",injected,
+FDA dose form field,powder and solvent for solution for injection,injected,
+FDA dose form field,powder for concentrate for solution for infusion,injected,
+FDA dose form field,powder for infusion,injected,
+FDA dose form field,powder for injection,eye;injected,"Injected, with the site not stated; some powders for injection are given into the eye (intracameral cefuroxime)."
+FDA dose form field,powder for solution for injection,eye;injected,"Injected, with the site not stated; some powders for injection are given into the eye (intracameral cefuroxime)."
+FDA dose form field,powder for solution for injection/infusion,injected,
+FDA dose form field,soln for inject in pre-filled syringe,eye;injected,"Injected, with the site not stated; eye injections (aflibercept, ranibizumab) come in pre-filled syringes."
+FDA dose form field,solution for infusion,injected,
+FDA dose form field,solution for injection,eye;injected,"Injected, with the site not stated; injections into the eye (aflibercept, ranibizumab, faricimab) are solutions for injection."
+FDA dose form field,solution for injection/infusion,injected,
+FDA dose form field,suspension for injection,eye;injected,"Injected, with the site not stated; triamcinolone suspensions are injected into or around the eye."
+FDA dose form field,suspension for injection in pre-filled syringe,injected,
+FDA dose form field,vial,eye;inhaled;injected;other,"A vial holds injections (including eye injections), single-dose nebuliser solutions, single-use eye drops, and BCG for the bladder."
+FDA dose form field,direct auto-injector,injected,
+FDA dose form field,"injection, solution",eye;injected,"Injected, with the site not stated; injections into the eye (aflibercept, pegcetacoplan) are injection solutions."
+FDA dose form field,pre-filled syringe,eye;injected;under_tongue,"Mostly injections, including eye injections, but buccal midazolam also comes in pre-filled oral syringes."
+FDA dose form field,solution for injection in cartridge,injected,
+FDA dose form field,solution for injection in pre-filled pen,injected,
+FDA dose form field,solution for injection in pre-filled syringe,eye;injected,"Injected, with the site not stated; eye injections (aflibercept, ranibizumab) come in pre-filled syringes."
+FDA dose form field,sub-cutaneous injection,injected,
+FDA dose form field,subcutaneous injection,injected,
+FDA dose form field,dry powder,by_mouth;inhaled;injected;nasal;other;skin,"Dry powders are inhaled (dry powder inhalers), reconstituted for injection or for oral use, blown into the nose, dusted on skin, or used for dialysis or the bladder."
+FDA dose form field,inhalation gas,inhaled,
+FDA dose form field,inhalation powder,inhaled,
+FDA dose form field,inhalation solution,inhaled,
+FDA dose form field,"inhalation vapour, liquid",inhaled,
+FDA dose form field,"inhalation vapour, solution",inhaled,
+FDA dose form field,inhaler,inhaled;nasal,"Mostly inhalers for the lungs, but nasal decongestant inhalers (levmetamfetamine) are inhalers too."
+FDA dose form field,multi dose powder inhaler,inhaled,
+FDA dose form field,nebuliser solution,inhaled,
+FDA dose form field,pressurised inhalation,inhaled,
+FDA dose form field,"pressurised inhalation, suspension",inhaled,
+FDA dose form field,eye drops,eye,
+FDA dose form field,"eye drops, solution",eye,
+FDA dose form field,intrauterine,other,Into the womb (hormone or copper devices); none of the listed families fits.
+FDA dose form field,intrauterine delivery system,other,Into the womb (hormone device); none of the listed families fits.
+FDA dose form field,intrauterine device,other,Into the womb (hormone or copper device); none of the listed families fits.
+FDA dose form field,solution for peritoneal dialysis,other,Dialysis fluid.
+FDA dose form field,nasal spray,nasal,
+FDA dose form field,"nasal spray, suspension",nasal,
+FDA dose form field,vaginal cream,vaginal,
+FDA dose form field,vaginal delivery system,vaginal,
+FDA dose form field,vaginal ring,vaginal,
+FDA dose form field,aerosol,inhaled;nasal;other;rectal;skin;under_tongue;vaginal,"Aerosols are inhalers, nasal aerosols, skin sprays, rectal and vaginal foams, sublingual nitroglycerin spray, and talc aerosol for the pleura (other)."
+FDA dose form field,cream,nasal;rectal;skin;transdermal;vaginal,"Creams are mostly for the skin, but there are vaginal and rectal creams, nasal creams, and testosterone or progesterone creams acting in the body through the skin."
+FDA dose form field,formulation unknown,,Says nothing about how the drug was given.
+FDA dose form field,gastroenteral suspension,by_mouth,
+FDA dose form field,"inhalation powder, hard capsule",inhaled,
+FDA dose form field,intestinal gel,by_mouth,"Levodopa gel pumped into the intestine through a tube, the nearest listed family."
+FDA dose form field,liquid,,"A liquid can be given by every listed route, so it says nothing about how the drug was given."
+FDA dose form field,not specified,,Says nothing about how the drug was given.
+FDA dose form field,ointment,eye;nasal;rectal;skin;transdermal,"Ointments are made for the skin, the eye, the nose and the rectum, and nitroglycerin ointment acts in the body through the skin."
+FDA dose form field,oral liquid,by_mouth,
+FDA dose form field,powder,by_mouth;inhaled;injected;nasal;other;skin,"Powders are taken by mouth, inhaled, reconstituted for injection, blown into the nose, dusted on skin, or used for dialysis, the bladder (BCG) or bleeding sites (thrombin)."
+FDA dose form field,softgel capsule,by_mouth;vaginal,"Most softgels are swallowed, but soft progesterone capsules and soft ovules are given vaginally."
+FDA dose form field,solution,,"A solution can be given by every listed route, so it says nothing about how the drug was given."
+FDA dose form field,suppository,other;rectal;vaginal,"Suppositories are rectal or vaginal, and the alprostadil urethral pellet is a urethral suppository (other)."
+FDA dose form field,suspension,by_mouth;ear;eye;inhaled;injected;nasal;other;rectal;skin;under_tongue,"Suspensions exist for nearly every route (oral, mouth, injection, nebuliser, nasal, eye, ear, rectal, skin, bladder BCG); only patches and vaginal use are left out."
+FDA dose form field,unk,,Says nothing about how the drug was given.
+FDA dose form field,unknown,,Says nothing about how the drug was given.
+FDA dose form field,unknown formulation,,Says nothing about how the drug was given.
+FDA dose form field,unspecified,,Says nothing about how the drug was given.
+word in the drug name,buccal,under_tongue,
+word in the drug name,cap,by_mouth;inhaled;vaginal,"Short for capsule: mostly swallowed, but inhaler capsules and soft capsules used vaginally are also capsules."
+word in the drug name,caplet,by_mouth,
+word in the drug name,caplets,by_mouth,
+word in the drug name,caps,by_mouth;inhaled;vaginal,"Short for capsules: mostly swallowed, but inhaler capsules and soft capsules used vaginally are also capsules."
+word in the drug name,capsule,by_mouth;inhaled;vaginal,"Mostly swallowed, but inhaler capsules (tiotropium) and soft progesterone or clindamycin capsules used vaginally are also capsules."
+word in the drug name,capsules,by_mouth;inhaled;vaginal,"Mostly swallowed, but inhaler capsules (tiotropium) and soft progesterone or clindamycin capsules used vaginally are also capsules."
+word in the drug name,chewable,by_mouth,
+word in the drug name,gelcap,by_mouth,
+word in the drug name,gelcaps,by_mouth,
+word in the drug name,lozenge,by_mouth;under_tongue,"Lozenges dissolve in the mouth: some act through the mouth lining (nicotine, fentanyl), others are swallowed with saliva."
+word in the drug name,lozenges,by_mouth;under_tongue,"Lozenges dissolve in the mouth: some act through the mouth lining (nicotine, fentanyl), others are swallowed with saliva."
+word in the drug name,odt,by_mouth;under_tongue,"Orally disintegrating tablets: most are swallowed after dissolving, some are absorbed in the mouth."
+word in the drug name,oral,by_mouth;inhaled;under_tongue,"Names say oral for swallowed products, for products held in the mouth (oral rinse, oral transmucosal fentanyl), and for inhalers (for oral inhalation)."
+word in the drug name,softgels,by_mouth;vaginal,"Most softgels are swallowed, but soft progesterone capsules and soft ovules are given vaginally."
+word in the drug name,sublingual,under_tongue,
+word in the drug name,syrup,by_mouth,
+word in the drug name,tab,by_mouth;under_tongue;vaginal,"Short for tablet: mostly swallowed, but there are also sublingual, buccal and vaginal tablets."
+word in the drug name,tablet,by_mouth;under_tongue;vaginal,"Mostly swallowed, but there are also sublingual, buccal and vaginal tablets."
+word in the drug name,tablets,by_mouth;under_tongue;vaginal,"Mostly swallowed, but there are also sublingual, buccal and vaginal tablets."
+word in the drug name,tabs,by_mouth;under_tongue;vaginal,"Short for tablets: mostly swallowed, but there are also sublingual, buccal and vaginal tablets."
+word in the drug name,emulgel,skin,
+word in the drug name,patch,skin;transdermal,"Patches are either transdermal, acting in the body (fentanyl, nicotine), or local on the skin (lidocaine, diclofenac)."
+word in the drug name,patches,skin;transdermal,"Patches are either transdermal, acting in the body (fentanyl, nicotine), or local on the skin (lidocaine, diclofenac)."
+word in the drug name,topical,ear;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,"Topical means applied to a body surface: the skin, but also eye, ear, nose, mouth, rectal and vaginal surfaces, surgical sites (topical thrombin), and products absorbed through the skin (testosterone topical solution)."
+word in the drug name,cream,nasal;rectal;skin;transdermal;vaginal,"Creams are mostly for the skin, but there are vaginal and rectal creams, nasal creams, and testosterone or progesterone creams acting in the body through the skin."
+word in the drug name,foam,rectal;skin;vaginal,"Foams are made for the skin and scalp, the rectum and the vagina."
+word in the drug name,lotion,skin,
+word in the drug name,shampoo,skin,
+word in the drug name,transdermal,skin;transdermal,"Mostly transdermal systems acting in the body, but local patches and compounded creams are also named transdermal."
+word in the drug name,im,injected,Abbreviation for intramuscular.
+word in the drug name,auto-injector,injected,
+word in the drug name,infusion,injected,
+word in the drug name,inj,eye;injected,"Short for injection, site not stated; injections into the eye (aflibercept, ranibizumab) are a major class."
+word in the drug name,injectable,eye;injected,"Injected, site not stated; some injectables are given into the eye (triamcinolone injectable suspension)."
+word in the drug name,injection,eye;injected,"Injected, site not stated; injections into the eye (aflibercept, ranibizumab) are a major class."
+word in the drug name,injections,eye;injected,"Injected, site not stated; injections into the eye (aflibercept, ranibizumab) are a major class."
+word in the drug name,intravenous,injected,
+word in the drug name,iv,injected,
+word in the drug name,pen,by_mouth;injected,"Mostly an injection pen, but also short for penicillin in oral products (Pen VK, Pen-Vee K)."
+word in the drug name,sc,injected,Abbreviation for subcutaneous.
+word in the drug name,vial,eye;inhaled;injected;other,"A vial holds injections (including eye injections), single-dose nebuliser solutions, single-use eye drops, and BCG for the bladder."
+word in the drug name,autoinjector,injected,
+word in the drug name,pre-filled,eye;injected;under_tongue,"Mostly pre-filled injection syringes or pens, including eye injections, but buccal midazolam also comes in pre-filled oral syringes."
+word in the drug name,prefilled,eye;injected;under_tongue,"Mostly pre-filled injection syringes or pens, including eye injections, but buccal midazolam also comes in pre-filled oral syringes."
+word in the drug name,subcutaneous,injected,
+word in the drug name,syringe,eye;injected;under_tongue,"Mostly injection syringes, including eye injections, but buccal midazolam also comes in pre-filled oral syringes."
+word in the drug name,hfa,inhaled;nasal,"HFA propellant aerosols are mostly inhalers, but there are HFA nasal aerosols too (beclomethasone, ciclesonide)."
+word in the drug name,inhalation,inhaled,
+word in the drug name,inhaled,inhaled,
+word in the drug name,nebuliser,inhaled,
+word in the drug name,ophthalmic,eye;injected,"Mostly eye drops and ointments, but some ophthalmic solutions are injected into the eye during surgery (trypan blue)."
+word in the drug name,intrauterine,other,Into the womb (hormone or copper device); none of the listed families fits.
+word in the drug name,enema,rectal,
+word in the drug name,suppositories,other;rectal;vaginal,"Suppositories are rectal or vaginal, and the alprostadil urethral pellet is a urethral suppository (other)."
+word in the drug name,vaginal,vaginal,
+FDA label (SPL) route,VAGINAL,vaginal,
+FDA label (SPL) route,URETHRAL,other,Into the urethra.
+FDA label (SPL) route,AURICULAR (OTIC),ear,
+FDA label (SPL) route,SUBMUCOSAL,injected,
+FDA label (SPL) route,INTRA-ARTICULAR,injected,
+FDA label (SPL) route,ENDOTRACHEAL,inhaled;injected,"Down the windpipe to the lungs: surfactants instilled into the lungs, or injection solutions given through a breathing tube."
+FDA label (SPL) route,INTRATHECAL,injected,
+FDA label (SPL) route,SOFT TISSUE,injected,
+FDA label (SPL) route,INTRALESIONAL,injected,
+FDA label (SPL) route,INTRATUMOR,injected,
+FDA label (SPL) route,INTRAPLEURAL,injected;other,"Into the chest cavity: instilled through a tube or needle, or talc blown in (talc aerosol), which is not an injection."
+FDA label (SPL) route,INTRAVESICAL,other,Into the bladder.
+FDA label (SPL) route,INTRACAUDAL,injected,Caudal epidural injection.
+FDA label (SPL) route,PERIODONTAL,injected;other;under_tongue,"Into the gum pocket: anaesthetic gels on the gum, deposits placed in the pocket (minocycline microspheres, doxycycline gel, chlorhexidine chip), or injections."
+FDA label (SPL) route,CUTANEOUS,skin;transdermal,"On the skin; patches acting in the body are also applied cutaneously."
+FDA label (SPL) route,INTRABRONCHIAL,inhaled;injected,"Into the airways to the lungs through a bronchoscope: instilled solutions (often injection products) reaching the lungs."
+FDA label (SPL) route,EXTRACORPOREAL,injected;other,"Into blood circulating outside the body: photopheresis solution (other), or anticoagulants injected into the circuit."
+FDA label (SPL) route,SUBCUTANEOUS,injected,
+FDA label (SPL) route,SUBARACHNOID,injected,
+FDA label (SPL) route,RECTAL,rectal,
+FDA label (SPL) route,ORAL,by_mouth;under_tongue,"Oral covers swallowed products and products held in the mouth (nicotine gum and lozenges, mouth rinses)."
+FDA label (SPL) route,RETROBULBAR,eye;injected,"Injection behind the eyeball for eye surgery or eye disease, so both the eye and injection families fit."
+FDA label (SPL) route,INTRACORONARY,injected,
+FDA label (SPL) route,OPHTHALMIC,eye;injected,"Eye products include drops and ointments, and also solutions injected or instilled into the eye."
+FDA label (SPL) route,INTRAPERITONEAL,injected;other,"Into the abdominal cavity: chemotherapy or other injections, or peritoneal dialysis fluid (other)."
+FDA label (SPL) route,BUCCAL,under_tongue,
+FDA label (SPL) route,INTRACOCHLEAR,ear;injected,"Into the inner ear, given by injection or a drug-releasing implant, so both the ear and injection families fit."
+FDA label (SPL) route,TRANSTRACHEAL,inhaled;injected,"Through the windpipe wall: lidocaine injected for airway anaesthesia, or oxygen given into the airway."
+FDA label (SPL) route,RESPIRATORY (INHALATION),inhaled,
+FDA label (SPL) route,INTRAVENOUS,injected,
+FDA label (SPL) route,NASAL,nasal,
+FDA label (SPL) route,INTRADERMAL,injected,
+FDA label (SPL) route,INTRALUMINAL,injected;other,"Into the lumen of a tube or vessel: catheter lock solutions and instillations through a catheter."
+FDA label (SPL) route,INTRACEREBRAL,injected,
+FDA label (SPL) route,INTRAUTERINE,other,"Into the womb: hormone or copper devices placed in it, or fluids instilled into it; none of the listed families fits."
+FDA label (SPL) route,IRRIGATION,eye;nasal;other;skin,"Rinsing: bladder and surgical irrigations (other), wound irrigation (skin), eye irrigating solutions, and nasal or sinus rinses."
+FDA label (SPL) route,INTRAMUSCULAR,injected,
+FDA label (SPL) route,OROPHARYNGEAL,by_mouth;under_tongue,"Mouth and throat products, some held in the mouth (sprays, lozenges, rinses), some swallowed (swish and swallow suspensions)."
+FDA label (SPL) route,DENTAL,injected;other;under_tongue,"Dental products include anaesthetic injections, gels and rinses on the gums, and pastes or varnishes on the teeth (which fit no listed family)."
+FDA label (SPL) route,INTRACAVITARY,injected;other,"Into a body cavity: pleural, peritoneal or pericardial instillations (injected), or the bladder (other)."
+FDA label (SPL) route,EPIDURAL,injected,
+FDA label (SPL) route,INTRAVITREAL,eye;injected,"Injection or implant into the eye, so both the eye and injection families fit."
+FDA label (SPL) route,PERCUTANEOUS,injected;skin;transdermal,"Through the skin: needle procedures and injections, skin prick tests and scarification, and absorption through the skin."
+FDA label (SPL) route,SUBLINGUAL,under_tongue,
+FDA label (SPL) route,INTRAVENTRICULAR,injected,
+FDA label (SPL) route,PERINEURAL,injected,
+FDA label (SPL) route,INTRAVASCULAR,injected,
+FDA label (SPL) route,TOPICAL,ear;eye;nasal;other;rectal;skin;transdermal;under_tongue;vaginal,"Topical means applied to a body surface: the skin, but also eye, ear, nose, mouth, rectal and vaginal surfaces, surgical sites (topical thrombin), and gels absorbed through the skin."
+FDA label (SPL) route,INTRAOCULAR,eye;injected,"Into the eye, by injection or implant or during eye surgery, so both the eye and injection families fit."
+FDA label (SPL) route,SUBRETINAL,eye;injected,"Injection under the retina (gene therapy), so both the eye and injection families fit."
+FDA label (SPL) route,INTRASYNOVIAL,injected,
+FDA label (SPL) route,TRANSDERMAL,skin;transdermal,"Through the skin; local patches (lidocaine, diclofenac) are also described as transdermal."
+FDA label (SPL) route,PARENTERAL,injected,
+FDA label (SPL) route,INFILTRATION,injected,
+FDA label (SPL) route,INTRA-ARTERIAL,injected,
+FDA label (SPL) route,URETERAL,other,Into the ureter (mitomycin for the upper urinary tract).
+FDA label (SPL) route,SUBCONJUNCTIVAL,eye;injected,"Injection under the conjunctiva of the eye, so both the eye and injection families fit."

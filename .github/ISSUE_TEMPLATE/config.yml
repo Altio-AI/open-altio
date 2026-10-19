@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 'Using the explorer? Press "Improve this"'
+    url: https://altio-ai.github.io/open-altio/use/explorer/#improve-this
+    about: The button at the top right of every page sends your note straight to us, with no account needed.
+  - name: Report a security problem
+    url: https://github.com/Altio-AI/open-altio/security/advisories/new
+    about: Privately, through GitHub's private vulnerability reporting. Never in a public issue.
+  - name: Get access to the hosted data
+    url: https://open.altioai.com
+    about: Apply on open.altioai.com to browse, filter and download every release without installing anything.

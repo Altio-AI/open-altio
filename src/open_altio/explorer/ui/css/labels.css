@@ -1,0 +1,30 @@
+/* The label flags: only what the app's own stylesheets do not draw yet, from the app's tokens alone.
+   SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  /* a flag's tip says what it is, how it was decided and the label's date: longer than the other
+     tips, so it wraps inside the screen instead of running off it */
+  .oa-tip { max-width: min(480px, calc(100vw - 16px)); white-space: normal; line-height: 1.4; }
+
+  /* the case dialog: under each reaction, one quiet line per suspect drug */
+  .oa-reac-labelled { display: flex; flex-direction: column; gap: var(--space-1); }
+  .oa-label-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-3); color: var(--ink-soft); font-size: var(--text-sm); }
+  .oa-label-drug { min-width: 64px; color: var(--ink-faint); }
+  /* a flag's reason on a line of its own under the line, flush with it */
+  .oa-label-line .oa-flag-reason { flex-basis: 100%; }
+  .oa-label-sources { margin-top: var(--space-5); }
+
+  /* About the label flags */
+  .oa-about .dialog-body > p { margin: 0; line-height: 1.55; }
+  .oa-about-list { margin-bottom: var(--space-2); }
+
+  /* Statistics' Label column keeps its slot whatever it says (statistics.css), so sorting or
+     filtering moves nothing; a long flag wraps rather than being cut */
+  .oa-stats .oa-label-col { white-space: normal; }
+
+  /* a flag not compared with the label: its reason in grey under Not compared, as an interval
+     sits by its number */
+  .oa-flag-reason { display: block; font-size: var(--text-sm); }
+  .oa-label-lead { margin: 0 0 var(--space-6); max-width: 820px; color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-label-lead a { color: var(--link); }
+}

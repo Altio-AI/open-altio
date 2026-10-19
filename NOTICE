@@ -1,0 +1,114 @@
+Open Altio
+Copyright 2026 Altio AI
+
+This product includes software developed by Altio AI, licensed under the
+Apache License, Version 2.0 (see LICENSE). The explorer's look, including its
+stylesheets, is Altio AI's own work and is published under the same licence.
+
+
+FAERS and AERS
+--------------
+FAERS and legacy AERS data are published by the U.S. Food and Drug
+Administration and are in the public domain. They are not included in this
+repository; the open-altio command downloads them from FDA. FDA has not
+reviewed or endorsed Open Altio. Reports in FAERS do not establish that a
+product caused an event.
+
+
+DiAna (University of Bologna)
+-----------------------------
+Open Altio's drug-name step uses the DiAna dictionary, and its cleaning steps
+were compared, one by one, with DiAna's.
+
+- DiAna's code: MIT License, Copyright (c) 2023 Michele Fusaroli and the DiAna
+  authors. https://github.com/fusarolimichele/DiAna_cleaning and
+  https://github.com/fusarolimichele/DiAna_package
+- The DiAna dictionary: Creative Commons Attribution 4.0 International
+  (CC BY 4.0), published on OSF at https://osf.io/zqu89/. It is not included
+  in this repository: the release build reads the file by its checksum
+  (rules/drug-names.md), and our corrections to it are in
+  mappings/faers/drug_names/.
+- DiAna's route table (route_st.csv), the seed of mappings/faers/route/:
+  CC BY 4.0, published in the same OSF project.
+
+Cite as:
+  Fusaroli M, Giunchi V, Battini V, et al. Enhancing Transparency in Defining
+  Studied Drugs: The Open-Source Living DiAna Dictionary for Standardizing Drug
+  Names in the FAERS. Drug Safety. 2024;47:271-284.
+  doi:10.1007/s40264-023-01391-4
+  Fusaroli M, Giunchi V. DiAna: Repository for FAERS cleaning and analysis.
+  OSF. 2023. doi:10.17605/OSF.IO/ZQU89
+
+
+Erasmus MC: faersdbstats (AEOLUS) and aioli
+-------------------------------------------
+Open Altio's first duplicate rule follows AEOLUS, its legacy country names were
+checked against the country table faersdbstats ships, and its cleaning steps
+were compared with those of faersdbstats and the aioli drug standardiser. Both
+are licensed under the Apache License, Version 2.0.
+
+- faersdbstats: https://github.com/mi-erasmusmc/faersdbstats
+- aioli: https://github.com/mi-erasmusmc/aioli
+
+AEOLUS: Banda JM, Evans L, Vanguri RS, Tatonetti NP, Ryan PB, Shah NH.
+  A curated and standardized adverse drug event resource to accelerate drug
+  safety research. Scientific Data. 2016;3:160026. doi:10.1038/sdata.2016.26
+
+
+ICH E2B route codes
+-------------------
+The route codes and names in mappings/faers/route/ are those of ICH's E2B
+route of administration list (E2B(R3) code list 14, the E2B(R2) routes),
+published by ICH in the E2B(R3) implementation package.
+
+
+WHO ATC classification
+----------------------
+The drug-to-class table in mappings/ (ingredient, ATC code, WHO name, level
+and index year) is derived from WHO's ATC index. The ATC codes and names are
+WHO's. WHO's own index file is not included in this repository.
+
+Cite as:
+  WHO Collaborating Centre for Drug Statistics Methodology. ATC classification
+  index with DDDs 2026. Oslo, Norway.
+  https://atcddd.fhi.no/
+
+
+U.S. National Library of Medicine: RxNorm and DailyMed
+------------------------------------------------------
+Open Altio gives each ingredient its code from RxNorm's Current Prescribable
+Content, and the label flags read FDA's human prescription labels as DailyMed
+publishes them, with DailyMed's file linking each label to RxNorm. All of them
+come from the U.S. National Library of Medicine (NLM), and none is included in
+this repository: `python -m open_altio.faers labels-fetch` downloads them from
+NLM, `python -m open_altio.faers labels-refresh` fetches DailyMed's daily
+update files, and the build reads RxNorm from NLM's files in a folder you name
+(rules/label-source.md, rules/rxnorm-ingredients.md). The reviewed name pairs
+in mappings/faers/rxnorm/ write each substance as RxNorm names it.
+
+This product uses publicly available data from the U.S. National Library of
+Medicine (NLM), National Institutes of Health, Department of Health and Human
+Services; NLM is not responsible for the product and does not endorse or
+recommend this or any other product.
+
+- RxNorm: https://www.nlm.nih.gov/research/umls/rxnorm/
+- DailyMed: https://dailymed.nlm.nih.gov/
+
+
+EMA Important Medical Events
+----------------------------
+When you give its file for the release's MedDRA version, the label flags read
+the European Medicines Agency's Important Medical Events (IME) list: a reaction
+on it is a serious form, which a label that names only the reaction's group
+does not cover (rules/label-umbrella.md). The list is EMA's, published free for
+each MedDRA version. It is not included in this repository and is read from a
+file you name, like MedDRA's own files.
+
+
+MedDRA
+------
+MedDRA(R) is a registered trademark of ICH. No MedDRA content is included in
+this repository. The local explorer uses MedDRA only from files you point it
+at, under your own MedDRA subscription. The hosted service at
+open.altioai.com shows MedDRA's hierarchy and SMQs only to people whose
+subscription it has verified with MSSO.

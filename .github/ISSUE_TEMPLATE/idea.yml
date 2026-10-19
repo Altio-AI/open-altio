@@ -1,0 +1,26 @@
+name: Suggest an idea
+description: Something Open Altio could do that it does not do yet.
+title: "Idea: "
+labels: ["type: feature", "status: needs-triage"]
+body:
+  - type: textarea
+    id: own-words
+    attributes:
+      label: In your own words
+      description: What you would like to do, who it is for, and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: How we would know it works
+      description: Checks someone could run and see pass or fail. These become the acceptance criteria.
+      placeholder: |
+        - In the explorer, ... shows ...
+        - A test shows that ...
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of open-altio doctor or open-altio report
+      description: If it is about the command or the local explorer, run `open-altio doctor` and paste what it prints.
+      render: text

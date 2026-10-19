@@ -1,0 +1,59 @@
+/* The Statistics tab: the pairs' table, its marks, and the Thresholds menu's numbers.
+   SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .oa-stat-find { flex: 0 1 300px; min-width: 0; margin: 0; }
+  .oa-stat-lead { margin: 0 0 var(--space-6); max-width: 820px; color: var(--ink-soft); font-size: var(--text-md); line-height: 1.45; }
+  .oa-stat-lead a { color: var(--link); }
+  /* The table fits a laptop's width, 1280 px and up: each figure has a slot wide enough for six
+     digits, a grey interval sits under its value, and the reaction takes what is left. A longer
+     figure widens its slot rather than being cut; a phone scrolls the table, the first column held. */
+  .oa-stats { font-size: var(--text-md); }
+  .oa-stats th, .oa-stats td { padding: var(--space-5) var(--space-2); white-space: nowrap; vertical-align: baseline; }
+  .oa-stats :is(th, td):not(.oa-num) { padding-inline: var(--space-4); }
+  .oa-stats :is(th, td):first-child { padding-left: var(--space-5); }
+  .oa-stats :is(th, td):last-child { padding-right: var(--space-5); }
+  .oa-stats tbody th { min-width: 92px; font-weight: var(--weight-regular); color: var(--ink); white-space: normal; }
+  .oa-stats tbody :is(th, td):first-child { min-width: 100px; white-space: normal; }
+  /* a long word breaks only where a hyphen may go, never in the middle of a syllable */
+  .oa-stats tbody :is(th, td):not(.oa-num) { hyphens: auto; }
+  /* below 1024 the table scrolls, so its held first column is wider and a reaction wraps less */
+  @media (max-width: 1023px) { .oa-stats tbody :is(th, td):first-child { min-width: 140px; } }
+  .oa-stats td.oa-num { font-size: var(--text-sm); }
+  .oa-stats td.oa-num .oa-faint { display: block; white-space: normal; }
+  /* each column's slot, on its head: at least this wide, wider only for a longer figure */
+  .oa-stats thead th { width: var(--slot, auto); min-width: var(--slot, 0); }
+  .oa-stats [data-col="ingredient"] { --slot: 100px; }
+  .oa-stats [data-col="class"] { --slot: 140px; }
+  .oa-stats [data-col="class_eb05"] { --slot: 60px; }
+  /* a head that does not sort reads as the heads that do */
+  .oa-stats thead .oa-still-head { text-transform: none; letter-spacing: normal; }
+  .oa-stats [data-col="label"] { --slot: 114px; }
+  .oa-stats [data-col="cases"] { --slot: 60px; }
+  .oa-stats [data-col="expected"] { --slot: 84px; }
+  .oa-stats :is([data-col="eb05"], [data-col="eb95"]) { --slot: 52px; }
+  .oa-stats [data-col="ebgm"] { --slot: 56px; }
+  .oa-stats :is([data-col="prr"], [data-col="chi_square"], [data-col="chi_square_yates"], [data-col="rrr"]) { --slot: 60px; }
+  .oa-stats [data-col="ror"] { --slot: 84px; }
+  .oa-stats [data-col="ic"] { --slot: 44px; }
+  .oa-stats [data-col="onset_days"] { --slot: 108px; }
+  .oa-stats tbody tr { cursor: pointer; }
+  .oa-stats tbody tr:hover { background: var(--mist); }
+  .oa-stats td { font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+  /* a number its statistic's screen passes */
+  .oa-stats td[data-state="pass"] { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-stats td[data-state="pass"] .oa-faint { font-weight: var(--weight-regular); }
+  .oa-stat-foot { display: flex; align-items: center; gap: var(--space-6); min-height: var(--hit-target); color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-screen-line { margin: 0 var(--space-5) var(--space-4); color: var(--ink-soft); font-size: var(--text-sm); white-space: normal; }
+  .oa-screen-numbers { display: grid; gap: var(--space-4); padding: var(--space-5); border-top: var(--hairline) solid var(--line); }
+  .oa-screen-number { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); font-size: var(--text-md); }
+  .oa-screen-number .field-input { width: 96px; }
+  /* a pair's ROR by age band and by sex, under its cases */
+  .oa-strata { margin-top: var(--space-8); }
+  .oa-strata .oa-note { margin: var(--space-3) 0 var(--space-5); max-width: 820px; }
+  .oa-strata .oa-case-cols { align-items: start; }  /* the shorter table keeps its rows' height */
+  .oa-strata-table td { font-variant-numeric: tabular-nums; }
+  .oa-strata-table :is(th, td) { white-space: normal; }  /* a phone wraps an interval, never cuts it */
+  .oa-strata-table tbody tr { cursor: default; }
+  .oa-strata-table tbody tr:hover { background: none; }
+}
