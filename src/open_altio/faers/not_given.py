@@ -85,7 +85,7 @@ def named(columns: Iterable[str], alias: str, **context: str) -> str:
         for c in columns
         if c in fields()
     ]
-    return f"list_filter([{', '.join(each)}]::VARCHAR[], x -> x IS NOT NULL)"
+    return f"list_filter([{', '.join(each)}]::VARCHAR[], lambda x: x IS NOT NULL)"
 
 
 __all__ = ["RULE", "check", "fields", "given", "label", "named"]
