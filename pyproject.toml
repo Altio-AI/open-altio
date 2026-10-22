@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "open-altio"
-version = "1.0.0"
+version = "1.0.1"
 description = "FDA's adverse event reports (FAERS), cleaned and deduplicated in the open: the pipeline that builds a release and the explorer that reads it"
 readme = "README.md"
 license = "Apache-2.0"

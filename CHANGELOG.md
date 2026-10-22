@@ -2,6 +2,10 @@
 
 Changes to the code, newest first. The code follows [semantic versioning](https://semver.org/). Data releases are named by FDA quarter (for example `2026Q2`); each one carries its own funnel numbers and changelog entry in its `methods.json`, shown on How we clean FAERS.
 
+## 1.0.1 (2026-10-22)
+
+DuckDB 2.0 support: four list filters now use DuckDB's `lambda` keyword, which DuckDB 2.0 requires. Every result is the same.
+
 ## 1.0.0 (2026-10-19)
 
 The first public release.
