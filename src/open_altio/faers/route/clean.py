@@ -46,7 +46,7 @@ def _mask(names: frozenset[str], order: tuple[str, ...]) -> int:
 def _decode(mask: str) -> str:
     """A mask as its family names, sorted and joined with ';'."""
     names = ", ".join(_text(f) for f in families()[:-1])
-    pick = f"list_filter([{names}], (x, i) -> ({mask} >> (i - 1)) & 1 = 1)"
+    pick = f"list_filter([{names}], lambda x, i: ({mask} >> (i - 1)) & 1 = 1)"
     return f"array_to_string(list_sort({pick}), ';')"
 
 
@@ -80,7 +80,7 @@ GROUP BY v.raw_T""")
     con.execute(f"""
 CREATE TEMP TABLE {_SCRATCH[3]} AS
 SELECT raw_T, bit_and(m) AS i_T, bit_or(m) AS u_T
-FROM (SELECT raw_T, unnest(list_filter([{hits or "NULL"}], x -> x IS NOT NULL)) AS m
+FROM (SELECT raw_T, unnest(list_filter([{hits or "NULL"}], lambda x: x IS NOT NULL)) AS m
       FROM (SELECT DISTINCT drugname_norm_T AS raw_T FROM drug_latest_T
             WHERE drugname_norm_T IS NOT NULL))
 GROUP BY raw_T""")
@@ -129,7 +129,7 @@ k AS (
 SELECT {key},
        CASE WHEN c1 = c2 THEN c1 WHEN c1 IS NOT NULL THEN '{unknown_code}' END AS route_T,
        CASE WHEN f_T IS NULL THEN '{none}' WHEN split_T THEN '{disagree}'
-            ELSE array_to_string(list_filter([{contributed}], s -> s IS NOT NULL), '+')
+            ELSE array_to_string(list_filter([{contributed}], lambda s: s IS NOT NULL), '+')
        END AS route_source_T,
        CASE WHEN bit_count(f_T) = 1 THEN {_decode("f_T")} ELSE '{unknown}' END AS route_family_T,
        CASE WHEN f_T IS NOT NULL THEN {_decode("f_T")} END AS route_families_T
