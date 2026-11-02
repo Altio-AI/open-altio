@@ -86,9 +86,17 @@ WORDS = """() => { const folder = document.querySelector('.oa-downloads-off');
 
 @pytest.mark.parametrize("width", [1440, 1024, 390])
 def test_every_page_says_once_how_current_its_data_is(opened, early_site, width):
-    """A release built up to 2019Q1 says so in one quiet place on every page, and nowhere else."""
+    """A release built up to 2019Q1 says so in one quiet place on every page, and nowhere else:
+    top right, or on Home in its release card."""
     page = opened("/", base=early_site, width=width)
-    for path in ("/", "/all/overview", "/product/valsartan/overview", "/release", "/methods"):
+    page.wait_for_selector(".oa-release-kind:has-text('updated on')")
+    assert page.evaluate(AS_OF) == []
+    assert re.search(
+        r"Newest quarter 2019 Q1, updated on \d{1,2} \w{3} \d{4}",
+        page.inner_text(".oa-release-card"),
+    )
+    assert page.evaluate(WORDS).count("2019 Q1") == 1
+    for path in ("/all/overview", "/release", "/methods"):
         page.goto(early_site + path)
         settle(page)
         line = page.evaluate(AS_OF)
@@ -799,12 +807,17 @@ def test_the_release_tables_find_lists_the_table_named_as_typed_first(opened):
     assert picked[0] == "demo_T" and all("demo_t" in t.lower() for t in picked[:3])
 
 
-def test_home_says_when_the_release_was_last_updated(opened, licensed_client):
-    built = licensed_client.get("/api/release").json()["built_at"][:10]
-    year, month, dayno = built.split("-")
+def test_home_says_the_day_every_other_page_says_the_data_was_refreshed(opened, licensed_client):
+    """One source, the manifest's day: Home's card and every other page's line say the same."""
+    refreshed = licensed_client.get("/api/release").json()["refreshed"]
+    year, month, dayno = refreshed.split("-")
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    shown = f"Updated {dayno}-{months[int(month) - 1]}-{year}"
-    assert shown in opened("/").inner_text(".oa-release-card")
+    day = f"{int(dayno)} {months[int(month) - 1]} {year}"
+    page = opened("/")
+    page.wait_for_selector(".oa-release-kind:has-text('updated on')")
+    assert f"updated on {day}" in page.inner_text(".oa-release-card")
+    page = opened("/release")
+    assert page.evaluate(AS_OF)[0].startswith(f"Data refreshed {day}")
 
 
 def test_home_says_the_reports_are_mostly_postmarketing(opened):
@@ -812,14 +825,15 @@ def test_home_says_the_reports_are_mostly_postmarketing(opened):
     assert "Mostly postmarketing, from FDA's FAERS and the older AERS" in card
 
 
-def test_the_release_card_is_three_lines(opened):
+def test_the_release_card_is_four_lines(opened):
     page = opened("/")
-    page.wait_for_selector(".oa-release-kind:has-text('Updated')")
+    page.wait_for_selector(".oa-release-kind:has-text('updated on')")
     lines = page.eval_on_selector_all(
         ".oa-release-card > p:not(.oa-note)", "ps => ps.map((p) => p.innerText)"
     )
-    assert len(lines) == 3, lines
-    assert "probable duplicates left out." in lines[0] and "Updated" in lines[1]
+    assert len(lines) == 4, lines
+    assert "probable duplicates left out." in lines[0] and "postmarketing" in lines[1]
+    assert re.fullmatch(r"Newest quarter \d{4} Q\d, updated on \d{1,2} \w{3} \d{4}", lines[2])
 
 
 def test_the_case_window_says_fda_publishes_no_narrative(opened):
@@ -847,7 +861,7 @@ FIT = """() => {
 @pytest.mark.parametrize("width", [320, 768, 1024, 1440])
 def test_the_new_lines_fit_at_every_width_and_move_nothing(opened, width):
     page = opened("/", width=width)
-    page.wait_for_selector(".oa-release-kind:has-text('Updated')")
+    page.wait_for_selector(".oa-release-kind:has-text('updated on')")
     assert "postmarketing" in page.inner_text(".oa-release-card")
     before = page.evaluate(FIT)
     settle(page)

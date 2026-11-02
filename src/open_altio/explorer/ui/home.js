@@ -2,15 +2,15 @@
    opened lately, and the release in a line. */
 
 import { rolesWords } from './filters.js';
-import { framed, repaintSide } from './frame.js';
+import { framed, refreshed, repaintSide } from './frame.js';
 import { picked } from './host.js';
 import { icon } from './icons.js';
 import { pinButton } from './products.js';
 import { addressParts, drawn, go, productPath } from './router.js';
 import { rulesNotice } from './rules/page.js';
 import { api } from './server.js';
-import { S, drugWords, keepProducts, learnTitles, listLength, onPins, pinned, productLabel, releaseEndYear, releaseSince } from './state.js';
-import { day, esc, num, skeletonRows, tip } from './util.js';
+import { S, drugWords, keepProducts, learnTitles, listLength, onPins, pinned, productLabel, releaseEndYear, releaseQuarter, releaseSince } from './state.js';
+import { esc, num, skeletonRows, tip } from './util.js';
 
 // what a drug's count on Home covers: the roles a page opens with
 const asRoles = () => `as ${rolesWords(drugWords().default_roles)}`;
@@ -89,7 +89,8 @@ function homePage() {
       <h2 class="section-head">This release</h2>
       <div class="panel oa-release-card">
         <p><strong>${num(r?.cases)} cases</strong> from ${r ? releaseSince() : ''}, ${num(r?.set_aside)} probable duplicates left out.${rulesNotice()}</p>
-        <p class="oa-faint oa-release-kind">Mostly postmarketing, from FDA's FAERS and the older AERS${r?.built_at ? `<span class="oa-dot">·</span>Updated ${esc(day(r.built_at))}` : ''}</p>
+        <p class="oa-faint oa-release-kind">Mostly postmarketing, from FDA's FAERS and the older AERS</p>
+        ${r ? `<p class="oa-faint oa-release-kind">Newest quarter <span class="oa-asof-part">${esc(releaseQuarter().words)}</span>, updated on <span class="oa-asof-part">${esc(refreshed(r.refreshed))}</span></p>` : ''}
         ${r?.meddra_older ? `<p class="oa-note oa-meddra-older">${esc(r.meddra_older)}</p>` : ''}
         <p class="oa-links"><a href="/all/overview">Look at all cases</a><a href="/release" data-tables-link ${S.showTables ? '' : 'hidden'}>Its tables, SQL and downloads</a></p>
       </div>

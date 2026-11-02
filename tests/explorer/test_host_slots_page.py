@@ -79,7 +79,7 @@ def test_a_hosts_buttons_sit_in_the_top_bar_on_a_phone(opened, hosting):
 
 @pytest.mark.parametrize("width", [320, 1440])
 def test_a_page_with_no_host_draws_nothing_in_the_corner(opened, width):
-    page = opened("/", width=width)
+    page = opened("/release", width=width)
     assert page.query_selector(".oa-corner-end") is None
     kinds = page.eval_on_selector_all(
         ".oa-corner > *", "els => els.map((e) => e.className.split(' ')[0])"
@@ -116,7 +116,9 @@ def test_a_host_can_leave_out_how_current_the_data_is_where_it_says_so(opened, h
 
 
 @pytest.mark.parametrize("width", [320, 1440])
-def test_with_no_hide_every_page_shows_how_current_the_data_is(opened, width):
-    for path in ("/", "/methods", "/release"):
+def test_with_no_hide_every_page_but_home_shows_how_current_the_data_is(opened, width):
+    """Home says it in its release card instead."""
+    for path in ("/methods", "/release"):
         seen = opened(path, width=width).evaluate(ASOF_SEEN)
         assert len(seen) == 2 and all(line.startswith("Data refreshed") for line in seen)
+    assert opened("/", width=width).evaluate(ASOF_SEEN) == []

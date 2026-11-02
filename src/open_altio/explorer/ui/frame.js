@@ -4,7 +4,8 @@
    folding or opening never moves what a person reaches for: the fold button first, then Home, All
    cases, Tables and SQL, Rules, a host's places and Products, each with the rail's icon; the person's
    pinned products under Products, the one part that grows; Settings, with what a host adds around
-   it, at the foot. How current the data is shows once on every page, top right (asOf). */
+   it, at the foot. How current the data is shows once on every page, top right (asOf), and on Home in
+   its release card. */
 
 import { actions } from './events.js';
 import { cardTables, host, slot } from './host.js';
@@ -62,11 +63,12 @@ export const improveBtn = () => (host.improve ? `<button type="button" class="bt
 // then holding the room `--corner-end-room` names, so filling it later moves nothing
 export const cornerEnd = (here) => (host.slots['corner-end'] ? `<span class="oa-corner-end">${slot('corner-end', here)}</span>` : '');
 
-const refreshed = (day) => new Date(`${day}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+export const refreshed = (day) => new Date(`${day}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 export const asOf = () => (S.release ? `<p class="oa-asof"><span class="oa-asof-part">Data refreshed ${esc(refreshed(S.release.refreshed))}</span> <span class="oa-dot">·</span> <span class="oa-asof-part">newest quarter ${esc(releaseQuarter().words)}</span></p>` : '');
 
-// the same line, except where a host's hideAsOf says it is left out (it says the same itself)
-export const shownAsOf = (here) => (host.hideAsOf(here) ? '' : asOf());
+// the same line, except on Home, whose release card says it, and where a host's hideAsOf says it is
+// left out (it says the same itself)
+export const shownAsOf = (here) => (here === 'home' || host.hideAsOf(here) ? '' : asOf());
 
 // With the side panel folded, its places stay one click away: each as an icon that names itself, at
 // the height the open panel gives it (sidePanel). Home is the way home; the mark is not repeated here.
