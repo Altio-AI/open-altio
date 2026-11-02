@@ -825,15 +825,16 @@ def test_home_says_the_reports_are_mostly_postmarketing(opened):
     assert "Mostly postmarketing, from FDA's FAERS and the older AERS" in card
 
 
-def test_the_release_card_is_four_lines(opened):
+def test_the_release_card_is_five_lines(opened):
     page = opened("/")
     page.wait_for_selector(".oa-release-kind:has-text('updated on')")
     lines = page.eval_on_selector_all(
         ".oa-release-card > p:not(.oa-note)", "ps => ps.map((p) => p.innerText)"
     )
-    assert len(lines) == 4, lines
+    assert len(lines) == 5, lines
     assert "probable duplicates left out." in lines[0] and "postmarketing" in lines[1]
     assert re.fullmatch(r"Newest quarter \d{4} Q\d, updated on \d{1,2} \w{3} \d{4}", lines[2])
+    assert lines[3].startswith("Latest update: ")
 
 
 def test_the_case_window_says_fda_publishes_no_narrative(opened):

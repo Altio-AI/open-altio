@@ -89,6 +89,26 @@
   .oa-find { position: relative; margin-top: var(--space-6); }
   .oa-find .search-input { padding-top: var(--space-5); padding-bottom: var(--space-5); font-size: var(--text-row); }
   .oa-find-results { position: absolute; z-index: 5; top: calc(100% + var(--space-3)); left: 0; right: 0; max-height: 60vh; overflow-y: auto; }
+  /* Home's update band: the newest update in one line, never wrapped, and the list it opens */
+  .oa-update { display: flex; align-items: center; gap: var(--space-5); height: 40px; padding: 0 var(--space-2) 0 var(--space-5); border-radius: var(--radius-sm); background: var(--accent-soft); color: var(--ink); font-size: var(--text-md); }
+  /* close under the greeting, and the search close under it, as Altio's To do strip stands over
+     its table; with no band, Home's spacing is as it was */
+  .oa-update-slot:empty { display: none; }
+  .oa-update-slot { margin-top: calc(-1 * var(--space-4)); }
+  .oa-update-slot:not(:empty) + .oa-find { margin-top: calc(-1 * var(--space-4)); }
+  .oa-update > .icon { flex: none; color: var(--ink-soft); }
+  .oa-update-words { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .oa-update-open { display: flex; flex: 1 1 auto; align-items: center; gap: var(--space-5); min-width: 0; height: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .oa-update-open:focus-visible { outline: var(--focus-ring); }
+  .oa-update-all { display: inline-flex; flex: none; align-items: center; gap: var(--space-1); color: var(--ink-soft); font-size: var(--text-sm); white-space: nowrap; }
+  .oa-update-all .icon, .oa-update-all .icon svg { width: 12px; height: 12px; }
+  .oa-update-open:hover .oa-update-all { color: var(--ink); text-decoration: underline; }
+  .oa-update-x { flex: none; min-width: 28px; min-height: 28px; padding: 0; }
+  .oa-update-x .icon, .oa-update-x .icon svg { width: 12px; height: 12px; }
+  /* the history: about six updates, older ones scrolling inside it, never past the window */
+  .oa-updates { width: max-content; max-width: min(440px, calc(100vw - 24px)); max-height: min(var(--updates-height, 100vh), calc(100vh - 24px)); overflow-y: auto; }
+  .menu .oa-update-row { display: flex; gap: var(--space-5); max-width: none; color: var(--ink-soft); }
+  .oa-update-day { flex: none; color: var(--ink-faint); white-space: nowrap; }
   .oa-home-section { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-8); }
   .oa-home-section .section-head { padding-left: 0; }
   .oa-result { display: flex; align-items: center; }

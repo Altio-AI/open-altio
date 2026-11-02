@@ -117,6 +117,7 @@ ALLOWED: list[tuple[str, str, str]] = [
     ("scripts/check.py", "*", "the gates name what they look for"),
     ("CHANGELOG.md", "date", "each release is dated"),
     ("CITATION.cff", "date", "the citation format requires the release date"),
+    ("src/open_altio/explorer/ui/updates.txt", "date", "each update to Open Altio is dated"),
     (
         "notebooks/faers/10_label_flags.ipynb",
         "em dash",

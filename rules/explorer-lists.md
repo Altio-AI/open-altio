@@ -14,6 +14,7 @@ values:
   smqs_found: 12
   smqs_found_one_kind: 300
   home_tiles: 4
+  updates_shown: 6
   names_on_page: 3
   countries_charted: 8
   companies_charted: 8
@@ -31,6 +32,7 @@ enforced_in:
   - src/open_altio/explorer/found.py
   - src/open_altio/explorer/explore.py
   - src/open_altio/explorer/ui/home.js
+  - src/open_altio/explorer/ui/updates.js
   - src/open_altio/explorer/ui/scope.js
   - src/open_altio/explorer/ui/charts.js
   - src/open_altio/explorer/ui/terms.js
@@ -58,6 +60,7 @@ The explorer's searches and short lists stop at these lengths. A person who need
 The page reads the rest from `/api/release`:
 
 - `home_tiles`: products on Home, the ones opened most lately or, on a first visit, those reported most as a suspect.
+- `updates_shown`: updates to Open Altio Home's history shows before it scrolls, newest first.
 - `names_on_page`: of a product's other names, how many its tile, a search's result and its page's title line show.
 - `countries_charted`: countries on a page's Overview, most cases first.
 - `countries_offered`: countries the Country filter lists, most cases first, of those that match what is typed.

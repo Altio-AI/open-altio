@@ -52,6 +52,8 @@
 /* the narrowest phones keep the mark; the name comes back from 400 px */
 .oa-topbar .brand-name { display: none; }
 @media (min-width: 400px) { .oa-topbar .brand-name { display: inline; } }
+/* a phone's update band: the chevron alone at its end, so the whole line fits */
+@media (max-width: 767px) { .oa-update-all-words { display: none; } }
 .oa-topbar .icon-btn :is(.icon, .icon svg) { width: 20px; height: 20px; }
 .oa-improve-top { display: inline-flex; align-items: center; gap: var(--space-3); min-width: 44px; justify-content: center; }
 .oa-improve-top :is(.icon, .icon svg) { width: 16px; height: 16px; }

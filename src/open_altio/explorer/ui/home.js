@@ -1,4 +1,4 @@
-/* Home: the greeting, finding a drug (each found one with its pin), the pinned products or else those
+/* Home: the greeting, the latest update to Open Altio once (updates.js), finding a drug (each found one with its pin), the pinned products or else those
    opened lately, and the release in a line. */
 
 import { rolesWords } from './filters.js';
@@ -10,6 +10,7 @@ import { addressParts, drawn, go, productPath } from './router.js';
 import { rulesNotice } from './rules/page.js';
 import { api } from './server.js';
 import { S, drugWords, keepProducts, learnTitles, listLength, onPins, pinned, productLabel, releaseEndYear, releaseQuarter, releaseSince } from './state.js';
+import { allUpdatesLink, latestLine, readUpdates, updateBand, updatesRead } from './updates.js';
 import { esc, num, skeletonRows, tip } from './util.js';
 
 // what a drug's count on Home covers: the roles a page opens with
@@ -77,6 +78,7 @@ function homePage() {
   const r = S.release;
   return framed(`<main class="home oa-home">
     <h1 class="greeting">${greeting()}${S.me?.first_name ? `, ${esc(S.me.first_name)}` : ''}.</h1>
+    <div class="oa-update-slot" id="oa-update-slot">${updateBand()}</div>
     <div class="oa-find">
       <div class="search-bar">
         <span class="search-icon">${icon('search')}</span>
@@ -91,8 +93,9 @@ function homePage() {
         <p><strong>${num(r?.cases)} cases</strong> from ${r ? releaseSince() : ''}, ${num(r?.set_aside)} probable duplicates left out.${rulesNotice()}</p>
         <p class="oa-faint oa-release-kind">Mostly postmarketing, from FDA's FAERS and the older AERS</p>
         ${r ? `<p class="oa-faint oa-release-kind">Newest quarter <span class="oa-asof-part">${esc(releaseQuarter().words)}</span>, updated on <span class="oa-asof-part">${esc(refreshed(r.refreshed))}</span></p>` : ''}
+        ${latestLine()}
         ${r?.meddra_older ? `<p class="oa-note oa-meddra-older">${esc(r.meddra_older)}</p>` : ''}
-        <p class="oa-links"><a href="/all/overview">Look at all cases</a><a href="/release" data-tables-link ${S.showTables ? '' : 'hidden'}>Its tables, SQL and downloads</a></p>
+        <p class="oa-links"><a href="/all/overview">Look at all cases</a><a href="/release" data-tables-link ${S.showTables ? '' : 'hidden'}>Its tables, SQL and downloads</a>${allUpdatesLink()}</p>
       </div>
     </section>
   </main>`, 'home');
@@ -191,4 +194,17 @@ function wireFind() {
   });
 }
 
-drawn('home', (r, app) => { app.innerHTML = homePage(); wireFind(); fillHome(); });
+// the updates are read as the page starts; on the rare Home drawn before, they join it once read
+function fillUpdates() {
+  if (updatesRead()) return;
+  readUpdates().then(() => {
+    const slot = document.getElementById('oa-update-slot');
+    const kind = [...document.querySelectorAll('.oa-release-card .oa-release-kind')].at(-1);
+    if (!slot) return;
+    slot.innerHTML = updateBand();
+    kind?.insertAdjacentHTML('afterend', latestLine());
+    document.querySelector('.oa-release-card .oa-links')?.insertAdjacentHTML('beforeend', allUpdatesLink());
+  });
+}
+
+drawn('home', (r, app) => { app.innerHTML = homePage(); wireFind(); fillHome(); fillUpdates(); });

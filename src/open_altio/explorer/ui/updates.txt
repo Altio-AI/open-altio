@@ -1,0 +1,3 @@
+# Updates to Open Altio, newest first. Each line: a day (YYYY-MM-DD), a space, the short line Home's
+# band shows when it is the newest, " | ", then the full line its history lists once there are two.
+2026-11-02 New: a Signals tab on every drug. | New on every drug: a Signals tab showing which events crossed the thresholds this quarter, compared with last quarter.
