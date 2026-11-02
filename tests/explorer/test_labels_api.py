@@ -43,6 +43,11 @@ def at(path: str, **query) -> str:
     return f"{path}?{urlencode(query, doseq=True)}" if query else path
 
 
+def held(answer: dict) -> dict:
+    """An answer without the release it names (`counted_on`, which every answer carries)."""
+    return {k: v for k, v in answer.items() if k != "counted_on"}
+
+
 def keys(ask, client, **query) -> set[str]:
     return {c["case_key_T"] for c in ask(client, at("/api/cases", **query))["cases"]}
 
@@ -52,9 +57,9 @@ def keys(ask, client, **query) -> set[str]:
 
 def test_a_release_without_the_flags_shows_none_and_fails_nowhere(ask, client):
     assert ask(client, "/api/release")["labels"] is None
-    assert ask(client, at("/api/labels/product", **ASPIRIN)) == {}
-    assert ask(client, at("/api/labels/cases", **ASPIRIN)) == {"cases": {}}
-    assert ask(client, "/api/labels/case/faers/9021021") == {}
+    assert held(ask(client, at("/api/labels/product", **ASPIRIN))) == {}
+    assert held(ask(client, at("/api/labels/cases", **ASPIRIN))) == {"cases": {}}
+    assert held(ask(client, "/api/labels/case/faers/9021021")) == {}
     # a Label status in the address is no filter there: every case shows
     everything = ask(client, at("/api/summary", **ASPIRIN))["cases"]
     assert ask(client, at("/api/summary", **ASPIRIN, label="not_on_label"))["cases"] == everything
@@ -149,12 +154,12 @@ def test_a_products_reactions_each_carry_one_flag_furthest_from_the_label_first(
 
 def test_a_drug_with_no_flags_and_no_drug_answer_nothing_to_flag(ask, label_client):
     # omeprazole is only ever concomitant; a spelling with no ingredient is no drug of its own
-    assert ask(label_client, at("/api/labels/product", product="omeprazole")) == {
+    assert held(ask(label_client, at("/api/labels/product", product="omeprazole"))) == {
         "labels": [],
         "reactions": [],
     }
-    assert ask(label_client, at("/api/labels/product", product="VALSARTAN TEVA")) == {}
-    assert ask(label_client, "/api/labels/product") == {}
+    assert held(ask(label_client, at("/api/labels/product", product="VALSARTAN TEVA"))) == {}
+    assert held(ask(label_client, "/api/labels/product")) == {}
 
 
 def flags_of(ask, client, drug: str, unit: str = "any") -> list[tuple[str, str]]:
@@ -402,7 +407,7 @@ def test_a_trial_product_and_a_drug_in_another_role_have_no_flag(ask, label_clie
     # case 9004004 names aspirin only as BAYER LOW DOSE, marked a trial product
     flagged = set().union(*(keys(ask, label_client, **ASPIRIN, label=flag) for flag in OUTCOMES))
     assert "9004004" in keys(ask, label_client, **ASPIRIN) and "9004004" not in flagged
-    assert ask(label_client, "/api/labels/case/faers/9004004") == {"drugs": []}
+    assert held(ask(label_client, "/api/labels/case/faers/9004004")) == {"drugs": []}
     # case 9006006 names aspirin only as interacting: no flag for it
     assert "9006006" not in flagged
 
@@ -447,7 +452,7 @@ def test_a_cases_suspect_drugs_each_carry_their_flag_per_reaction_and_their_labe
         )
         assert all(f["label"] == drug["label"] for f in drug["flags"].values())
     assert (aspirin["label"]["product"], warfarin["label"]["product"]) == ("Aspirinex", "Warfarex")
-    assert ask(label_client, "/api/labels/case/faers/nothing") == {"drugs": []}
+    assert held(ask(label_client, "/api/labels/case/faers/nothing")) == {"drugs": []}
 
 
 def test_a_flag_read_on_another_forms_label_says_which(ask, label_client):
@@ -724,3 +729,36 @@ def test_a_drugs_row_names_its_own_label_over_a_combinations_newer_one_on_every_
         assert got["Nausea"]["setid"] == got["Haemorrhage"]["setid"] == "aspirin-by-mouth"
         assert rows["Nausea"] == rows["Haemorrhage"] == "aspirin-by-mouth"
     assert all(a == answers[0] for a in answers)
+
+
+# a query's terms against the label ---------------------------------------------------------------
+
+
+def test_a_group_of_reactions_is_read_against_the_label_and_the_unreported_are_not_compared(
+    ask, label_client
+):
+    got = ask(
+        label_client,
+        at("/api/labels/query", **ASPIRIN_ALONE, reaction=["Headache", "Vomiting", "Zzz invented"]),
+    )
+    flags = {r["pt"]: r["outcome"] for r in got["reactions"]}
+    assert flags == {"Headache": "forms_differ", "Vomiting": "uncertain"}
+    assert got["listed"] == 0 and got["not_compared"] == 1
+    assert got["never_reported"] == ["Zzz invented"]
+    # a reaction never reported with the drug never carries a label answer
+    assert "Zzz invented" not in {r["pt"] for r in got["reactions"]}
+    cases = ask(label_client, at("/api/summary", **ASPIRIN_ALONE, pt="Headache"))["cases"]
+    assert {r["pt"]: r["cases"] for r in got["reactions"]}["Headache"] == cases
+
+
+def test_the_group_asked_counts_listed_reactions_and_needs_a_drug_and_reactions(ask, label_client):
+    listed = ask(
+        label_client, at("/api/labels/query", product="acetylsalicylic acid", reaction="Nausea")
+    )
+    assert listed["listed"] == sum(r["outcome"] == "on_label" for r in listed["reactions"])
+    ask(label_client, at("/api/labels/query", reaction="Nausea"), status=400)
+    ask(label_client, at("/api/labels/query", **ASPIRIN), status=400)
+
+
+def test_a_release_without_the_flags_answers_nothing_for_a_group(ask, client):
+    assert held(ask(client, at("/api/labels/query", **ASPIRIN, reaction="Headache"))) == {}

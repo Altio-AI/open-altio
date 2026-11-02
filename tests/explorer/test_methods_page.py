@@ -144,6 +144,21 @@ def test_a_rule_opens_on_its_decision_its_why_and_its_foot(opened, classes_site)
     assert "The rule file" in foot and "The code" in foot
 
 
+def test_a_rule_with_nothing_of_its_own_to_chart_opens_on_why_it_matters_and_what_we_did(
+    opened, classes_site
+):
+    page = opened("/methods?open=trend-rising", base=classes_site)
+    page.locator('dialog.oa-m-dialog[open][data-box="a_stats"]').wait_for()
+    row = page.locator('#rule-trend-rising[data-open="true"]')
+    row.wait_for()
+    assert row.locator(".oa-evidence").count() == 0
+    assert row.locator(".oa-m-why .oa-m-lines dt").all_inner_texts() == [
+        "Why it matters",
+        "What we did",
+    ]
+    assert row.locator(".oa-m-under").inner_text().startswith("Fixed:")
+
+
 def test_a_rule_named_in_the_address_opens_its_box_on_it(opened, classes_site):
     page = opened("/methods?open=label-table-rows", base=classes_site)
     page.locator('dialog.oa-m-dialog[open][data-box="a_flags"]').wait_for()

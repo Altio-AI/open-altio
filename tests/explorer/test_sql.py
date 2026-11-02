@@ -1,5 +1,8 @@
 """Read-only SQL over the live release (POST /api/sql), within the hard limits
-of rule sql-limits, and the schema the SQL box lists.
+of rule sql-limits, and the schema the SQL box lists; and the query behind a
+counted question (/api/count's `sql`), which runs here to exactly its counts,
+for every field and the filters in combination, with MedDRA's licensed tables
+only for a viewer who may see them.
 
 Expected answers are read from the release's own Parquet through `rel`.
 Limits are read from the rule; a test that needs a small one runs under
@@ -8,14 +11,21 @@ rules_with, a copy of the rules with that one value changed.
 
 from __future__ import annotations
 
+import contextlib
 import time
 from pathlib import Path
 
 import duckdb
 import pytest
 
+from open_altio.explorer import counted
+from open_altio.explorer.access import Viewer
 from open_altio.explorer.context import explorer_of
+from open_altio.explorer.sql import single_select
+from open_altio.faers import open_release
+from open_altio.faers.reader import quoted
 from open_altio.rulebook import value
+from open_altio.testing.countedquestions import DRUG, QUESTIONS, REACTIONS, by_value
 from open_altio.testing.rules import rules_with
 
 HEAVY = "SELECT sum(a.range * b.range) FROM range(100000) a, range(100000) b"  # minutes of work
@@ -211,3 +221,222 @@ def test_the_configuration_cannot_be_changed_from_a_select(client):
     assert cells(run(client, "SELECT current_setting('memory_limit')")) == [
         [f"{float(gb):.1f} GiB"]
     ]
+
+
+# the query behind a count --------------------------------------------------------------------
+
+BY = counted.choices()
+LICENSED = ("reac_meddra_T", "indi_meddra_T", "meddra_pt")  # what a count by today's PT reads
+
+
+def every_row(client, sql: str, headers: dict[str, str] | None = None) -> list[list]:
+    """Every row a query gives in Tables and SQL, page by page."""
+    first = run(client, sql, 1, **(headers or {}))
+    assert first.status_code == 200, first.text
+    got = first.json()
+    rows = list(got["rows"])
+    for page in range(2, -(-got["total"] // got["size"]) + 1):
+        rows += cells(run(client, sql, page, **(headers or {})))
+    return rows
+
+
+def runs_to_its_counts(client, ask, headers: dict[str, str] | None = None, **question) -> dict:
+    """The question counted; its `sql`, run in Tables and SQL, gives exactly the counts the
+    answer gives, in the order it gives them."""
+    got = ask(client, "/api/count", headers=headers, **question)
+    assert got["check"]["agrees"] is True, got["check"]
+    assert got["sql"] and got["why"] == {}
+    rows = every_row(client, got["sql"], headers)
+    assert rows == got["check"]["counts"]
+    assert by_value(got["by"], rows) == by_value(got["by"], got["counts"])
+    if got["by"] != "event":  # an event's name may differ in its capitals; its order with it
+        assert [v for v, _ in rows] == [v for v, _, _ in got["counts"]]
+    return got
+
+
+@pytest.mark.parametrize("question", QUESTIONS, ids=lambda q: "&".join(q) or "nothing")
+def test_every_counts_query_runs_in_tables_and_sql_to_its_counts(question, client, ask, release):
+    """And on the release as downloaded, opened with open_release."""
+    downloaded = open_release(release)
+    for by in BY:
+        if by in question or (by == "outcome" and "outcome" in question):
+            continue  # refused: a case can give several outcomes
+        got = runs_to_its_counts(client, ask, by=by, **question)
+        assert not any(name in got["sql"] for name in LICENSED)
+        assert [list(r) for r in downloaded.execute(got["sql"]).fetchall()] == got["check"][
+            "counts"
+        ]
+    downloaded.close()
+
+
+@pytest.mark.parametrize("question", REACTIONS, ids=lambda q: "&".join(q))
+def test_with_meddra_a_count_by_todays_terms_runs_on_its_licensed_tables(
+    question, licensed_client, ask
+):
+    """Its licensed tables are named only where reactions or indications are read: a count by
+    event, or a question choosing reactions or what the drug was taken for."""
+    for by in BY:
+        sql = runs_to_its_counts(licensed_client, ask, by=by, **question)["sql"]
+        reactions, indications = by == "event" or "pt" in question, "indication" in question
+        named = {name for name in LICENSED if name in sql}
+        want = {"reac_meddra_T"} if reactions else set()
+        want |= {"indi_meddra_T"} if indications else set()
+        assert named == want | ({"meddra_pt"} if want else set())
+
+
+ANN = {"X-Viewer": "ann"}  # shown today's PTs, but not MedDRA's licensed part
+ANN_MEDDRA = {"X-Viewer": "ann+meddra"}
+
+
+def test_a_viewer_without_meddras_licensed_part_gets_no_query_naming_it(
+    people, licensed_release, ask
+):
+    web = people(licensed_release)
+    for by in BY:
+        got = ask(web, "/api/count", headers=ANN, by=by, product=DRUG, pt="Nausea")
+        assert got["sql"] is None and got["why"] == {"sql": counted.LICENSED}
+        assert got["check"]["agrees"] is True
+        runs_to_its_counts(web, ask, headers=ANN_MEDDRA, by=by, product=DRUG, pt="Nausea")
+    for name in LICENSED:  # nor a table of it to query
+        assert run(web, f"SELECT count(*) FROM {name}", **ANN).status_code == 400
+        assert run(web, f"SELECT count(*) FROM {name}", **ANN_MEDDRA).status_code == 200
+    # a count that reads no reaction names no licensed table, so it runs for them too
+    runs_to_its_counts(web, ask, headers=ANN, by="sex", product=DRUG)
+
+
+def test_a_viewer_shown_fdas_text_gets_a_query_over_fdas_text(hooked, licensed_release, ask):
+    shown = Viewer(id="fda", meddra=False, who=False, todays_names=False)
+    web = hooked(viewer=shown, release_dir=licensed_release)
+    for by in ("event", "sex"):
+        got = runs_to_its_counts(web, ask, by=by, product=DRUG, pt=["Headache", "Nausea"])
+        assert not any(name in got["sql"] for name in LICENSED)
+
+
+def test_a_question_not_counted_again_has_no_query(client, ask):
+    got = ask(client, "/api/count", by="sex", product=DRUG, points="3")
+    assert got["sql"] is None and got["why"] == {"sql": counted.NOT_COUNTED_AGAIN}
+
+
+# a value in each place the query writes one, each holding a quote or SQL text
+SNEAKY = "x'); DELETE FROM case_latest_T; --"
+WRITTEN: list[dict] = [
+    {"product": f"it's{SNEAKY}"},
+    {"product": DRUG, "include": f"A'B{SNEAKY}", "exclude": "C' OR '1'='1", "unit": "exact"},
+    {"dprod": ["valsartan", f"x' OR 1=1 --{SNEAKY}"], "drole": ["PS", "SS"]},
+    {"drug": "aspirin' OR 'a'='a", "role": ["PS", "PS' OR '1'='1"]},
+    {"pt": ["Nausea", "Nausea' OR '1'='1"], "reaction": f"Headache{SNEAKY}"},
+    {"product": DRUG, "country": ["US", "US' OR '1'='1"], "sex": ["F", "F'--"]},
+    {"sender": f"eli lilly and co{SNEAKY}"},
+    {"product": DRUG, "age": "$v1", "reporter": "1' OR '1'='1", "received_from": "2012-05-03'--"},
+    {"product": "a\0b", "outcome": ["DE", "DE'; DROP VIEW outc_latest_T; --"]},
+]
+
+
+@pytest.mark.parametrize("question", WRITTEN, ids=lambda q: "&".join(q))
+def test_a_value_holding_a_quote_or_sql_is_written_as_a_constant_and_changes_nothing(
+    question, client, ask, rel
+):
+    (cases,) = rel.rows("SELECT count(*) FROM case_latest_T")[0]
+    for by in ("sex", "event", "year"):
+        got = runs_to_its_counts(client, ask, by=by, **question)
+        assert single_select(got["sql"])  # one SELECT, whatever the values hold
+        if "country" in question:  # a country is read as given, so written in as given
+            assert quoted(question["country"][1]) in got["sql"]
+    assert cells(run(client, "SELECT count(*) FROM case_latest_T")) == [[cases]]
+
+
+def test_a_counts_query_made_to_change_the_release_is_refused(client, ask, rel, tmp_path):
+    got = ask(client, "/api/count", by="sex", product=DRUG)
+    target = tmp_path / "out.csv"
+    for changed in (
+        f"{got['sql']}; DELETE FROM case_latest_T",
+        f"CREATE TABLE counted AS {got['sql']}",
+        f"COPY ({got['sql']}) TO '{target}'",
+        f"INSERT INTO case_latest_T {got['sql']}",
+    ):
+        answer = run(client, changed)
+        assert answer.status_code == 400 and refusal(answer)
+    assert not target.exists()
+    assert every_row(client, got["sql"]) == got["check"]["counts"]  # nothing was changed
+
+
+# a product's own instance, within limits it names ---------------------------------------
+
+
+def own(release, tmp_path, **limits):
+    """A service of a caller's own over the invented release, spilling under tmp_path."""
+    from open_altio.explorer.release import LiveRelease
+    from open_altio.explorer.sql import SqlService
+
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    return SqlService(LiveRelease(release), limits=limits or None, home=tmp_path)
+
+
+def disk(folder: Path) -> int:
+    return sum(f.stat().st_size for f in folder.rglob("*") if f.is_file())
+
+
+SPILLING = "SELECT i, md5(i::VARCHAR) AS h FROM range(3000000) t(i) ORDER BY h"  # sorts past memory
+
+
+def test_a_query_needing_more_than_the_spill_limit_fails_and_leaves_the_disk_under_it(
+    release, tmp_path
+):
+    from open_altio.explorer.sql import LimitHit
+
+    cap = 20 * 1024 * 1024
+    service = own(
+        release,
+        tmp_path / "capped",
+        memory_limit="64MB",
+        threads=1,
+        max_temp_directory_size=f"{cap}B",
+    )
+    db = service.current(classes=True, by_pt=True)
+    settings = db.run("SELECT current_setting('max_temp_directory_size')").rows[0][0]
+    assert settings.endswith("MiB") or settings.endswith("MB")
+    with pytest.raises(LimitHit) as hit:
+        db.run(SPILLING)
+    assert hit.value.outcome == "memory"
+    assert disk(tmp_path / "capped") <= cap
+    assert db.run("SELECT 42").rows == [(42,)]  # still answering
+    roomy = own(release, tmp_path / "roomy", memory_limit="64MB", threads=1).current(
+        classes=True, by_pt=True
+    )  # the same query, with no spill limit, runs: it is the limit that stopped it
+    assert roomy.run(SPILLING).total == 3000000
+
+
+def test_a_second_instances_slow_query_leaves_the_explorers_own_answering(
+    client, release, tmp_path
+):
+    import threading
+
+    db = own(release, tmp_path, memory_limit="256MB", threads=1).current(classes=True, by_pt=True)
+    with rules_with(tmp_path / "rules", {"sql-limits": {"timeout_seconds": 3}}):
+        slow = threading.Thread(target=lambda: _quietly(db.run, HEAVY), daemon=True)
+        slow.start()
+        time.sleep(0.5)
+        started = time.monotonic()
+        assert cells(run(client, "SELECT 1")) == [[1]]
+        assert time.monotonic() - started < 5
+        assert slow.is_alive()  # still busy while the explorer answered
+        slow.join(15)
+        assert not slow.is_alive()
+
+
+def _quietly(call, *args):
+    with contextlib.suppress(Exception):  # the thread's end is not what the test reads
+        call(*args)
+
+
+def test_with_no_limits_the_settings_are_the_rules(release, tmp_path):
+    from open_altio.explorer.release import LiveRelease
+    from open_altio.explorer.sql import SqlService
+
+    db = SqlService(LiveRelease(release)).current(classes=True, by_pt=True)
+    gb = value("sql-limits", "memory_limit_gb")
+    got = db.run("SELECT current_setting('memory_limit'), current_setting('threads')").rows
+    assert got == [(f"{float(gb):.1f} GiB", int(value("sql-limits", "threads")))]
+    given = own(release, tmp_path, memory_limit="512MB", threads=1)
+    given = given.current(classes=True, by_pt=True)
+    assert given.run("SELECT current_setting('threads')").rows == [(1,)]

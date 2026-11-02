@@ -103,3 +103,48 @@ def test_above_is_strict_at_least_is_not_and_an_empty_value_meets_nothing():
 def test_malformed_screens_are_refused(when):
     with pytest.raises(screen.ScreenError):
         screen.check(when, COLUMNS)
+
+
+def rows_of(*tables):
+    """Each (a, b, c, d) table's statistics as a row of values by column, empty as None."""
+    cells = dict(zip("abcd", zip(*tables, strict=True), strict=True))
+    got = dp.measures(**cells)
+    names = {"cases": "a", "prr": "PRR", "chi_square": "chi_square"}
+    names |= {"chi_square_yates": "chi_square_yates", "ror_lower": "ROR_lower"}
+    return [
+        {name: None if got[k][i] != got[k][i] else float(got[k][i]) for name, k in names.items()}
+        for i in range(len(tables))
+    ]
+
+
+def test_a_row_meets_a_screen_as_its_sql_does_judged_whole():
+    """The tables worked by hand above: the Evans preset holds for the first alone; the second
+    meets PRR but not the cases, the third PRR and the cases but not Yates' chi-square, so
+    neither meets the whole screen."""
+    tables = ((10, 90, 40, 860), (2, 18, 40, 940), (6, 94, 30, 1170))
+    con, rows = table(*tables), rows_of(*tables)
+    evans = next(p for p in screen.presets("PRR") if p["default"])["when"]
+    conditions = screen.check(evans, COLUMNS)
+    assert [screen.meets(conditions, r) for r in rows] == meets(con, evans) == [True, False, False]
+    for one in evans:  # each part alone, as its SQL judges it
+        alone = screen.check([one], COLUMNS)
+        assert [screen.meets(alone, r) for r in rows] == meets(con, [one])
+    assert any(screen.meets(screen.check([c], COLUMNS), rows[1]) for c in evans)
+    assert any(screen.meets(screen.check([c], COLUMNS), rows[2]) for c in evans)
+
+
+def test_meets_holds_only_when_every_condition_holds_and_an_empty_value_meets_none():
+    [full, empty] = rows_of((10, 90, 40, 860), (10, 90, 0, 900))  # no comparator: PRR empty
+    assert empty["prr"] is None
+    for when, want in [
+        ([{"column": "prr", "at_least": 2.25}], [True, False]),
+        ([{"column": "prr", "above": 2.25}], [False, False]),
+        ([{"column": "prr", "below": 1e9}], [True, False]),
+        ([{"column": "prr", "at_most": 2.25}], [True, False]),
+        ([{"column": "cases", "at_least": 10}, {"column": "prr", "below": 1e9}], [True, False]),
+        ([], [True, True]),
+    ]:
+        conditions = screen.check(when, COLUMNS)
+        assert [screen.meets(conditions, r) for r in (full, empty)] == want, when
+    nan = dict(full, prr=float("nan"))
+    assert not screen.meets(screen.check([{"column": "prr", "at_least": 0}], COLUMNS), nan)

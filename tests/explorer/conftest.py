@@ -5,6 +5,8 @@ no sign-in, LocalAccess, over the fake release (open_altio.testing.fixtures).
     explorer_app    explorer_app(release_dir, access=None): the app over that folder, on `clock`
     client          a TestClient of the explorer over `release`
     licensed_client the same over `licensed_release`, whose licensed part holds MedDRA 29.1
+    facts_client    the same over `facts_release`: one drug, digoxin, whose cases show every fact
+                    of an event (open_altio.testing.fakefda.FACTS_STORY)
     label_client    the same over `labelled_release`, which also holds invented label flags
     dup_client      the same over `dup_rel`, the release of the duplicate rules' own cases
     hooked          hooked(viewer=, about=, modules=, terms=, edits_rules=, release_dir=): a
@@ -19,6 +21,8 @@ no sign-in, LocalAccess, over the fake release (open_altio.testing.fixtures).
     own_client      a TestClient over `own_release`, told where the fake FDA files are, so it
                     rebuilds
     older_release   a copy of `licensed_release` whose MedDRA part an older Open Altio added
+    no_literature_release  a copy of `breakdown_release` whose explorer database was built
+                    before its case table held FDA's literature reference (lit_ref)
     site            the explorer over `licensed_release`, served on this machine for the browser
     label_site      the explorer over `labelled_release`, served the same way
     early_site      the explorer over a release built only up to 2019Q1, served the same way
@@ -53,6 +57,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlencode
 
+import duckdb
 import pyarrow.parquet as pq
 import pytest
 from fastapi import Request
@@ -62,6 +67,7 @@ from open_altio.explorer import rebuild
 from open_altio.explorer.access import LOCAL, LocalAccess, Viewer
 from open_altio.explorer.app import create_app
 from open_altio.explorer.outbox import Outbox
+from open_altio.faers import EXPLORER_FILE
 from open_altio.faers.build import Inputs
 from open_altio.testing import fakeclasses
 from open_altio.testing.browser import open_page, served
@@ -165,6 +171,16 @@ def copy_client(release, clock, outbox) -> TestClient:
 @pytest.fixture
 def licensed_client(explorer_app, licensed_release) -> TestClient:
     return TestClient(explorer_app(licensed_release))
+
+
+@pytest.fixture
+def listed_client(explorer_app, listed_release) -> TestClient:
+    return TestClient(explorer_app(listed_release))
+
+
+@pytest.fixture
+def facts_client(explorer_app, facts_release) -> TestClient:
+    return TestClient(explorer_app(facts_release))
 
 
 @pytest.fixture
@@ -303,6 +319,18 @@ def opened(chromium, site):
 def own_release(release, tmp_path) -> Path:
     copy = tmp_path / "releases" / release.name
     shutil.copytree(release, copy)
+    return copy
+
+
+@pytest.fixture(scope="session")
+def no_literature_release(breakdown_release, tmp_path_factory) -> Path:
+    copy = tmp_path_factory.mktemp("no_literature") / breakdown_release.name
+    shutil.copytree(breakdown_release, copy)
+    con = duckdb.connect(str(copy / EXPLORER_FILE))
+    try:
+        con.execute("ALTER TABLE explorer_case_T DROP COLUMN lit_ref")
+    finally:
+        con.close()
     return copy
 
 

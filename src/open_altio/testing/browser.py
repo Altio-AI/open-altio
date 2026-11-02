@@ -256,7 +256,8 @@ TICK = """(e) => {
 
 def tick_look(page: Any, selector: str) -> dict[str, Any]:
     """TICK for the first choice at `selector`."""
-    return dict(page.eval_on_selector(selector, TICK))
+    # found and read in one step: a repaint between the two reads a row no longer on the page
+    return dict(page.evaluate(f"(s) => ({TICK})(document.querySelector(s))", selector))
 
 
 __all__ = [

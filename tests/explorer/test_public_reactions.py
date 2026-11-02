@@ -33,7 +33,7 @@ def web(hooked, seizure_release):
 
 
 def reported(ask, client) -> dict[str, int]:
-    return dict(map(tuple, ask(client, "/api/summary")["reactions"]))
+    return {k: n for k, n, _ in ask(client, "/api/summary")["reactions"]}
 
 
 def test_fda_text_viewer_sees_convulsion_and_seizure_as_two_where_a_subscriber_sees_one(web, ask):

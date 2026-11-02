@@ -34,7 +34,14 @@ added in an invented 27.0.
 SMQs: 96000001 "Invented bleeding events (SMQ)" holds Haemorrhage narrow,
 Nausea broad and Headache narrow but inactive. 96000002 "Invented
 gastrointestinal events (SMQ)" holds the sub-SMQ 96000003, which holds
-Vomiting narrow and the LLT Sickness broad.
+Vomiting narrow and the LLT Sickness broad. 96000004 "Invented pregnancy topics (SMQ)"
+holds Pregnancy and Neonatal jaundice narrow and the sub-SMQ 96000005, which holds Congenital
+anomaly narrow.
+
+Beside them are the PTs the public list of rule not-a-medical-event names, each as MedDRA writes
+it, and groups invented in the place of the ones the licensed list names; NOT_MEDICAL_GROUPS is
+that list, as a person's groups file gives it. "Drug effect incomplete" is a current LLT of a PT
+the rule names, as in MedDRA, and is no PT here. No group or class here is MedDRA's.
 
     from open_altio.testing.fakemeddra import write_meddra
     folder = write_meddra(tmp_path / "meddra", "29.1")   # folder/MedAscii/*.asc
@@ -62,26 +69,40 @@ from open_altio.faers.meddra import (
 )
 
 SOCS = {
-    "91000001": ("Invented nervous system disorders", "Inerv"),
-    "91000002": ("Invented gastrointestinal disorders", "Igast"),
-    "91000003": ("Invented vascular disorders", "Ivasc"),
-    "91000004": ("Invented investigations", "Iinv"),
+    "91000001": ("Invented nerve class", "Inerv"),
+    "91000002": ("Invented gut class", "Igast"),
+    "91000003": ("Invented vessel class", "Ivasc"),
+    "91000004": ("Invented tests class", "Iinv"),
+    "91000005": ("Invented product class", "Iprod"),
+    "91000006": ("Invented social class", "Isoc"),
+    "91000007": ("Invented procedure class", "Iproc"),
 }
 HLGTS = {  # code -> (name, soc)
-    "92000001": ("Invented headaches HLGT", "91000001"),
+    "92000001": ("Invented head pain HLGT", "91000001"),
     "92000002": ("Invented gastrointestinal signs HLGT", "91000002"),
     "92000003": ("Invented bleeding HLGT", "91000003"),
     "92000004": ("Invented enzyme tests HLGT", "91000004"),
     "92000005": ("Invented rhythm HLGT", "91000001"),
+    "92000006": ("Invented use errors HLGT", "91000001"),
+    "92000007": ("Invented product quality HLGT", "91000005"),
+    "92000008": ("Invented social HLGT", "91000006"),
+    "92000009": ("Invented procedures HLGT", "91000007"),
+    "92000010": ("Invented off label use HLGT", "91000001"),
 }
 HLTS = {  # code -> (name, hlgt)
-    "93000001": ("Invented headaches NEC", "92000001"),
-    "93000002": ("Invented nausea and vomiting symptoms", "92000002"),
-    "93000003": ("Invented haemorrhages NEC", "92000003"),
+    "93000001": ("Invented head pain NEC", "92000001"),
+    "93000002": ("Invented sickness symptoms", "92000002"),
+    "93000003": ("Invented bleeding NEC", "92000003"),
     "93000004": ("Invented liver function analyses", "92000004"),
     "93000005": ("Invented rate and rhythm disorders", "92000005"),
     "93000006": ("Invented kidney failures NEC", "92000003"),
     "93000007": ("Invented site reactions", "92000002"),
+    "93000008": ("Invented off label terms", "92000010"),
+    "93000009": ("Invented medication errors NEC", "92000006"),
+    "93000010": ("Invented product quality issues", "92000007"),
+    "93000011": ("Invented social issues", "92000008"),
+    "93000012": ("Invented procedures NEC", "92000009"),
+    "93000013": ("Invented treatment outcomes", "92000001"),
 }
 COMMON_PTS = {  # code -> (name, hlt)
     "94000001": ("Headache", "93000001"),
@@ -98,6 +119,22 @@ COMMON_PTS = {  # code -> (name, hlt)
     "94000025": ("Invented site pain", "93000007"),
     "94000026": ("Invented site necrosis", "93000007"),
     "94000027": ("Seizure", "93000001"),
+    # a term of each kind rule not-a-medical-event sets aside, and one it keeps (Headache)
+    "94000030": ("Off label use", "93000008"),
+    "94000031": ("Wrong drug administered", "93000009"),
+    "94000032": ("Product quality issue", "93000010"),
+    "94000033": ("Social issue", "93000011"),
+    "94000034": ("Procedural pain", "93000012"),
+    "94000035": ("No adverse event", "93000013"),
+    "94000036": ("Drug ineffective", "93000013"),
+    "94000037": ("Product ineffective", "93000013"),
+    "94000038": ("Treatment failure", "93000013"),
+    "94000039": ("Therapeutic response decreased", "93000013"),
+    "94000040": ("Therapeutic product effect incomplete", "93000013"),
+    "94000041": ("Therapy non-responder", "93000013"),
+    "94000042": ("Pregnancy", "93000013"),
+    "94000043": ("Neonatal jaundice", "93000013"),
+    "94000044": ("Congenital anomaly", "93000013"),
 }
 COMMON_LLTS = {  # code -> (name, pt, current)
     "95000001": ("Head pain", "94000001", "Y"),
@@ -107,12 +144,24 @@ COMMON_LLTS = {  # code -> (name, pt, current)
     "95000005": ("Kidney failure", "94000021", "Y"),
     "95000006": ("Lead", "94000023", "Y"),
     "95000007": ("Convulsion", "94000027", "Y"),
+    "95000008": ("Drug effect incomplete", "94000040", "Y"),
 }
+# the groups file's list for an event's facts (rule label-groups), at two levels of the hierarchy
+NOT_MEDICAL_GROUPS = [
+    "Invented product class",
+    "Invented social class",
+    "Invented procedure class",
+    "Invented use errors HLGT",
+    "Invented off label use HLGT",
+]
 ARRHYTHMIA, HEART_RHYTHM, LACTIC = "94000006", "94000007", "94000008"
+PREGNANCY_SMQ = "Invented pregnancy topics (SMQ)"
 SMQS = {  # code -> (name, level)
     "96000001": ("Invented bleeding events (SMQ)", "1"),
     "96000002": ("Invented gastrointestinal events (SMQ)", "1"),
     "96000003": ("Invented vomiting sub-search (SMQ)", "2"),
+    "96000004": (PREGNANCY_SMQ, "1"),
+    "96000005": ("Invented inherited disorders (SMQ)", "2"),
 }
 # smq, term code, term level (MedDRA's: 4 PT, 5 LLT, 0 sub-SMQ), scope (2 narrow, 1 broad,
 # 0 n/a), status
@@ -123,6 +172,10 @@ SMQ_CONTENT = [
     ("96000002", "96000003", "0", "0", "A"),
     ("96000003", "94000003", "4", "2", "A"),
     ("96000003", "95000002", "5", "1", "A"),
+    ("96000004", "94000042", "4", "2", "A"),
+    ("96000004", "94000043", "4", "2", "A"),
+    ("96000004", "96000005", "0", "0", "A"),
+    ("96000005", "94000044", "4", "2", "A"),
 ]
 
 

@@ -11,10 +11,12 @@ import duckdb
 import pytest
 
 from open_altio import rulebook
+from open_altio.explorer.filters import Filters
 from open_altio.faers import build_release, dates, derive
 from open_altio.rulebook import UserRules
 from open_altio.testing import fakefda
 from open_altio.testing.releasereader import ReleaseReader
+from open_altio.testing.rules import rules_with
 
 DATE_RULES = frozenset({"event-date-precision", "date-limits", "time-to-onset", "therapy-duration"})
 
@@ -264,6 +266,74 @@ def test_a_drug_with_no_time_to_onset_says_why_and_one_with_a_value_says_nothing
 def test_switched_off_no_drug_says_why():
     with _off("time-to-onset"):
         assert why(date(2026, 1, 15), ("1", "20260120")) == dict.fromkeys("123")
+
+
+# ------------------------------------------------------------- the received day
+def _placed(day: str | None, quarter: str) -> int:
+    con = duckdb.connect()
+    con.execute(
+        f"CREATE TABLE c AS SELECT ?::DATE AS {dates.received_day()}, ?::VARCHAR AS quarter_T",
+        [day, quarter],
+    )
+    return con.execute(f"SELECT {dates.received_quarter('c')} FROM c").fetchone()[0]
+
+
+@pytest.mark.parametrize(
+    ("day", "quarter", "want"),
+    [
+        ("2019-02-10", "2026q2", 20191),  # received long before the file that holds it
+        ("2019-03-31", "2019q2", 20191),
+        ("2019-04-01", "2019q2", 20192),
+        ("2025-12-31", "2026q1", 20254),
+        (None, "2026q2", 20262),  # no received day: the quarter of its own file
+        (None, "2004q1", 20041),
+    ],
+)
+def test_a_case_is_counted_in_the_quarter_of_its_received_day_else_of_its_own_file(
+    day, quarter, want
+):
+    assert _placed(day, quarter) == want
+
+
+def test_the_received_day_is_a_derived_column_of_both_case_tables(release, rel):
+    column = dates.received_day()
+    assert column == rulebook.value("received-day", "column")
+    assert column in rel.columns("case_latest_T")
+    explorer = duckdb.connect(str(release / "explorer.duckdb"), read_only=True)
+    described = explorer.execute("DESCRIBE explorer_case_T").fetchall()
+    explorer.close()
+    assert column in [name for name, *_ in described]
+
+
+@pytest.mark.parametrize("fdas", [True, False])
+def test_a_received_day_that_is_not_a_derived_column_is_refused(fdas, tmp_path):
+    """FDA's own date, or the day the rule names without the derived suffix."""
+    suffix = rulebook.value("transformed-suffix-T", "derived_suffix")
+    column = "init_fda_dt" if fdas else dates.received_day().removesuffix(suffix)
+    with rules_with(tmp_path, {"received-day": {"column": column}}):
+        with pytest.raises(rulebook.RuleError, match="not a column the release derives"):
+            dates.received_day()
+        with pytest.raises(rulebook.RuleError):
+            dates.received_quarter("c")
+
+
+def test_one_change_of_the_rule_dates_the_explorers_received_window_again(tmp_path):
+    """The explorer's received_from and received_to read the day through received_day(), so the
+    rule's column is the one they compare, whatever it names."""
+    window = Filters(received_from=date(2019, 1, 1), received_to=date(2019, 12, 31))
+    assert window.where().sql.count(f"c.{dates.received_day()} ") == 2
+    other = "first_fda_dt_T"
+    assert other != dates.received_day()
+    with rules_with(tmp_path, {"received-day": {"column": other}}):
+        sql = window.where().sql
+    assert sql.count(f"c.{other} ") == 2
+    assert f"c.{rulebook.value('received-day', 'column')} " not in sql
+
+
+def test_the_quarter_number_is_the_one_every_table_holds(rel):
+    assert rel.rows(
+        f"SELECT count(*) FROM quarters_T WHERE qnum_T <> {dates.quarter_number('quarter_T')}"
+    ) == [(0,)]
 
 
 # ------------------------------------------------------------- the release

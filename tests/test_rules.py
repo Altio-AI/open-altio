@@ -22,10 +22,21 @@ TREE = RuleTree(
     root=ROOT,
     folder=ROOT / "rules",
     not_enforcing=("src/open_altio/rulebook/", "src/open_altio/testing/"),
+    # these read scratch rules a test writes, not the rules in rules/
+    loader_tests=("tests/rulebook/", "tests/contract/test_rules_folders.py"),
 )
 RULE_FILES = TREE.rule_files()
 # what a public rule's front-matter may hold; who decided a rule, and when, is history
-FRONT_MATTER = {"rule", "values", "enforced_in", "line", "always_on", "why_locked", "settable"}
+FRONT_MATTER = {
+    "rule",
+    "values",
+    "enforced_in",
+    "line",
+    "always_on",
+    "why_locked",
+    "settable",
+    "placeholder",
+}
 
 
 def _front_matter(path) -> dict:
@@ -44,6 +55,54 @@ def test_rule_file_parses_with_required_front_matter(path):
 @pytest.mark.parametrize("path", RULE_FILES, ids=lambda p: p.stem)
 def test_front_matter_holds_the_rule_and_how_people_see_it_and_nothing_else(path):
     assert set(_front_matter(path)) <= FRONT_MATTER
+
+
+@pytest.mark.parametrize("path", RULE_FILES, ids=lambda p: p.stem)
+def test_a_placeholder_is_true_and_names_its_evidence_notebook(path):
+    assert TREE.placeholder_problems(path) == []
+
+
+def _scratch_rule(root: Path, front: str, text: str) -> Path:
+    (root / "rules").mkdir(exist_ok=True)
+    path = root / "rules" / "widget-cap.md"
+    path.write_text(
+        f"---\nrule: widget-cap\nvalues: {{cap: 1}}\nenforced_in: not yet built\n{front}---\n"
+        f"# Widgets\n\n{text}\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_a_placeholder_that_is_not_true_or_names_no_written_or_listed_notebook_is_found(
+    tmp_path,
+):
+    """A placeholder waits on its evidence notebook: the notebook is written, or listed in
+    notebooks/README.md as To write until it is."""
+    tree = RuleTree(root=tmp_path, folder=tmp_path / "rules")
+    (tmp_path / "notebooks" / "faers").mkdir(parents=True)
+    (tmp_path / "notebooks" / "faers" / "12_widgets.ipynb").write_text("{}", encoding="utf-8")
+    (tmp_path / "notebooks" / "README.md").write_text(
+        "| Notebook | What it finds | The rules it backs |\n|---|---|---|\n"
+        "| `faers/13_gadgets` | To write: how many gadgets | `widget-cap` |\n",
+        encoding="utf-8",
+    )
+    said = {
+        "placeholder: soon\n": "never 'soon'",
+        "placeholder: true\n": "names its evidence notebook",
+    }
+    for front, problem in said.items():
+        [found] = tree.placeholder_problems(_scratch_rule(tmp_path, front, "Waits."))
+        assert problem in found
+    waits = "placeholder: true\n"
+    missing = _scratch_rule(tmp_path, waits, "Waits on notebooks/faers/14_nothing.")
+    assert tree.placeholder_problems(missing) == [
+        "widget-cap.md: notebook 14_nothing is not in notebooks/faers/ nor listed in "
+        "notebooks/README.md as To write"
+    ]
+    for named in ("12_widgets", "13_gadgets"):
+        found = _scratch_rule(tmp_path, waits, f"Waits on notebooks/faers/{named}.")
+        assert tree.placeholder_problems(found) == []
+    assert tree.placeholder_problems(_scratch_rule(tmp_path, "", "Decided.")) == []
 
 
 def test_readme_index_lists_every_rule_file_and_nothing_else():
@@ -80,6 +139,15 @@ def test_loader_reads_values_from_the_real_rules():
     raw = _front_matter(ROOT / "rules" / "sql-limits.md")
     assert rulebook.value("sql-limits", "timeout_seconds") == raw["values"]["timeout_seconds"]
     assert set(rulebook.rule_names()) == {p.stem for p in RULE_FILES}
+
+
+def test_dose_strength_measures_each_unit_it_reads_once_and_no_other():
+    """A product reads what each strength unit measures from the rule file, so every unit in
+    `units` is in exactly one of `measures`, and every unit measured is in `units`."""
+    values = _front_matter(ROOT / "rules" / "dose-strength.md")["values"]
+    measured = [unit for sizes in values["measures"].values() for unit in sizes]
+    assert sorted(measured) == sorted(values["units"])
+    assert all(size > 0 for sizes in values["measures"].values() for size in sizes.values())
 
 
 def test_every_data_rule_is_whole_and_in_a_step_of_the_build():

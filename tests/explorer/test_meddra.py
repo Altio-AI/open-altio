@@ -13,8 +13,10 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from open_altio.cli.serve import add_meddra
+from open_altio.explorer.access import LOCAL, Viewer
 from open_altio.explorer.context import explorer_of
 from open_altio.faers.meddra import build_licensed, older_part, read_licensed_manifest
+from open_altio.testing import fakemeddra
 from open_altio.testing.fakemeddra import write_meddra
 
 
@@ -23,7 +25,7 @@ def test_the_reaction_search_finds_smqs_and_lower_level_terms(licensed_client, a
     assert got["llts"][0][:2] == ["Head pain", "Headache"]
     smqs = ask(licensed_client, "/api/terms?q=bleeding&kind=all&meddra=1")["smqs"]
     assert [s[:2] for s in smqs] == [["96000001", "Invented bleeding events (SMQ)"]]
-    assert ask(licensed_client, "/api/terms?q=&kind=smq&meddra=1")["totals"]["smq"] == 3
+    assert ask(licensed_client, "/api/terms?q=&kind=smq&meddra=1")["totals"]["smq"] == 5
 
 
 def test_an_smqs_terms_come_narrow_first_with_sub_smqs_folded_in(licensed_client, ask):
@@ -118,3 +120,72 @@ def test_a_meddra_part_an_older_version_added_is_left_out_saying_how_to_add_it(
 def test_adding_the_same_version_again_writes_an_older_part_anew(older_release, tmp_path):
     add_meddra(older_release, write_meddra(tmp_path / "meddra", "29.1"))
     assert not older_part(read_licensed_manifest(older_release)["meddra"]["versions"]["29.1"])
+
+
+def test_an_smqs_scope_keeps_a_narrow_answer_free_of_broad_only_terms(licensed_client, ask):
+    both = ask(licensed_client, "/api/smq?code=96000001")
+    narrow = ask(licensed_client, "/api/smq?code=96000001&scope=narrow")
+    broad = ask(licensed_client, "/api/smq?code=96000001&scope=broad")
+    assert both["terms"] == broad["terms"] and both["n_terms"] == len(both["terms"]) == 2
+    assert [t[:2] for t in narrow["terms"]] == [["Haemorrhage", "narrow"]]
+    assert narrow["n_terms"] == 1
+    assert ask(licensed_client, "/api/smq?code=96000001&scope=wide", status=400)["problem"]
+
+
+def test_a_parent_smq_holds_its_child_smqs_terms_and_counts_them(licensed_client, ask):
+    got = ask(licensed_client, "/api/smq?code=96000002")
+    assert [t[0] for t in got["terms"]] == ["Vomiting"] and got["n_terms"] == 1
+
+
+def test_term_search_for_a_viewer_without_meddra_holds_no_lower_level_term_or_smq(client, ask):
+    got = ask(client, "/api/terms?q=head&kind=all&meddra=1")
+    assert got["llts"] == [] and got["smqs"] == []
+    assert got["why_no_licensed"] == ask(client, "/api/smq?code=96000001", status=403)["problem"]
+    assert ask(client, "/api/terms?q=head&kind=all")["why_no_licensed"] is None
+    asked = ask(client, "/api/terms?q=&kind=smq&meddra=1")
+    assert asked["smqs"] == [] and asked["why_no_licensed"]
+
+
+def test_without_meddra_the_licensed_facts_are_null_with_the_reason_and_an_smq_is_refused(
+    client, ask
+):
+    """On a release with no licensed part, an event's pregnancy cases and whether it is no medical
+    event are null with the reason, never 0 or false, and an SMQ is refused with the same words."""
+    got = ask(client, "/api/events/facts", product="acetylsalicylic acid")["events"]
+    assert got
+    for event in got:
+        assert event["pregnancy"] is None and event["not_medical"] is not False
+        assert event["why"]["pregnancy"] == LOCAL.why_no_smqs
+        assert LOCAL.why_no_smqs in event["why"]["not_medical"]
+    refused = client.get("/api/smq?code=96000001")
+    assert (refused.status_code, refused.json()) == (403, {"problem": LOCAL.why_no_smqs})
+
+
+def test_a_viewer_without_meddra_is_given_null_facts_and_refused_an_smq_in_the_hooks_words(
+    hooked, licensed_release, ask
+):
+    words = "MedDRA is not part of this plan."
+    web = hooked(
+        viewer=Viewer(id="v", meddra=False, who=False, why_no_smqs=words),
+        release_dir=licensed_release,
+    )
+    for event in ask(web, "/api/events/facts", product="acetylsalicylic acid")["events"]:
+        assert event["pregnancy"] is None and event["not_medical"] is not False
+        assert event["why"]["pregnancy"] == words
+    refused = web.get("/api/smq?code=96000001")
+    assert (refused.status_code, refused.json()) == (403, {"problem": words})
+
+
+def test_the_pregnancy_smq_and_the_names_the_rules_read_are_held_by_the_served_version(
+    licensed_client,
+):
+    served = explorer_of(licensed_client.app).meddra.served()
+    assert served is not None
+    names = {q["name"] for q in served.smqs().values()}
+    assert fakemeddra.PREGNANCY_SMQ in names
+    paths = served.primary_paths()
+    assert paths["off label use"] == (
+        fakemeddra.SOCS["91000001"][0],
+        fakemeddra.HLGTS["92000010"][0],
+        fakemeddra.HLTS["93000008"][0],
+    )

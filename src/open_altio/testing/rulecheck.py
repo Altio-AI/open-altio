@@ -22,6 +22,8 @@ import yaml
 from open_altio import rulebook
 
 LITERAL_OK = "# rule-literal-ok"
+_NOTEBOOK = re.compile(r"notebooks/faers/(\d\d_[a-z0-9_]+)")
+_TO_WRITE = re.compile(r"^\| `faers/(\d\d_[a-z0-9_]+)` \| To write", re.M)
 _CALL = re.compile(
     r"""(?:(?<![\w.])|rulebook\.)(value|rule|is_on)\(\s*["']([a-z0-9][a-z0-9-]*[A-Za-z0-9-]*)["']"""
     r"""(?:\s*,\s*["'](\w+)["'])?"""
@@ -71,6 +73,31 @@ class RuleTree:
         ]
         missing = {p.name for p in self.rule_files()} - listed
         return problems + [f"missing from README.md: {name}" for name in sorted(missing)]
+
+    def placeholder_problems(self, path: Path) -> list[str]:
+        """A placeholder rule says `placeholder: true`, its only value, and names its evidence
+        notebook (`notebooks/faers/NN_name`), which is in notebooks/faers/ or, until it is
+        written, listed in notebooks/README.md with a row that says To write."""
+        meta = yaml.safe_load(path.read_text(encoding="utf-8").split("---")[1])
+        if "placeholder" not in meta:
+            return []
+        if meta["placeholder"] is not True:
+            return [f"{path.name}: placeholder is true or left out, never {meta['placeholder']!r}"]
+        named = sorted(set(_NOTEBOOK.findall(path.read_text(encoding="utf-8").split("---", 2)[2])))
+        if not named:
+            return [
+                f"{path.name}: a placeholder names its evidence notebook (notebooks/faers/NN_name)"
+            ]
+        notebooks = self.root / "notebooks"
+        readme = notebooks / "README.md"
+        listed = readme.read_text(encoding="utf-8") if readme.is_file() else ""
+        to_write = set(_TO_WRITE.findall(listed))
+        return [
+            f"{path.name}: notebook {name} is not in notebooks/faers/ nor listed in "
+            "notebooks/README.md as To write"
+            for name in named
+            if not (notebooks / "faers" / f"{name}.ipynb").is_file() and name not in to_write
+        ]
 
     def enforced_in_problems(self, path: Path) -> list[str]:
         problems = []

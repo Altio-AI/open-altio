@@ -74,7 +74,7 @@ def test_the_list_may_follow_including_or_manifested_by(coder):
 
 
 def test_terms_outside_the_list_or_after_no_site_phrase_are_read_as_written(coder):
-    assert coded(coder, "General Disorders and Administration Site Conditions: Asthenia") == {
+    assert coded(coder, "General and Administration Site Conditions: Asthenia") == {
         ("asthenia", "Asthenia", True)
     }
     line = "Injection/infusion site reactions (phlebitis, pain), pyrexia"

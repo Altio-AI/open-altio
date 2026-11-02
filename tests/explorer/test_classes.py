@@ -332,6 +332,25 @@ def test_a_viewer_not_shown_classes_meets_none_on_a_page_in_sql_or_in_an_export(
     assert not [c for c in columns if c.startswith("atc_")] and "classes" not in manifest
 
 
+def test_a_viewer_not_shown_classes_is_told_the_access_hooks_reason(hooked, classes_release, ask):
+    why = "Drug classes wait on permission for their source."
+    viewer = Viewer(id="ann", meddra=False, who=False, why_no_classes=why)
+    web = hooked(viewer=viewer, release_dir=classes_release)
+    assert NOT_OPEN == Viewer.why_no_classes != why
+    assert ask(web, "/api/classes", 403)["problem"] == why
+    assert ask(web, "/api/summary", 403, atc="B01")["problem"] == why
+    assert ask(web, "/api/statistics", 403, by="class", atc="B01")["problem"] == why
+    assert ask(web, "/api/summary")["cases"] > 0  # single drugs still count
+
+
+def test_a_release_holding_no_classes_says_so_whatever_the_access_hooks_reason(
+    hooked, bare_release, ask
+):
+    viewer = Viewer(id="ann", meddra=False, who=False, why_no_classes="Not yet.")
+    web = hooked(viewer=viewer, release_dir=bare_release)
+    assert ask(web, "/api/classes", 404)["problem"] == NOT_HELD
+
+
 def test_the_classes_go_into_files_only_where_the_viewer_may_take_them_away(
     hooked, classed, classes_release, ask
 ):
@@ -434,9 +453,11 @@ def until_counted(page, n: int) -> None:
 
 def row_top(page, code: str) -> int:
     """Where a class's row sits in the pane, whatever the pane is scrolled to."""
-    return page.eval_on_selector(
+    # found and read in one step: a repaint between the two reads a row no longer on the page
+    return page.evaluate(
+        "s => { let y = 0; for (let n = document.querySelector(s); n; n = n.offsetParent)"
+        " y += n.offsetTop; return y; }",
         f'#oa-class-results [data-act="class-pick"][data-code="{code}"]',
-        "e => { let y = 0; for (let n = e; n; n = n.offsetParent) y += n.offsetTop; return y; }",
     )
 
 

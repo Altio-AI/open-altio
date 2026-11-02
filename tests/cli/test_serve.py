@@ -12,6 +12,7 @@ from open_altio.cli import serve
 from open_altio.explorer.context import explorer_of
 from open_altio.faers.build import Inputs
 from open_altio.faers.meddra import read_licensed_manifest
+from open_altio.testing.browser import free_port
 from open_altio.testing.fakemeddra import write_meddra
 
 
@@ -28,9 +29,10 @@ def copy(release):
 
 
 def test_serve_runs_the_explorer_on_the_loopback_address_only(release, served, capsys):
-    assert cli.main(["serve", "--release", str(release), "--port", "8765", "--no-open"]) == 0
-    assert (served["host"], served["port"]) == ("127.0.0.1", 8765)
-    assert "http://127.0.0.1:8765" in capsys.readouterr().out
+    port = free_port()
+    assert cli.main(["serve", "--release", str(release), "--port", str(port), "--no-open"]) == 0
+    assert (served["host"], served["port"]) == ("127.0.0.1", port)
+    assert f"http://127.0.0.1:{port}" in capsys.readouterr().out
     assert explorer_of(served["app"]).release.current().folder == release.resolve()
     assert "opened" not in served
 

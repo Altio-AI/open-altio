@@ -216,5 +216,7 @@ def test_a_release_built_before_the_statistics_says_so(ask, explorer_app, own_re
     del manifest["statistics"]
     (own_release / "manifest.json").write_text(json.dumps(manifest))
     web = TestClient(explorer_app(own_release))
-    assert ask(web, "/api/statistics/about") == {"present": False, "reason": BEFORE}
+    about = ask(web, "/api/statistics/about")
+    del about["counted_on"]  # the release it names, as every answer does
+    assert about == {"present": False, "reason": BEFORE}
     assert ask(web, "/api/statistics", 404)["problem"] == BEFORE

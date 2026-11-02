@@ -25,13 +25,13 @@ from open_altio.testing.rules import rules_with
 def test_each_chart_counts_under_every_other_filter_but_its_own(client, rel, ask):
     got = ask(client, "/api/summary", sex="M")
     # F stays to choose
-    assert dict(map(tuple, got["sex"])).get("F", 0) == len(rel.case_keys("c.sex_T = 'F'"))
+    assert {k: n for k, n, _ in got["sex"]}.get("F", 0) == len(rel.case_keys("c.sex_T = 'F'"))
     # other charts follow the filter
     died = rel.case_keys(
         f"c.sex_T = 'M' AND EXISTS (SELECT 1 FROM outc_latest_T o WHERE {rel.case_join('o')} "
         "AND o.outc_cod = 'DE')"
     )
-    assert dict(map(tuple, got["outcome"])).get("DE", 0) == len(died)
+    assert {k: n for k, n, _ in got["outcome"]}.get("DE", 0) == len(died)
 
 
 # a case whose sex, event country, sender, age and weight read Not given (fakefda)
@@ -40,7 +40,7 @@ NOT_GIVEN_CASE = "9130013"
 
 def test_a_value_that_says_unknown_is_charted_and_filtered_as_not_given(client, rel, ask):
     got = ask(client, "/api/summary")
-    sexes = dict(map(tuple, got["sex"]))
+    sexes = {k: n for k, n, _ in got["sex"]}
     assert set(sexes) <= {"F", "M", None} and sexes[None] >= 1
     assert sexes[None] == len(rel.case_keys("c.sex_T IS NULL"))
     assert "faers/" + NOT_GIVEN_CASE in {
@@ -50,16 +50,16 @@ def test_a_value_that_says_unknown_is_charted_and_filtered_as_not_given(client, 
         c["case_key_T"] for c in ask(client, "/api/cases", sex="NS")["cases"]
     }
     # the filler age is in no band; the reporter's country stands in for the unknown event country
-    ages = dict(map(tuple, got["age"]))
+    ages = {k: n for k, n, _ in got["age"]}
     assert ages["_none"] == len(rel.case_keys("c.age_band_T IS NULL"))
     assert "faers/" + NOT_GIVEN_CASE in rel.case_keys("c.age_band_T IS NULL")
-    assert "COUNTRY NOT SPECIFIED" not in dict(map(tuple, got["country"]))
+    assert "COUNTRY NOT SPECIFIED" not in {k: n for k, n, _ in got["country"]}
 
 
 def test_each_chart_says_how_many_of_its_cases_give_its_field(client, rel, ask):
     got = ask(client, "/api/summary")
     for name in ("sex", "age", "reporter", "country"):
-        rows = dict((k, n) for k, n in got[name])
+        rows = {k: n for k, n, _ in got[name]}
         given, cases = got["given"][name]
         assert cases == got["cases"] == sum(rows.values())
         assert given == cases - rows.get(None, 0) - rows.get("_none", 0)
@@ -99,7 +99,7 @@ def test_the_other_charts_count_the_cases_with_a_reaction_a_serious_outcome_or_a
 
 def test_the_companies_chart_lists_those_that_sent_most_then_not_given(client, rel, ask):
     got = ask(client, "/api/summary")
-    named = dict((k, n) for k, n in got["sender"] if k not in (None, DIRECT))
+    named = {k: n for k, n, _ in got["sender"] if k not in (None, DIRECT)}
     sent = dict(
         rel.rows(
             "SELECT company_T, count(*) FROM case_latest_T c WHERE dup_kept_T "
@@ -109,12 +109,12 @@ def test_the_companies_chart_lists_those_that_sent_most_then_not_given(client, r
     none = sent.pop(None)
     assert len(named) == min(len(sent), value("explorer-lists", "companies_charted"))
     assert sorted(named.values(), reverse=True) == sorted(sent.values(), reverse=True)[: len(named)]
-    assert got["sender"][-1] == [None, none]
+    assert got["sender"][-1][:2] == [None, none]
     # the reports sent straight to FDA are one bar, and give their sender
     direct = len(rel.case_keys(direct_report("c.rept_cod")))
-    assert [DIRECT, direct] in got["sender"] and direct
+    assert [DIRECT, direct] in [bar[:2] for bar in got["sender"]] and direct
     assert got["given"]["sender"] == [got["cases"] - none, got["cases"]]
-    counts = [n for _, n in got["sender"][:-1]]
+    counts = [n for _, n, _ in got["sender"][:-1]]
     assert counts == sorted(counts, reverse=True)
     # a company counts its spellings together, the legacy case sent under one of them too
     [(lilly,)] = rel.rows("SELECT company_T FROM case_latest_T WHERE case_key_T = '9120012'")
@@ -131,13 +131,38 @@ def test_the_timeline_places_every_dated_case(client, rel, ask):
     assert ask(client, "/api/timeline", grain="fortnight")["grain"] == "year"
 
 
+def test_the_timeline_by_event_counts_each_case_by_its_full_event_date(client, rel, ask):
+    """by=event places a case on the day its event began, as the event date filter reads it: a
+    case the timeline dates is one event_from and event_to pick, and the rest are undated."""
+    got = ask(client, "/api/timeline", grain="day", by="event")
+    cases = ask(client, "/api/summary")["cases"]
+    assert sum(n for _, n in got["rows"]) + got["undated"] == cases
+    assert got["undated"] == len(rel.case_keys("c.event_dt_T IS NULL"))
+    first, last = got["rows"][0][0], got["rows"][-1][0]
+    [(low, high)] = rel.rows(
+        "SELECT min(event_dt_T)::VARCHAR, max(event_dt_T)::VARCHAR FROM case_latest_T "
+        "WHERE dup_kept_T"
+    )
+    assert (first, last) == (low, high)
+    picked = ask(client, "/api/summary", event_from=first, event_to=last)["cases"]
+    assert picked == cases - got["undated"]
+    # a year's count is its days' count, and by received is the timeline as it always was
+    years = ask(client, "/api/timeline", grain="year", by="event")["rows"]
+    assert sum(n for _, n in years) == sum(n for _, n in got["rows"])
+    assert ask(client, "/api/timeline", grain="year", by="received") == ask(
+        client, "/api/timeline", grain="year"
+    )
+    refused = ask(client, "/api/timeline", 400, by="onset")
+    assert refused["problem"] == "Count the timeline by received or event."
+
+
 def test_years_and_the_timeline_date_a_group_by_its_first_receipt(client, rel, ask):
     """rules/dup-shown-copy.md: the shown copy counts in the year its group was first received."""
     by_year = "SELECT year({}), count(*) FROM case_latest_T WHERE dup_kept_T GROUP BY 1"
     by_group = dict(rel.rows(by_year.format("group_first_dt_T")))
     # 9021021, received in 2026, is shown for a group first received in 2019
     assert by_group != dict(rel.rows(by_year.format("first_fda_dt_T")))
-    assert dict(map(tuple, ask(client, "/api/summary")["years"])) == by_group
+    assert {k: n for k, n, _ in ask(client, "/api/summary")["years"]} == by_group
     timeline = {int(k[:4]): n for k, n in ask(client, "/api/timeline", grain="year")["rows"]}
     assert timeline == {y: n for y, n in by_group.items() if y is not None}
 
@@ -366,3 +391,101 @@ def test_a_copy_grouped_by_both_rules_gives_a_line_for_each(dup_client, ask):
             other_cases="cases 7721001 and 7721002", first_received="March 2019"
         )
     ]
+
+
+# a product's settings: the one way a question names a product ---------------------------------
+
+VALSARTAN = "valsartan"
+
+
+def drug_cases(rel, cond: str, kept: str = "c.dup_kept_T") -> set[str]:
+    """era/case_key of the cases with a drug record matching `cond` (over drug_latest_T d, with
+    its ingredients as drug_substance_T s)."""
+    got = rel.rows(
+        "SELECT DISTINCT c.era_T, c.case_key_T FROM case_latest_T c "
+        "JOIN drug_latest_T d USING (era_T, primaryid, quarter_T) "
+        "JOIN drug_substance_T s USING (era_T, primaryid, quarter_T, drug_seq) "
+        f"WHERE {kept} AND ({cond})"
+    )
+    return {f"{e}/{k}" for e, k in got}
+
+
+@pytest.fixture
+def product_cases(client, ask):
+    """product_cases(**settings): the cases a product's question counts, by its count line and
+    its case list (the fake release fits one page)."""
+
+    def cases(**settings) -> set[str]:
+        listed = ask(client, "/api/cases", **settings)["cases"]
+        assert ask(client, "/api/summary", **settings)["cases"] == len(listed)
+        return {f"{c['era_T']}/{c['case_key_T']}" for c in listed}
+
+    return cases
+
+
+SUSPECT = "d.role_cod IN ('PS', 'SS')"
+
+
+def holding(drug: str) -> str:
+    """A drug record whose ingredients hold `drug`: any product containing it."""
+    return f"list_contains(string_split(s.substance_T, ';'), '{drug}')"
+
+
+def test_product_names_the_drug_and_a_name_the_release_lacks_counts_nothing(product_cases, rel):
+    assert product_cases(product=VALSARTAN) == drug_cases(
+        rel, f"{holding(VALSARTAN)} AND {SUSPECT}"
+    )
+    assert product_cases(product="no such drug") == set()
+
+
+def test_prole_names_the_roles_counted_and_refuses_a_code_fda_does_not_use(
+    product_cases, rel, client, ask
+):
+    concomitant = drug_cases(rel, f"{holding(VALSARTAN)} AND d.role_cod = 'C'")
+    assert concomitant and product_cases(product=VALSARTAN, prole="C") == concomitant
+    refused = ask(client, "/api/events", 400, product=VALSARTAN, prole="X")["problem"]
+    assert "\n" not in refused and "PS" in refused
+
+
+def test_unit_counts_any_product_containing_it_or_that_product_alone(
+    product_cases, rel, client, ask
+):
+    alone = drug_cases(rel, f"s.substance_T = '{VALSARTAN}' AND {SUSPECT}")
+    assert product_cases(product=VALSARTAN, unit="exact") == alone
+    assert alone < product_cases(product=VALSARTAN, unit="any")
+    refused = ask(client, "/api/events", 400, product=VALSARTAN, unit="some")["problem"]
+    assert "\n" not in refused and "exact" in refused
+
+
+def test_include_adds_a_spelling_with_no_ingredient_and_no_other(product_cases, rel):
+    plain = product_cases(product=VALSARTAN)
+    spelled = rel.rows(
+        "SELECT DISTINCT d.drugname FROM drug_latest_T d JOIN drug_substance_T s "
+        "USING (era_T, primaryid, quarter_T, drug_seq) "
+        "WHERE s.substance_T IS NULL AND d.drugname LIKE 'VALSARTAN %'"
+    )
+    [(teva,)] = spelled
+    added = product_cases(product=VALSARTAN, include=teva) - plain
+    assert added and added <= drug_cases(rel, f"d.drugname = '{teva}'", "TRUE")
+    # a spelling read to an ingredient is the drug's own, never added
+    assert product_cases(product=VALSARTAN, include="LIPITOR") == plain
+
+
+def test_exclude_leaves_out_one_of_the_drugs_spellings_and_no_other(product_cases, rel):
+    plain = product_cases(product=VALSARTAN)
+    only_diovan = plain - drug_cases(
+        rel, f"{holding(VALSARTAN)} AND {SUSPECT} AND upper(d.drugname) <> 'DIOVAN'"
+    )
+    assert only_diovan
+    assert product_cases(product=VALSARTAN, exclude="DIOVAN") == plain - only_diovan
+    assert product_cases(product=VALSARTAN, exclude="LIPITOR") == plain
+
+
+def test_dedup_counts_the_kept_cases_or_all_and_refuses_any_other_choice(client, rel, ask):
+    drug = "acetylsalicylic acid"
+    kept = ask(client, "/api/summary", product=drug)["cases"]
+    every = ask(client, "/api/summary", product=drug, dedup="all")["cases"]
+    assert kept == len(drug_cases(rel, f"{holding(drug)} AND {SUSPECT}"))
+    assert every == len(drug_cases(rel, f"{holding(drug)} AND {SUSPECT}", "TRUE")) > kept
+    refused = ask(client, "/api/events", 400, product=drug, dedup="some")["problem"]
+    assert "\n" not in refused and "kept_only" in refused

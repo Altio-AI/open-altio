@@ -11,6 +11,7 @@ taken alongside them.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pytest
@@ -353,6 +354,36 @@ def test_the_therapy_table_shows_clean_dates_duration_and_time_to_onset_over_fda
     assert links["fixed rule: time-to-onset"] == "/methods?open=time-to-onset"
     assert links["fixed rule: therapy-duration"] == "/methods?open=therapy-duration"
     assert not sideways(page)
+
+
+@pytest.mark.parametrize("width", WIDTHS)
+def test_a_drugs_time_to_onset_shows_on_its_first_therapy_row_only(opened, stats_site, width):
+    # the fakes' drugs have one therapy row each: the answer gains a second for its drug, the way
+    # FDA gives a drug stopped and started again
+    def two_rows(route: Any) -> None:
+        got = route.fetch()
+        answer = got.json()
+        answer["ther"].insert(1, {**answer["ther"][0], "start_dt": "", "start_dt_T": None})
+        route.fulfill(response=got, json=answer)
+
+    page = opened("/all/cases?case=7700001", base=stats_site, width=width)
+    page.route(re.compile(r"/api/case/\w+/7700001(\?.*)?$"), two_rows)
+    page.reload()
+    page.wait_for_selector("#oa-case .oa-case-therapy tbody tr:nth-child(2)")
+    rows = therapy(page)
+    first = value("time-to-onset", "first_dose_day")
+    assert rows[0][0] == rows[1][0], rows
+    assert rows[0][-1] == f"Day {1 + first} fixed rule: time-to-onset", rows
+    assert rows[1][-1] == "", rows
+    assert all(len(row) == 5 for row in rows), rows
+    tips = page.eval_on_selector_all(
+        "#oa-case .oa-case-therapy tbody tr", "rs => rs.map((r) => r.lastElementChild.dataset.tip)"
+    )
+    assert tips[0] == "Counted from the first dose of this drug", tips
+    spans = page.eval_on_selector_all(
+        "#oa-case .oa-case-therapy tbody td", "cs => cs.map((c) => c.rowSpan)"
+    )
+    assert set(spans) == {1}, spans
 
 
 def test_a_drug_with_no_time_to_onset_says_why_and_a_partial_start_shows_its_month(

@@ -9,12 +9,21 @@
     dup_rel           a second fake release, built from fakefda.DUP_STORY: the duplicate rules
     demo_rel          a fake release of fakefda.DEMOGRAPHICS_STORY: sex, age, weight and country
     licensed_release  the fake release built again with the invented MedDRA 29.1, its one version
+    listed_release    the fake release built with the invented MedDRA 29.1 and both of EMA's
+                      invented medical event lists (fakemedicalevents)
     classes_release   a copy of `release` with the invented drug classes layer (fakeclasses)
     bare_release      a copy of `release` built without the drug classes layer
     labelled_release  a copy of `licensed_release` with invented label flags (fakelabelflags.py)
     stats_release     a release of fakestats.STORY alone, enough cases for EBGM's prior to fit
+    breakdown_release a release of fakefda.BREAKDOWN_STORY alone with the invented MedDRA 29.1:
+                      one drug and event whose cases fill each breakdown line, before and in the
+                      newest quarter
+    facts_release     a release of fakefda.FACTS_STORY alone with the invented MedDRA 29.1 and the
+                      invented label flags: one drug whose cases show every fact of an event
     seizure_release   a release of fakefda.SEIZURE_STORY alone with the invented MedDRA 29.1:
                       FDA's Convulsion and Seizure, one PT by today's MedDRA
+    events_release    a release of fakefda.EVENTS_STORY alone: each way a drug's events count
+                      a case once
     fake_fda          FDA's download server, faked on 127.0.0.1, with open_altio.faers.fda pointed
                       at it
     chromium          Playwright's headless Chromium, once per session; skipped where it is missing,
@@ -31,27 +40,34 @@ from typing import Any
 
 import pytest
 
+from open_altio import rulebook
 from open_altio.faers import build_release, fda
 from open_altio.testing import fakediana, fakefda, fakestats
 from open_altio.testing.fakeclasses import add_classes, remove_classes
 from open_altio.testing.fakelabelflags import add_label_flags
-from open_altio.testing.fakemeddra import write_meddra
+from open_altio.testing.fakelabeltables import add_label_groups
+from open_altio.testing.fakemeddra import NOT_MEDICAL_GROUPS, PREGNANCY_SMQ, write_meddra
+from open_altio.testing.fakemedicalevents import write_dme, write_ime
 from open_altio.testing.fdaserver import FakeFda
 from open_altio.testing.releasereader import ReleaseReader
 
 __all__ = [
     "bare_release",
+    "breakdown_release",
     "chromium",
     "classes_release",
     "demo_rel",
     "dup_rel",
+    "events_release",
     "fake_diana",
     "fake_fda",
     "fake_input",
     "labelled_release",
+    "listed_release",
     "licensed_release",
     "rel",
     "release",
+    "facts_release",
     "seizure_release",
     "stats_release",
 ]
@@ -132,7 +148,62 @@ def seizure_release(fake_diana: Path, tmp_path_factory: pytest.TempPathFactory) 
     meddra = write_meddra(tmp_path_factory.mktemp("seizure_meddra") / "29.1", "29.1")
     folder = tmp_path_factory.mktemp("seizure_releases")
     with fakediana.pinned(fake_diana, folder):
-        return build_release(zips, folder, diana_dictionary=fake_diana, meddra_dir=meddra)
+        built = build_release(zips, folder, diana_dictionary=fake_diana, meddra_dir=meddra)
+    smq = rulebook.value("pregnancy-cases", "smq_key")
+    add_label_groups(built, "29.1", {smq: [PREGNANCY_SMQ]})
+    return built
+
+
+@pytest.fixture(scope="session")
+def events_release(fake_diana: Path, tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """A release built from fakefda.EVENTS_STORY alone (two FAERS quarters), its drug names read
+    through the invented dictionary. Shared: never write into it."""
+    zips = fakefda.write_input(
+        tmp_path_factory.mktemp("events_zips"),
+        quarters=fakefda.DUP_QUARTERS,
+        story=fakefda.EVENTS_STORY,
+    )
+    folder = tmp_path_factory.mktemp("events_releases")
+    with fakediana.pinned(fake_diana, folder):
+        return build_release(zips, folder, diana_dictionary=fake_diana)
+
+
+@pytest.fixture(scope="session")
+def breakdown_release(fake_diana: Path, tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """A release built from fakefda.BREAKDOWN_STORY alone (three FAERS quarters) with the invented
+    MedDRA 29.1. Shared: never write into it."""
+    zips = fakefda.write_input(
+        tmp_path_factory.mktemp("breakdown_zips"),
+        quarters=fakefda.BREAKDOWN_QUARTERS,
+        story=fakefda.BREAKDOWN_STORY,
+    )
+    meddra = write_meddra(tmp_path_factory.mktemp("breakdown_meddra") / "29.1", "29.1")
+    folder = tmp_path_factory.mktemp("breakdown_releases")
+    with fakediana.pinned(fake_diana, folder):
+        built = build_release(zips, folder, diana_dictionary=fake_diana, meddra_dir=meddra)
+    smq = rulebook.value("pregnancy-cases", "smq_key")
+    add_label_groups(built, "29.1", {smq: [PREGNANCY_SMQ]})
+    return built
+
+
+@pytest.fixture(scope="session")
+def facts_release(fake_diana: Path, tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """A release built from fakefda.FACTS_STORY alone (two FAERS quarters) with the invented
+    MedDRA 29.1, its groups file and the invented label flags. Shared: never write into it."""
+    zips = fakefda.write_input(
+        tmp_path_factory.mktemp("facts_zips"),
+        quarters=fakefda.DUP_QUARTERS,
+        story=fakefda.FACTS_STORY,
+    )
+    meddra = write_meddra(tmp_path_factory.mktemp("facts_meddra") / "29.1", "29.1")
+    folder = tmp_path_factory.mktemp("facts_releases")
+    with fakediana.pinned(fake_diana, folder):
+        built = build_release(zips, folder, diana_dictionary=fake_diana, meddra_dir=meddra)
+    flagged = add_label_flags(built)
+    key = rulebook.value("not-a-medical-event", "groups_key")
+    smq = rulebook.value("pregnancy-cases", "smq_key")
+    add_label_groups(flagged, "29.1", {key: NOT_MEDICAL_GROUPS, smq: [PREGNANCY_SMQ]})
+    return flagged
 
 
 @pytest.fixture(scope="session")
@@ -146,6 +217,26 @@ def licensed_release(
     folder = tmp_path_factory.mktemp("licensed")
     with fakediana.pinned(fake_diana, folder):
         return build_release(fake_input, folder, diana_dictionary=fake_diana, meddra_dir=meddra)
+
+
+@pytest.fixture(scope="session")
+def listed_release(
+    fake_input: Path, fake_diana: Path, tmp_path_factory: pytest.TempPathFactory
+) -> Path:
+    """The fake release built with the invented MedDRA 29.1 and both invented medical event
+    lists. Shared: never write into it."""
+    meddra = write_meddra(tmp_path_factory.mktemp("listed_meddra") / "29.1", "29.1")
+    files = tmp_path_factory.mktemp("listed_files")
+    folder = tmp_path_factory.mktemp("listed")
+    with fakediana.pinned(fake_diana, folder):
+        return build_release(
+            fake_input,
+            folder,
+            diana_dictionary=fake_diana,
+            meddra_dir=meddra,
+            dme=write_dme(files / "dme.xlsx"),
+            ime=write_ime(files / "ime.xlsx"),
+        )
 
 
 @pytest.fixture(scope="session")

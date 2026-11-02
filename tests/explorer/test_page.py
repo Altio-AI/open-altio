@@ -7,6 +7,7 @@ pages look is the screenshot check's (scripts/screens.py); these hold what they 
 
 from __future__ import annotations
 
+import re
 from datetime import date
 from typing import Any
 
@@ -90,8 +91,11 @@ def test_every_page_says_once_how_current_its_data_is(opened, early_site, width)
     for path in ("/", "/all/overview", "/product/valsartan/overview", "/release", "/methods"):
         page.goto(early_site + path)
         settle(page)
-        assert page.evaluate(AS_OF) == ["FDA data through 2019Q1"], path
-        assert page.evaluate(WORDS).count("2019Q1") == 1, path
+        line = page.evaluate(AS_OF)
+        assert len(line) == 1 and re.fullmatch(
+            r"Data refreshed \d{1,2} \w{3} \d{4}( · |\n)newest quarter 2019 Q1", line[0]
+        ), path
+        assert page.evaluate(WORDS).count("2019 Q1") == 1, path
 
 
 def test_the_page_names_where_the_quarters_start_and_the_last_day_the_release_holds(
@@ -196,7 +200,7 @@ def test_the_methods_page_says_the_statistics_take_no_case_out(opened, licensed_
 
 
 def test_the_age_filter_offers_the_rules_bands_in_their_order(opened, licensed_client):
-    present = {band for band, _ in licensed_client.get("/api/summary").json()["age"]}
+    present = {band for band, _, _ in licensed_client.get("/api/summary").json()["age"]}
     named = [(b["id"], b["label"]) for b in value("age-bands", "bands")]
     named.append((NOT_GIVEN, value("not-given", "label")))
     page = opened("/all/overview")
@@ -284,7 +288,7 @@ def test_a_companys_bar_or_any_of_fdas_spellings_typed_filters_to_the_company(
 ):
     summary = licensed_client.get("/api/summary").json()
     page = opened("/all/overview")
-    company, n = summary["sender"][0]
+    company, n, _ = summary["sender"][0]
     page.click(f'[data-act="chart"][data-key="sender"][data-v="{company}"]')
     page.wait_for_function(
         "n => document.getElementById('oa-countline').innerText.startsWith(n)",
@@ -393,14 +397,14 @@ ROUTES = {
     "/all": ("/all", "scope", "Overview"),
     "/all/overview": ("/all/overview", "scope", "Overview"),
     "/all/cases": ("/all/cases", "scope", "Cases"),
-    "/product/valsartan": ("/product/valsartan", "scope", "Overview"),
+    "/product/valsartan": ("/product/valsartan", "scope", "Events"),
     "/product/sacubitril%3Bvalsartan/cases": (
         "/product/sacubitril%3Bvalsartan/cases",
         "scope",
         "Cases",
     ),
     # an older address names FDA's active ingredient: the page of the drug it is read to opens
-    "/product/aspirin": ("/product/acetylsalicylic%20acid/overview", "scope", "Overview"),
+    "/product/aspirin": ("/product/acetylsalicylic%20acid/events", "scope", "Events"),
     "/product/ASPIRIN/cases": ("/product/acetylsalicylic%20acid/cases", "scope", "Cases"),
     "/release": ("/release", "release", None),
     "/sql": ("/release", "release", None),  # the old addresses of Tables and SQL

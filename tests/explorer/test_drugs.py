@@ -65,7 +65,9 @@ def test_a_search_finds_ingredients_and_combinations_by_name_or_spelling(client,
     assert "sacubitril;valsartan" in [
         d["name"] for d in ask(client, "/api/products", q="entresto")["drugs"]
     ]
-    assert ask(client, "/api/products", q="no such drug at all") == {
+    nothing = ask(client, "/api/products", q="no such drug at all")
+    del nothing["counted_on"]  # the release it names, as every answer does
+    assert nothing == {
         "q": "no such drug at all",
         "drugs": [],
         "unmapped": [],
@@ -270,7 +272,7 @@ def test_the_drug_search_counts_cases_under_the_other_filters_in_the_ticked_role
 def test_all_cases_charts_the_ingredients_reported_most_in_the_default_roles(client, rel, ask):
     chart = ask(client, "/api/summary")["drugs"]
     assert 0 < len(chart) <= value("explorer-lists", "top_drugs")
-    for name, cases, title in chart:
+    for name, cases, title, _ in chart:
         holds = f"list_contains(string_split(s.substance_T, ';'), '{name}')"
         assert cases == len(named(rel, f"{holds} AND {SUSPECT}")), name
         assert title == name[:1].upper() + name[1:]

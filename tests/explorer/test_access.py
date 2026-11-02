@@ -39,7 +39,7 @@ def files_in(folder) -> dict:
 
 def test_locally_the_licensed_meddra_part_is_seen_when_the_release_has_one(licensed_client, ask):
     assert ask(licensed_client, "/api/me")["tiers"]["meddra"] is True
-    assert len(smqs_found(licensed_client)) == 3
+    assert len(smqs_found(licensed_client)) == 5
     assert licensed_client.get("/api/smq?code=96000001").status_code == 200
 
 
@@ -144,6 +144,7 @@ def test_a_recording_hook_hears_each_search_with_its_words_and_how_many_it_found
 def test_a_recording_hook_hears_each_export_started_with_its_rows(hooked):
     web = hooked(viewer=Viewer(id="ann", meddra=False, who=False))
     sizes = web.get("/api/exportsize?sex=F").json()
+    del sizes["counted_on"]  # the release the answer names, not rows of the export
     assert web.hook.events == [{"kind": "export_started", "viewer": "ann", "rows": sizes}]
     assert sizes["cases"] > 0
 

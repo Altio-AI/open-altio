@@ -113,13 +113,14 @@ def test_the_table_rows_card_counts_what_the_rule_did(con):
     assert card["numbers"] == {"kept": 2, "left_out": 1, "sent_to_person": 1}
 
 
-def test_each_new_card_serves_exactly_its_own_rule():
+def test_each_new_card_serves_exactly_its_own_rule_and_those_that_share_it():
     assert RULES_OF["label_flags_given"] == ["label-flags", "label-negation", "label-population"]
     assert RULES_OF["label_sections_read"] == ["label-sections"]
+    # a rule that reads a label rule's flag, or gives the groups it reads, shares its chart
+    assert RULES_OF["label_treated_disease"] == ["label-treated-disease", "treated-condition"]
+    assert RULES_OF["label_not_a_medical_event"] == ["label-not-a-medical-event", "label-groups"]
+    assert RULES_OF["label_procedure"] == ["label-procedure", "label-groups"]
     for fn, rule in (
-        ("label_treated_disease", "label-treated-disease"),
-        ("label_not_a_medical_event", "label-not-a-medical-event"),
-        ("label_procedure", "label-procedure"),
         ("label_umbrella", "label-umbrella"),
         ("label_dictionary", "label-dictionary"),
         ("label_table_rows", "label-table-rows"),

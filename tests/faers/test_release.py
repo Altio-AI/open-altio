@@ -13,9 +13,11 @@ import pytest
 
 from open_altio import rulebook
 from open_altio.faers import (
+    FORMAT_VERSION,
     RAW_COLUMNS,
     ReleaseError,
     build_release,
+    formats,
 )
 from open_altio.faers.drugnames import dictionary
 from open_altio.faers.schema import CHILD_TABLES, TABLES
@@ -49,6 +51,7 @@ def test_release_holds_parquet_per_table_original_and_derived(rel):
 def test_manifest_records_inputs_hash_build_time_and_row_counts(rel, fake_input):
     m = rel.manifest
     assert m["release"] == fakefda.RELEASE
+    assert (m["source"], m["format_version"]) == (formats.FAERS, FORMAT_VERSION)
     assert m["quarters"] == list(fakefda.QUARTERS)
     assert len(m["inputs_hash"]) == 64 and int(m["inputs_hash"], 16) >= 0
     assert datetime.fromisoformat(m["built_at"]).tzinfo is not None
@@ -156,12 +159,17 @@ def test_command_line_builds_a_release(fake_input, tmp_path):
 def test_tables_are_stored_in_quarter_then_report_order(rel):
     """Rows sit in the Parquet files by quarter, then primaryid (or case),
     so a reader skips row groups by quarter and the files compress well; the
-    statistics, which hold no case, by ingredient and reaction, or by level, class and reaction."""
+    statistics, which hold no case, by ingredient and reaction, or by level, class and reaction,
+    and their counts by quarter by reaction, then quarter; EMA's lists, by list then term."""
     for table, entry in rel.manifest["tables"].items():
         cols = rel.columns(table)
         key = [c for c in ("quarter_T", "primaryid", "case_key_T", "caseid") if c in cols]
         by_class = ("level_T", "class_T", "reaction_T") if "class_T" in cols else ()
-        key = key or [c for c in ("ingredient_T", *by_class, "reaction_T") if c in cols]
+        key = key or [
+            c
+            for c in ("ingredient_T", *by_class, "reaction_T", "qnum_T", "list_T", "pt_T")
+            if c in cols
+        ]
         if not key:  # the classes layer's index of WHO's codes holds no reports
             assert table == "atc_index_T", table
             continue

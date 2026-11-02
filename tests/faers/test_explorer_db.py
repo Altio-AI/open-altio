@@ -21,6 +21,7 @@ from open_altio import rulebook
 from open_altio.faers import (
     EXPLORER_FILE,
     build_explorer_db,
+    literature,
     open_explorer,
     open_release,
 )
@@ -109,6 +110,37 @@ def test_case_rows_carry_the_duplicate_columns_of_the_release(ex, rel):
     got = {r[0]: r for r in rows(ex, f"SELECT {cols} FROM explorer_case_T")}
     assert got == want
     assert got["9021021"][3] == ["aeolus"] and got["9020020"][4] == "9021021"
+
+
+def test_case_rows_carry_fdas_literature_reference_as_published(ex, rel):
+    want = set(rel.rows("SELECT era_T, case_key_T, lit_ref FROM case_latest_T"))
+    got = set(rows(ex, "SELECT era_T, case_key_T, lit_ref FROM explorer_case_T"))
+    assert got == want
+    assert {fakefda.ARTICLE, "UNK", None} <= {r[2] for r in got}
+
+
+def test_a_report_from_a_file_before_fda_held_literature_is_not_given_never_no_article(ex):
+    """A case from 2013q4 with no lit_ref is Not given, never "No article cited", and so is
+    every case of the invented release from FDA's files before the field (AERS, and FAERS's
+    first quarter); from the rule's first quarter on, a blank is no article cited and a
+    reference that says unknown is Not given (rules literature-reference, not-given)."""
+    first = literature.first_quarter()
+    cited = literature.cited("quarter_T", "lit_ref")
+    got = rows(
+        ex,
+        f"SELECT quarter_T, lit_ref, {cited} FROM (SELECT quarter_T, lit_ref "
+        "FROM explorer_case_T UNION ALL SELECT '2013q4', NULL UNION ALL SELECT '2013q4', ?)",
+        fakefda.ARTICLE,
+    )
+    assert ("2013q4", None, None) in got and ("2013q4", fakefda.ARTICLE, None) in got
+    early = [v for q, _, v in got if q < first]
+    assert len(early) > 2 and set(early) == {None}
+    later = {(ref, v) for q, ref, v in got if q >= first}
+    assert later == {
+        (None, literature.NO_ARTICLE),
+        (fakefda.ARTICLE, literature.CITES),
+        ("UNK", None),
+    }
 
 
 def test_a_sender_spelling_or_company_name_in_capitals_names_its_companies(ex, rel):

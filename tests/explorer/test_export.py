@@ -78,7 +78,7 @@ def sizes(client, **params) -> dict:
     """What the page asks before offering CSV: rows in each file (/api/exportsize)."""
     got = client.get("/api/exportsize?" + urlencode(params, doseq=True))
     assert got.status_code == 200, got.text
-    return got.json()
+    return {file: rows for file, rows in got.json().items() if file != "counted_on"}
 
 
 def csv_fits(client, **params) -> bool:

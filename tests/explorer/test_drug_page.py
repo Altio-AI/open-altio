@@ -4,12 +4,15 @@ FDA's codes as tick boxes with PS and SS ticked (any others stand on the filter 
 product containing the drug sits beside the product alone, the spellings can be left out and
 FDA's spellings with no ingredient added, and an older address opens the drug its name is read
 to. Ticking and switching change the counts and move nothing else on the page. On the Statistics
-tab, which counts by the ingredient alone, the drug's line stands disabled where it stands.
+tab, which counts by the ingredient alone, the drug's line stands disabled where it stands. An
+address naming one reaction (?reaction=) opens the page with its Reactions filter set to that
+preferred term, and Statistics finding it, and then shows the page's address without it.
 """
 
 from __future__ import annotations
 
 from typing import Any
+from urllib.parse import quote
 
 import pytest
 
@@ -253,9 +256,9 @@ def test_the_drugs_filter_finds_ingredients_and_spellings_with_role_tick_boxes(o
 def test_home_finds_a_drug_by_a_spelling_and_offers_spellings_with_no_ingredient(opened):
     page = opened("/")
     page.fill("#oa-find", "diovan")
-    page.wait_for_selector('#oa-find-results a[href="/product/valsartan/overview"]')
+    page.wait_for_selector('#oa-find-results a[href="/product/valsartan/events"]')
     page.fill("#oa-find", "valsar")
-    page.wait_for_selector('#oa-find-results a[href="/product/VALSARTAN%20TEVA/overview"]')
+    page.wait_for_selector('#oa-find-results a[href="/product/VALSARTAN%20TEVA/events"]')
     assert "WITH NO INGREDIENT" in page.inner_text("#oa-find-results").upper()
 
 
@@ -285,3 +288,68 @@ def test_the_spellings_count_sits_on_the_titles_small_letters_and_underlines_to_
     assert page.eval_on_selector(".oa-title-spellings", underline) == "none"
     page.hover(".oa-title-spellings")
     assert page.eval_on_selector(".oa-title-spellings", underline) == "underline"
+
+
+def fewest_event(client: Any, drug: str) -> str:
+    """The preferred term of the drug's event with the fewest cases, first by name."""
+    got = client.get("/api/events", params={"product": drug}).json()
+    pt, cases = got["columns"].index("pt"), got["columns"].index("cases")
+    return min(got["rows"], key=lambda r: (r[cases], r[pt]))[pt]
+
+
+@pytest.mark.parametrize("width", [390, 1440])
+def test_an_address_naming_a_reaction_opens_the_cases_with_that_reaction_filtered(
+    opened, licensed_client, width
+):
+    drug, path = "acetylsalicylic acid", "/product/acetylsalicylic%20acid/cases"
+    pt = fewest_event(licensed_client, drug)
+    every = licensed_client.get("/api/summary", params={"product": drug}).json()["cases"]
+    narrowed = licensed_client.get("/api/summary", params={"product": drug, "pt": pt}).json()
+    assert 0 < narrowed["cases"] < every
+    page = opened(f"{path}?reaction={quote(pt)}", width=width)
+    assert strip(page) == [["Reactions", pt]] and count(page) == narrowed["cases"]
+    assert page.evaluate("location.pathname + location.search") == path
+    assert not sideways(page)
+    # the filter is the person's: taken off, every case is back
+    press(page, '.oa-strip [data-act="unfilter"][data-key="reactions"]')
+    assert strip(page) == [] and count(page) == every
+
+
+def test_an_address_naming_a_reaction_narrows_statistics_and_follows_an_older_name(
+    opened, stats_site, stats_client, licensed_client
+):
+    pt = fewest_event(stats_client, "warfarin")
+    page = opened(f"/product/warfarin/statistics?reaction={quote(pt)}", base=stats_site)
+    assert page.input_value("#oa-stat-find") == pt
+    terms = page.eval_on_selector_all(
+        "tr[data-act='stat-row']", "rs => rs.map((r) => r.dataset.term.toLowerCase())"
+    )
+    assert terms and terms[0] == pt.lower() and all(pt.lower() in t for t in terms)
+    assert page.evaluate("location.search") == ""
+    # an older address opens its drug's page with the reaction still filtered
+    pt = fewest_event(licensed_client, "acetylsalicylic acid")
+    page = opened(f"/product/ASPIRIN/cases?reaction={quote(pt)}")
+    assert page.evaluate("location.pathname + location.search") == (
+        "/product/acetylsalicylic%20acid/cases"
+    )
+    assert strip(page) == [["Reactions", pt]]
+
+
+def test_an_empty_reaction_or_all_cases_sets_no_reactions_filter(opened, licensed_client):
+    every = licensed_client.get("/api/summary", params={"product": "valsartan"}).json()["cases"]
+    page = opened("/product/valsartan/cases?reaction=")
+    assert strip(page) == [] and count(page) == every
+    assert page.evaluate("location.search") == ""
+    pt = fewest_event(licensed_client, "valsartan")
+    page = opened(f"/all/cases?reaction={quote(pt)}")
+    assert strip(page) == []  # All cases' address names no reaction
+
+
+def test_the_events_tab_says_the_roles_it_counts_each_named_on_hover(opened):
+    page = opened("/product/valsartan")
+    said = page.locator(".oa-title-counted")
+    assert said.inner_text() == "PS or SS"
+    assert [t.get_attribute("data-tip") for t in said.locator(".oa-has-tip").all()] == [
+        "Primary suspect",
+        "Secondary suspect",
+    ]

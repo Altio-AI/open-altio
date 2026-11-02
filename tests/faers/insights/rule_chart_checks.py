@@ -14,6 +14,8 @@ from pathlib import Path
 
 import duckdb
 
+from open_altio import rulebook
+
 FDA = ["demo_T", "drug_latest_T", "reac_latest_T", "outc_latest_T", "rpsr_latest_T"]
 FDA += ["ther_latest_T", "indi_latest_T"]
 CNS = "('COUNTRY NOT SPECIFIED', 'A1')"
@@ -84,12 +86,25 @@ def independent(release: str | Path, settings: str = "") -> dict[str, dict]:
         f"OR ({GIVEN.format('x.end_dt')} AND x.end_dt_prec_T IS NULL))",
     )
     out["dates_without_a_clean_date"] = ev | th
+    day = rulebook.value("received-day", "column")
+    out["dated_by_first_copy"] = nums(
+        "cases earlier_copy no_day",
+        f"SELECT count(*), count(*) FILTER (WHERE {day} < first_fda_dt_T), count(*) - count({day}) "
+        f"FROM {c}",
+    )
+    out.update(_event_fact_checks(con, t, c))
+    out["reports_citing_an_article"] = _literature_check(con, c)
     exact = "coalesce(start_dt_prec_T, 0) = 8 AND coalesce(end_dt_prec_T, 0) = 8"
     out["therapy_durations"] = nums(
         "therapy_lines from_dates from_fda_duration",
         f"SELECT count(*), count(dur_days_T) FILTER (WHERE {exact}), "
         f"count(dur_days_T) FILTER (WHERE NOT ({exact})) FROM {shown('ther_latest_T')}",
     )
+    if "medical_events_T" in tables:
+        out["medical_event_terms"] = nums(
+            "terms lists_held",
+            f"SELECT count(*), count(DISTINCT list_T) FROM {t('medical_events_T')}",
+        )
     if "drug_route_T" in tables:
         out["route_found"] = nums(
             "drug_records with_a_route",
@@ -159,6 +174,60 @@ def independent(release: str | Path, settings: str = "") -> dict[str, dict]:
     if "label_flags_T" in tables and "drug_route_T" in tables:
         out.update(_shown_pair_checks(con, t, tables))
     return out
+
+
+def _event_fact_checks(con, t, c) -> dict[str, dict]:
+    """The serious, fatal and life-threatening cases by FDA's outcome codes, and the cases in
+    the children's and the older age groups, each case once."""
+
+    def listed(values) -> str:
+        return "[" + ", ".join(f"'{v}'" for v in values) + "]"
+
+    rule = "serious-outcomes"
+    codes = (
+        f"(SELECT era_T, primaryid, quarter_T, list(outc_cod) AS codes FROM {t('outc_latest_T')} "
+        "WHERE outc_cod IS NOT NULL GROUP BY ALL)"
+    )
+    row = con.execute(
+        f"""SELECT count(*), count(*) FILTER (WHERE list_has_any(o.codes,
+                  {listed(rulebook.value(rule, "serious"))})),
+              count(*) FILTER (WHERE list_contains(o.codes, '{rulebook.value(rule, "death")}')),
+              count(*) FILTER (WHERE list_contains(o.codes,
+                  '{rulebook.value(rule, "life_threatening")}')),
+              count(*) FILTER (WHERE o.codes IS NULL)
+            FROM {c} k LEFT JOIN {codes} o
+            ON o.era_T = k.era_T AND o.primaryid = k.primaryid AND o.quarter_T = k.quarter_T"""
+    ).fetchone()
+    keys = ["cases", "serious", "death", "life_threatening", "no_outcome"]
+    children = listed(rulebook.value("age-groups", "children"))
+    older = listed(rulebook.value("age-groups", "older"))
+    ages = con.execute(
+        f"""SELECT count(*), count(age_band_T),
+                  count(*) FILTER (WHERE list_contains({children}, age_band_T)),
+                  count(*) FILTER (WHERE list_contains({older}, age_band_T)) FROM {c}"""
+    ).fetchone()
+    return {
+        "cases_by_outcome": dict(zip(keys, row, strict=True)),
+        "cases_by_age_group": dict(zip(["cases", "aged", "children", "older"], ages, strict=True)),
+    }
+
+
+def _literature_check(con, c) -> dict:
+    """The cases from FDA's files before the literature reference field, by year and quarter
+    number, and from then on those with nothing in it and those naming an article, a reference
+    made only of an unknown word naming none."""
+    first = rulebook.value("literature-reference", "first_quarter")
+    number = "CAST(left({0}, 4) AS INTEGER) * 4 + CAST(right({0}, 1) AS INTEGER)"
+    before = f"{number.format('quarter_T')} < {number.format(repr(first))}"
+    unknown = "[" + ", ".join(f"'{w}'" for w in rulebook.value("not-given", "unknown_words")) + "]"
+    keys = "cases before_field no_article cites"
+    sql = (
+        f"SELECT count(*), count(*) FILTER (WHERE {before}), "
+        f"count(*) FILTER (WHERE NOT {before} AND coalesce(trim(lit_ref), '') = ''), "
+        f"count(*) FILTER (WHERE NOT {before} AND {GIVEN.format('lit_ref')} "
+        f"AND NOT list_contains({unknown}, upper(trim(lit_ref)))) FROM {c}"
+    )
+    return dict(zip(keys.split(), con.execute(sql).fetchone(), strict=True))
 
 
 def _shown_pair_checks(con, t, tables) -> dict[str, dict]:

@@ -12,7 +12,7 @@ import duckdb
 import pytest
 
 from open_altio.faers.meddra import build_licensed, licensed_dir, read_licensed_manifest
-from open_altio.faers.statistics import STRATA_TABLE, TABLE, cases
+from open_altio.faers.statistics import QUARTER_TABLES, STRATA_TABLE, TABLE, cases
 from open_altio.faers.statistics.classes import TABLE as CLASS_TABLE
 from open_altio.testing.fakemeddra import write_meddra
 from open_altio.testing.releasereader import ReleaseReader
@@ -168,4 +168,9 @@ def test_meddra_added_to_a_built_release_counts_its_statistics_as_a_build_with_i
     by_class = f"SELECT * FROM {CLASS_TABLE} ORDER BY ALL"
     assert added.rows(by_class) == licensed.rows(by_class) != []
     assert added.manifest["class_statistics"]["reaction_key"] == "meddra_pt"
+    # and the counts by quarter, by the same PTs, with the reactions by FDA's text beside them
+    for name in QUARTER_TABLES:
+        by_quarter = f"SELECT * FROM {name} ORDER BY ALL"
+        assert added.rows(by_quarter) == licensed.rows(by_quarter) != []
+    assert added.manifest["quarter_statistics"]["reaction_key"] == "meddra_pt"
     assert not list(copy.glob(".*"))  # no work folder left behind

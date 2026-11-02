@@ -7,7 +7,8 @@ The fake data the tests build from, in one place, with the helpers tests share. 
 | `fakefda.py` | FDA's quarterly files: six small quarters with every layout quirk of the real ones |
 | `fakelabels.py` | A labels folder as `labels-fetch` leaves it: invented SPL labels in two release parts, DailyMed's mapping file and the RxNorm rows the labels step reads |
 | `fakestats.py` | One quarter of invented reports drawn from EBGM's own model, enough for its prior to fit (`stats_release`) |
-| `fakemeddra.py` | An invented MedDRA release in MedDRA's file format, with no MedDRA content |
+| `fakemeddra.py` | An invented MedDRA release in MedDRA's file format; of MedDRA's content only the PTs and the one SMQ the rules name |
+| `fakemedicalevents.py` | Invented copies of EMA's DME and IME list files in EMA's workbook layout, over the invented MedDRA's terms |
 | `fakewho.py` | An invented WHO ATC index in WHO's spreadsheet layout, and a small class table in ours, with no WHO content |
 | `fakediana.py` | An invented DiAna drug dictionary in DiAna's file format, with none of DiAna's content |
 | `fakeclasses.py` | An invented drug classes layer on a built release, with no WHO content, and the same release without it (`classes_release`, `bare_release`) |
@@ -18,6 +19,9 @@ The fake data the tests build from, in one place, with the helpers tests share. 
 | `rules.py` | `rules_with`: run code under a copy of every rules folder with some values changed |
 | `rulecheck.py` | The checks that a rules folder and the code reading it agree, for any repository's `tests/test_rules.py` |
 | `browser.py` | The page in a real browser: an app served on this machine, opened in Playwright's headless Chromium with the clock, time zone and kept choices fixed; and what its tables show: a wide table's first column held as it scrolls, and every cell holding its words, its row's first lines on one line and its grey lines under its value |
+| `countedquestions.py` | Counted questions that hold cases on the invented release, alone and in combination, and with MedDRA by today's preferred term, for the tests that count each by every field; each value's cases, an event by its reaction whatever its capitals |
+| `caselists.py` | The cases a count's question lists in `/api/cases`, page by page, and the check that each count's `cases_query` lists exactly its cases, each once |
+| `contract.py` | The published questions asked of the invented release (`ASKED`), the release built as `labelled_release` is (`invented_release`), and the snapshot of the answers' keys and its rule that no name goes without a new contract major version (`renewed`), for `tests/contract/` and `scripts/contract_snapshot.py` |
 | `fixtures.py` | Pytest fixtures over these: the fake release and its licensed MedDRA part, built once per session, the release with and without invented drug classes, a second release of the duplicate rules' own cases, the invented DiAna dictionary, FDA's server faked, and the browser (`chromium`) |
 | `fixtures.py` | Pytest fixtures over these: the fake release and its licensed MedDRA part, built once per session, a second release of the duplicate rules' own cases, the release with label flags, the invented DiAna dictionary, FDA's server faked, and the browser (`chromium`) |
 | `fakelabeltables.py` | Invented FDA labels as a release's label tables, and invented RxNorm codes and route families for its drug records, for the label dictionary and flags |

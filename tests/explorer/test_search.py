@@ -135,3 +135,37 @@ def test_warming_waits_for_a_moment_when_no_page_is_asking():
         assert not waited.is_set()  # a page is being answered
     thread.join(5)
     assert waited.is_set()
+
+
+# what each spelling and setting of a drug finds ---------------------------------------------------
+
+
+def test_each_setting_of_a_drug_finds_the_cases_the_summary_counts_under_it(client, ask):
+    page = {"product": "valsartan"}
+    settings = ask(client, "/api/spellings", **page)["settings"]
+    for unit in ("any", "exact"):
+        assert settings["unit"][unit] == ask(client, "/api/summary", **page, unit=unit)["cases"]
+    for role, found in settings["roles"].items():
+        assert found == ask(client, "/api/summary", **page, prole=role)["cases"]
+    for dedup in ("kept_only", "all"):
+        assert settings["dedup"][dedup] == ask(client, "/api/summary", **page, dedup=dedup)["cases"]
+    # a combination holding it is found by any product containing it, not by the product alone
+    assert settings["unit"]["any"] > settings["unit"]["exact"]
+    assert settings["dedup"]["all"] >= settings["dedup"]["kept_only"]
+
+
+def test_a_settings_count_keeps_the_other_settings_as_passed(client, ask):
+    page = {"product": "valsartan", "unit": "exact"}
+    settings = ask(client, "/api/spellings", **page, dedup="all")["settings"]
+    assert (
+        settings["roles"]["PS"]
+        == ask(client, "/api/summary", **page, dedup="all", prole="PS")["cases"]
+    )
+
+
+def test_a_product_search_matching_nothing_answers_empty_lists(client, ask):
+    """Find a product by its name: words no ingredient or spelling holds find nothing, never a
+    product made up from the words."""
+    found = ask(client, "/api/products", q="no drug is called this")
+    assert (found["drugs"], found["unmapped"]) == ([], [])
+    assert ask(client, "/api/products", q="valsar")["drugs"]

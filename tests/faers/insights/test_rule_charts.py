@@ -13,6 +13,7 @@ import yaml
 from rule_chart_checks import independent
 
 from open_altio import rulebook
+from open_altio.explorer.rules_api import NAMED
 from open_altio.faers.__main__ import main
 from open_altio.faers.insights.cards import LICENSED, RULES_OF, card_ids, rule_charts
 from open_altio.faers.insights.methods import CODE_REF_ENV, LINES_FILE, card_lines, refresh_cards
@@ -21,6 +22,20 @@ from open_altio.testing import fakediana
 
 NEW = [fn.__name__ for fn in rule_charts.CARDS]
 PUBLIC = [i for i in NEW if i not in LICENSED]  # a licensed card is in the licensed part
+# the rules the page shows by their words alone, why it matters and what we did (words.js
+# RULE_WORDS): the release holds nothing of their own to chart, as each is worked out from
+# MedDRA's licensed files, the quarter-end statistics or an event's breakdowns when a drug's
+# events are asked for, for the label coding from the frozen codings, and for a counted question
+# when it is asked
+WORDS_ONLY = [
+    "label-coding",
+    "trend-rising",
+    "chance-test",
+    "pregnancy-cases",
+    "not-a-medical-event",
+]
+WORDS_ONLY += ["indication-match", "breakdown-rose", "breakdown-alarm", "dose-strength"]
+WORDS_ONLY += ["counted-question"]
 
 
 def _methods(folder: Path) -> dict:
@@ -28,10 +43,11 @@ def _methods(folder: Path) -> dict:
 
 
 def test_every_rule_on_the_page_has_a_card():
+    """The data rules of rules/steps.yaml and the rules the page names beside them."""
     served = {name for rules in RULES_OF.values() for name in rules}
-    page = [info.name for info in catalogue()]
-    assert len(page) == 54
-    assert [name for name in page if name not in served] == []
+    page = [info.name for info in catalogue()] + list(NAMED)
+    assert len(page) == len(set(page)) == 75
+    assert [name for name in page if name not in served] == WORDS_ONLY
 
 
 def test_every_card_named_for_a_rule_exists_and_every_rule_named_has_a_file():
@@ -77,7 +93,8 @@ def test_the_methods_command_points_the_code_links_at_the_ref_it_is_given(
 
 
 @pytest.fixture(
-    scope="module", params=["release", "classes_release", "labelled_release", "stats_release"]
+    scope="module",
+    params=["release", "classes_release", "labelled_release", "stats_release", "listed_release"],
 )
 def refreshed(request, tmp_path_factory) -> Path:
     copy = tmp_path_factory.mktemp("rule_charts") / "release"
@@ -104,6 +121,19 @@ def test_the_fake_release_gives_the_rule_charts_data(refreshed):
         sum(cards["cases_by_age_band"]["chart"]["series"][0]["values"])
         == checks["cases_by_age_band"]["cases"]
     )
+
+
+def test_the_fake_releases_give_the_event_facts_and_received_day_charts_data(listed_release):
+    checks = independent(listed_release)
+    assert checks["dated_by_first_copy"]["earlier_copy"] > 0
+    assert checks["cases_by_outcome"]["serious"] > checks["cases_by_outcome"]["death"] > 0
+    ages = checks["cases_by_age_group"]
+    assert ages["children"] > 0 and ages["older"] > 0 and ages["aged"] < ages["cases"]
+    lists = checks["medical_event_terms"]
+    assert lists["lists_held"] == len(rulebook.value("medical-event-lists", "lists"))
+    assert lists["terms"] > lists["lists_held"]
+    cited = checks["reports_citing_an_article"]
+    assert cited["before_field"] > 0 and cited["no_article"] > 0 and cited["cites"] > 0
 
 
 def test_a_licensed_card_goes_to_the_licensed_part(licensed_release, tmp_path):

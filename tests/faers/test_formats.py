@@ -8,7 +8,7 @@ import shutil
 
 import pytest
 
-from open_altio.faers import formats, read_manifest
+from open_altio.faers import NotARelease, formats, read_manifest
 from open_altio.faers.insights.methods import validate
 from open_altio.faers.meddra import read_licensed_manifest
 
@@ -61,3 +61,34 @@ def test_a_release_built_under_the_earlier_names_still_reads(earlier_release):
     assert read_licensed_manifest(earlier_release)["format"] == formats.LICENSED
     methods = json.loads((earlier_release / "methods.json").read_text(encoding="utf-8"))
     assert validate(methods) == []
+
+
+def _with_manifest(release, folder, change: dict, drop: tuple[str, ...] = ()):
+    shutil.copytree(release, folder)
+    path = folder / "manifest.json"
+    doc = json.loads(path.read_text(encoding="utf-8")) | change
+    path.write_text(json.dumps({k: v for k, v in doc.items() if k not in drop}), encoding="utf-8")
+    return folder
+
+
+def test_a_version_1_release_names_no_source_and_reads_as_faers(release, tmp_path):
+    older = _with_manifest(release, tmp_path / "older", {"format_version": 1}, drop=("source",))
+    assert read_manifest(older)["source"] == formats.FAERS
+    assert formats.FAERS in formats.SOURCES and 1 in formats.READABLE_VERSIONS
+
+
+@pytest.mark.parametrize(
+    ("change", "drop", "why"),
+    [
+        ({"format": formats.METHODS}, (), "is not a release's"),
+        ({"format_version": max(formats.READABLE_VERSIONS) + 1}, (), "format version"),
+        ({}, ("source",), "its source is None"),
+        ({"source": "another"}, (), "its source is another"),
+    ],
+)
+def test_a_manifest_this_version_does_not_read_is_refused_naming_the_folder(
+    release, tmp_path, change, drop, why
+):
+    folder = _with_manifest(release, tmp_path / "copy", change, drop)
+    with pytest.raises(NotARelease, match=f"^copy is not a release .*{why}"):
+        read_manifest(folder)

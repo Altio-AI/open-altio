@@ -13,9 +13,10 @@ import pytest
 from open_altio import rulebook
 from open_altio.faers.__main__ import main
 from open_altio.faers.labeldict import LabelRefused
-from open_altio.faers.labeldict.groups import group_keys, install_groups
+from open_altio.faers.labeldict.groups import file_keys, install_groups
 from open_altio.testing import fakemeddra
 from open_altio.testing.fakelabeltables import add_labels
+from open_altio.testing.fakemeddra import PREGNANCY_SMQ
 
 SOC = fakemeddra.SOCS["91000002"][0]
 HLT_CODE, HLT = "93000006", fakemeddra.HLTS["93000006"][0]
@@ -29,8 +30,7 @@ def release(licensed_release, tmp_path):
 
 
 def groups_file(tmp_path, **given):
-    keys = list(group_keys())
-    data = {k: [] for k in keys} | given
+    data = {k: [] for k in file_keys()} | given
     path = tmp_path / "groups.json"
     path.write_text(json.dumps(data), encoding="utf-8")
     return path
@@ -50,6 +50,14 @@ def test_a_good_file_is_written_beside_the_version_with_each_group_as_meddra_nam
     assert installed(release)[procedure] == [SOC]
     assert installed(release)[catch_all] == [HLT]  # a code becomes its name
     assert rulebook.value("label-groups", "catch_all_hlt_only") is True
+
+
+def test_the_pregnancy_smq_is_checked_against_the_versions_smqs(release, tmp_path):
+    path = groups_file(tmp_path, pregnancy_smq=[PREGNANCY_SMQ.upper()])
+    install_groups(release, path)
+    assert installed(release)["pregnancy_smq"] == [PREGNANCY_SMQ]
+    with pytest.raises(LabelRefused, match="SMQs"):
+        install_groups(release, groups_file(tmp_path, pregnancy_smq=["No such SMQ"]))
 
 
 def test_a_file_with_other_keys_or_values_is_refused(release, tmp_path):
@@ -81,3 +89,15 @@ def test_the_command_takes_the_file_and_runs_the_step_from_it(release, tmp_path,
     assert done["groups"]["groups"]["catch_all"] == 1 and done["coded"]["version"] == "29.1"
     bad = groups_file(tmp_path, catch_all=["Invented nonsense"])
     assert main(["labels", "--release", str(release), "--groups", str(bad)]) == 2
+
+
+def test_groups_only_installs_the_file_and_stops_before_the_labels(release, tmp_path, capsys):
+    """A list added to a release already flagged needs no labels coded again."""
+    path = groups_file(tmp_path, procedure=[SOC])
+    flags = release / "parquet" / "label_flags_T.parquet"
+    assert not flags.exists()
+    code = main(["labels", "--release", str(release), "--groups", str(path), "--groups-only"])
+    assert code == 0
+    assert installed(release)["procedure"] == [SOC]
+    assert not flags.exists()
+    assert main(["labels", "--release", str(release), "--groups-only"]) == 2

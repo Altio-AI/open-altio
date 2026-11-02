@@ -25,7 +25,7 @@ from open_altio.faers.build import Inputs
 from open_altio.faers.drugnames.dictionary import DIANA_ENV
 from open_altio.faers.explorer_db import ExplorerBuildError
 from open_altio.faers.labeldict import build_label_terms, build_release_flags
-from open_altio.faers.labeldict.groups import install_groups
+from open_altio.faers.labeldict.groups import file_keys, install_groups
 from open_altio.faers.meddra import LABEL_GROUPS_FILE, licensed_dir, read_licensed_manifest
 from open_altio.faers.release import build_release
 from open_altio.rulebook import UserRules
@@ -55,7 +55,7 @@ def follow(client, until: str = "done", seconds: float = 60) -> dict:
         time.sleep(0.05)
 
 
-GROUPS = {"not_a_medical_event": [], "procedure": ["Invented investigations"], "catch_all": []}
+GROUPS = {k: [] for k in file_keys()} | {"procedure": ["Invented tests class"]}
 CODED_CASE = "/api/labels/case/faers/9001001"  # its aspirin has an RxNorm code and a flag
 
 
@@ -500,8 +500,8 @@ def test_settling_a_release_no_rebuild_touched_changes_nothing(own_release):
 
 
 def first_build(out: Path, inputs: Inputs, fda: Path, diana: Path, rules: UserRules) -> Path:
-    """A release as a person first builds it with every file: the build, then the labels step
-    with their groups file and EMA's list, both under their rules."""
+    """A release as a person first builds it with every file: the build, which reads EMA's lists
+    in, then the labels step with their groups file, both under their rules."""
     with fakediana.pinned(diana, out.parent / f"{out.name}-rules"):
         built = build_release(
             fda,
@@ -510,6 +510,8 @@ def first_build(out: Path, inputs: Inputs, fda: Path, diana: Path, rules: UserRu
             meddra_dir=inputs.meddra,
             rxnorm_dir=inputs.rxnorm,
             labels=inputs.labels,
+            dme=inputs.dme,
+            ime=inputs.ime,
             user_rules=rules,
         )
     groups = out.parent / "label_groups.json"

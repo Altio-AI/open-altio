@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import shutil
+from pathlib import Path
 
 import pytest
 from fastapi import HTTPException, Request
@@ -13,6 +14,7 @@ from fastapi.testclient import TestClient
 
 from open_altio.explorer.access import Viewer
 from open_altio.explorer.rules_api import CLASSES, NAMED, NOT_HERE
+from open_altio.faers.insights import methods as insight_methods
 from open_altio.faers.insights.cards.drug_classes import NB09
 from open_altio.rulebook import catalogue, load_user_rules, steps
 from open_altio.rulebook import rule as rule_file
@@ -61,6 +63,17 @@ def test_every_rule_comes_in_plain_words_with_the_release_methods(own_client, ow
     assert got["release"]["quarters"] == [manifest["quarters"][0], manifest["quarters"][-1]]
     assert got["built"] == {"off": [], "changed": []}  # built with Altio's standard rules
     assert got["standard"] is None
+
+
+def test_the_page_reads_the_cards_words_once_however_many_cards(client, monkeypatch):
+    """Every evidence card's opened words come from one read of the package's words a page."""
+    reads, read_text = [], Path.read_text
+    monkeypatch.setattr(
+        Path, "read_text", lambda path, *a, **k: reads.append(path) or read_text(path, *a, **k)
+    )
+    cards = read(client)["methods"]["insights"]
+    assert sum("lines" in card for card in cards) > 1
+    assert reads.count(insight_methods.LINES_FILE) == 1
 
 
 def test_the_page_gets_the_steps_the_rules_it_names_and_where_each_is_coded(

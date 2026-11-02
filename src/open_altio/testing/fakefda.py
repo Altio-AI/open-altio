@@ -115,6 +115,8 @@ class Drug:
     rechal: str = "U"
     start_dt: str | None = None  # its therapy start as FDA writes it; None: the event's month
     end_dt: str = ""
+    dechal: str = "D"
+    dose: str = "100 MG, QD"  # dose_vbm
 
 
 @dataclass
@@ -142,6 +144,7 @@ class Report:
     sender: str = "ACME PHARMA, INC."  # mfr_sndr
     rept_cod: str = "EXP"  # report type; DIR: sent straight to FDA
     mfr_num: str = ""  # default US-ACME-<caseid>
+    lit_ref: str = ""  # the article the report cites; FDA's files hold the field from 2014Q3
 
     def fields(self, table: str) -> list[dict[str, str]]:
         """This report's rows of one table, keyed by release column name."""
@@ -162,7 +165,7 @@ class Report:
                     "auth_num": "",
                     "mfr_num": self.mfr_num or f"US-ACME-{self.caseid}",
                     "mfr_sndr": self.sender,
-                    "lit_ref": "",
+                    "lit_ref": self.lit_ref,
                     "age": self.age,
                     "age_cod": self.age_cod,
                     "age_grp": self.age_grp,
@@ -196,10 +199,10 @@ class Report:
                     "prod_ai": d.prod_ai,
                     "val_vbm": "1",
                     "route": "ORAL",
-                    "dose_vbm": "100 MG, QD",
+                    "dose_vbm": d.dose,
                     "cum_dose_chr": "",
                     "cum_dose_unit": "",
-                    "dechal": "D",
+                    "dechal": d.dechal,
                     "rechal": d.rechal,
                     "lot_num": f"L{i}",
                     "exp_dt": "",
@@ -254,6 +257,8 @@ LEGACY_COUNTRY = {"US": "UNITED STATES", "CA": "CANADA"}
 # Two FAERS spellings of one company in the reviewed sender mapping (rules/company-names.md):
 # FAERS cases sent under either count under one company; a legacy case keeps its spelling.
 LILLY = ("ELI LILLY AND CO", "ELI LILLY AND COMPANY")
+# An article a report cites, as a literature reference reads in FDA's files
+ARTICLE = "DOE J, ROE A. HEADACHE AFTER A NEW MEDICINE. J INVENTED MED. 2026;12(3):45-48."
 
 # The reports are a table, one to a line or two, so the formatter leaves them as written.
 R = Report
@@ -311,14 +316,15 @@ STORY: list[Report] = [
     R("2026q2", "90100101", "9010010", "20260510",
       drugs=[Drug("ASPIRIN", "ASPIRIN", rechal="D")]),
     R("2026q2", "91100111", "9110011", "20260511", age="4O", age_cod="YR", wt="154", wt_cod="LBS",
-      occp_cod="CN", sender="BETA LABS LTD"),
+      occp_cod="CN", sender="BETA LABS LTD", lit_ref=ARTICLE),
     R("2026q2", "91200121", "9120012", "20260512", age="40", age_cod="XX", occp_cod="",
       sender=LILLY[1]),
-    # values that read Not given (rule not-given): a sex, an event country and a sender that say
-    # unknown, and a filler age and weight; the reporter's country stands in for the event's.
+    # values that read Not given (rule not-given): a sex, an event country, a sender and a
+    # literature reference that say unknown, and a filler age and weight; the reporter's country
+    # stands in for the event's.
     R("2026q2", "91300131", "9130013", "20260513", sex="NS", country="GB",
       occr_country="COUNTRY NOT SPECIFIED", age="999", age_cod="YR", wt="0", wt_cod="KG",
-      sender="UNKNOWN MANUFACTURER"),
+      sender="UNKNOWN MANUFACTURER", lit_ref="UNK"),
     # same version as 90130131, a later quarter but an earlier fda_dt: fda_dt decides first
     R("2026q2", "90130132", "9013013", "20190310"),
 ]
@@ -517,6 +523,119 @@ SEIZURE_STORY: list[Report] = [
       sex="M", reacs=["Seizure", "Headache"]),
     R("2026q2", "78060011", "7806001", "20260513", event_dt="20260504", age="36", age_cod="YR",
       drugs=[Drug("IBUPROFEN", "IBUPROFEN")], reacs=["Headache"]),
+]
+# fmt: on
+
+
+# A drug's events, each counted in distinct cases (explorer/eventlist.py): an outcome of
+# hospitalization only, no outcome at all, and death with life-threatening; a case naming aspirin
+# on two drug rows and Nausea on two reaction rows, which counts once; a case naming aspirin and
+# warfarin, which counts on the events of each; and a case in the newest quarter's file that FDA
+# first received in 2019. Built on DUP_QUARTERS.
+# fmt: off
+EVENTS_STORY: list[Report] = [
+    R("2019q1", "76010011", "7601001", "20190110"),
+    R("2026q2", "76020011", "7602001", "20260510", outcomes=["HO"]),
+    R("2026q2", "76030011", "7603001", "20260511", outcomes=[]),
+    R("2026q2", "76040011", "7604001", "20260512", reacs=["Headache", "Nausea"],
+      outcomes=["DE", "LT"]),
+    R("2026q2", "76050011", "7605001", "20260513",
+      drugs=[Drug("ASPIRIN", "ASPIRIN"), Drug("ASPIRIN", "ASPIRIN", role="SS")],
+      reacs=["Nausea", "Nausea"], outcomes=["LT", "HO"]),
+    R("2026q2", "76060011", "7606001", "20260514",
+      drugs=[Drug("ASPIRIN", "ASPIRIN"), Drug("WARFARIN", "WARFARIN")], reacs=["Haemorrhage"]),
+    R("2026q2", "76070011", "7607001", "20260515", init_fda_dt="20190120", reacs=["Nausea"]),
+]
+# fmt: on
+
+
+# One drug (digoxin) whose cases show every fact of an event: an age in each of the older and
+# the children's bands and none given, a pregnancy term, terms that are no medical event, and an
+# indication that is the event (Arrhythmia, read to Heart rhythm abnormal), another, and none.
+# Built on DUP_QUARTERS.
+def _digoxin(
+    caseid: str, event_dt: str, indication: str, reacs: list[str], **values: Any
+) -> Report:
+    return R(
+        "2026q2",
+        f"{caseid}1",
+        caseid,
+        "20260520",
+        event_dt=event_dt,
+        drugs=[Drug("DIGOXIN", "DIGOXIN", indication=indication)],
+        reacs=reacs,
+        **values,
+    )
+
+
+# fmt: off
+FACTS_STORY: list[Report] = [
+    _digoxin("7901001", "20260101", "Arrhythmia", ["Arrhythmia"], age="70", age_cod="YR"),
+    _digoxin("7902001", "20260102", "Pain", ["Arrhythmia", "Pregnancy"], age="80", age_cod="YR"),
+    _digoxin("7903001", "20260103", "", ["Arrhythmia", "Drug ineffective"], age="10",
+             age_cod="YR"),
+    _digoxin("7904001", "20260104", "Arrhythmia", ["Drug ineffective", "Off label use"],
+             age="40", age_cod="YR"),
+    _digoxin("7905001", "20260105", "Pain", ["Congenital anomaly", "Headache"]),
+    _digoxin("7906001", "20260106", "Pain", ["Wrong drug administered", "Neonatal jaundice"],
+             age="6", age_cod="MON"),
+    _digoxin("7907001", "20260107", "Arrhythmia",
+             ["Product quality issue", "Procedural pain", "Social issue", "Drug effect incomplete"],
+             age="90",
+             age_cod="YR"),
+]
+# fmt: on
+
+
+# One drug (valsartan) and one event (Headache) whose cases fill each breakdown line, before the
+# newest quarter and in it. Before: a dechallenge of U and rechallenges of D in 2012q4, which read
+# Not given, and a rechallenge of D in 2019q1, which does not; a time to onset of 5 days; an other
+# suspect drug; no outcome given; two copies of one case, one set aside; and a case first
+# received on the day before the newest quarter, with two outcomes. In it: a case first received
+# on its first day, with a pregnancy term; no age given at all; half the reporters blank; and
+# indications written Headache and Head pain, one term by today's MedDRA, on one case. Beside
+# them, a case of valsartan with another event only and one of another drug with the event,
+# neither counted. Built on BREAKDOWN_QUARTERS.
+BREAKDOWN_QUARTERS = ("2012q4", "2019q1", "2026q2")
+
+
+def _vals(**values: Any) -> Drug:
+    return Drug("VALSARTAN", "VALSARTAN", **values)
+
+
+def _valsartan(quarter: str, caseid: str, received: str, **values: Any) -> Report:
+    """A one-version case of valsartan alone unless `drugs` says otherwise."""
+    return R(quarter, f"{caseid}1", caseid, received, **({"drugs": [_vals()]} | values))
+
+
+_COPY: dict[str, Any] = dict(
+    event_dt="20190125", age="50", age_cod="YR", sex="M", drugs=[_vals(rechal="Y")]
+)
+# fmt: off
+BREAKDOWN_STORY: list[Report] = [
+    _valsartan("2012q4", "8101001", "20121015", event_dt="20121010", age="80", age_cod="YR",
+               outcomes=["DE"], drugs=[_vals(dechal="U", rechal="D", indication="Hypertension")]),
+    _valsartan("2012q4", "8102001", "20121020", age="75", age_cod="YR", occp_cod="PH",
+               outcomes=["HO"], drugs=[_vals(dechal="Y", rechal="D", indication="Hypertension")]),
+    _valsartan("2019q1", "8103001", "20190110", event_dt="20190105", age="70", age_cod="YR",
+               sex="M", outcomes=[],
+               drugs=[_vals(dechal="N", rechal="D", indication="Head pain", start_dt="20190101"),
+                      Drug("ASPIRIN", "ASPIRIN", role="SS")]),
+    _valsartan("2019q1", "8104001", "20190201", **_COPY),
+    _valsartan("2019q1", "8105001", "20190202", **_COPY),
+    _valsartan("2026q2", "8106001", "20260601", init_fda_dt="20260331", age="60", age_cod="YR",
+               occp_cod="CN", outcomes=["HO", "OT"], drugs=[_vals(indication="")]),
+    _valsartan("2026q2", "8107001", "20260401", event_dt="20260330",
+               reacs=["Headache", "Pregnancy"],
+               drugs=[_vals(dechal="Y", rechal="Y", start_dt="20260320")]),
+    _valsartan("2026q2", "8108001", "20260415", sex="M", occp_cod="", outcomes=["HO"],
+               drugs=[_vals(indication="Headache"),
+                      _vals(role="SS", indication="Head pain")]),
+    _valsartan("2026q2", "8109001", "20260501", occp_cod="CN", country="GB", lit_ref=ARTICLE,
+               drugs=[_vals(), Drug("IBUPROFEN", "IBUPROFEN", role="SS")]),
+    _valsartan("2026q2", "8110001", "20260601", occp_cod="", country="GB"),
+    _valsartan("2026q2", "8111001", "20260602", reacs=["Nausea"]),
+    _valsartan("2026q2", "8112001", "20260603", drugs=[Drug("IBUPROFEN", "IBUPROFEN")]),
 ]
 # fmt: on
 

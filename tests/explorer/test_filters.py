@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 
-from open_altio.explorer.filters import DIRECT_WORDS, parse
+from open_altio.explorer.filters import DIRECT_WORDS, NOT_A_CHOICE, NOT_GIVEN, left_out, parse
 from open_altio.faers.derive import direct_report
 from open_altio.rulebook import value
 from open_altio.testing import fakefda
@@ -284,3 +284,79 @@ def test_typed_text_is_only_ever_a_value(client, rel, check):
     check(client, set(), drug="x' OR 1=1 --", sender="'; DROP TABLE explorer_case_T; --")
     check(client, set(), pt="x' OR 1=1 --")
     check(client, rel.case_keys())
+
+
+# the drug records a question counts, and the report --------------------------------------------
+
+
+def test_a_records_words_match_whatever_their_capitals_and_spaces(client, rel, check):
+    """With no product, every drug record of a case is read."""
+    want = rel.case_keys(drug_where("upper(d.dose_vbm) = '100 MG, QD'"))
+    check(client, want, dose=" 100  mg, qd ")
+    check(client, rel.case_keys(drug_where("d.lot_num = 'L2'")), lot="l2")
+    check(client, rel.case_keys(drug_where("d.route = 'ORAL'")), route="Oral")
+    check(client, rel.case_keys(drug_where("d.dose_form = 'TABLET'")), dose_form="tablet")
+    assert want and rel.case_keys(drug_where("d.lot_num = 'L2'"))
+
+
+def test_with_a_product_only_its_own_records_are_read(client, check, listed):
+    """Lot L1 is aspirin's in one warfarin case and warfarin's own lots there are L2 and L3: the
+    product's records, in the roles it is counted in, are the ones read."""
+    warfarin = set(listed(client, product="warfarin"))
+    check(client, warfarin - {"faers/9021021"}, product="warfarin", lot="L1")
+    check(client, {"faers/9021021"}, product="warfarin", lot=["l2", "L3"])
+    assert "faers/9021021" in warfarin and len(warfarin) > 1
+
+
+def test_report_type_and_other_reactions_read_the_case(client, rel, check):
+    check(client, rel.case_keys("upper(trim(c.rept_cod)) = 'DIR'"), report_type="dir")
+    nausea = (
+        f"EXISTS (SELECT 1 FROM reac_latest_T r WHERE {rel.case_join('r')} "
+        "AND lower(r.pt) = 'nausea')"
+    )
+    check(client, rel.case_keys(nausea), other_reaction="NAUSEA")
+
+
+def test_the_new_filters_are_written_back_and_said_in_words():
+    query = {
+        "dose": ["100 mg, qd"],
+        "onset": ["2-7", "91-", "5-9", NOT_GIVEN],
+        "dechal": ["y"],
+        "report_type": ["exp"],
+        "other_drug": ["  Aspirin "],
+        "indication": ["  High  Blood pressure "],
+    }
+    found = parse(query)
+    assert parse({k: [v for n, v in found.params() if n == k] for k in query}) == found
+    words = dict(found.described())
+    assert words["Dose"] == "100 MG, QD"
+    assert words["Time to onset"] == "2 to 7 days, Over 90 days, 5 to 9 days, Not given"
+    assert words["Dechallenge"] == "Y (Reaction abated when stopped)"
+    assert words["Report type"] == "EXP (Expedited)"
+    assert words["Other drugs"] == "Aspirin"
+    assert found.indications == ("high blood pressure",)
+
+
+def test_a_value_that_is_not_one_of_a_new_filters_choices_is_left_out():
+    query = {
+        "onset": ["7-2", "-", "a-b", "3-"],
+        "dechal": ["U", "Q"],
+        "other_reaction": [NOT_GIVEN],
+    }
+    assert parse(query).onsets == ("3-",) and parse(query).dechals == ()
+    assert left_out(query) == sorted(
+        [
+            ("onset", "7-2", NOT_A_CHOICE),
+            ("onset", "-", NOT_A_CHOICE),
+            ("onset", "a-b", NOT_A_CHOICE),
+            ("dechal", "U", NOT_A_CHOICE),
+            ("dechal", "Q", NOT_A_CHOICE),
+            ("other_reaction", NOT_GIVEN, NOT_A_CHOICE),
+        ]
+    )
+
+
+def test_typed_text_in_a_new_filter_is_only_ever_a_value(client, check):
+    sneaky = "x' OR 1=1 --"
+    for name in ("dose", "route", "lot", "indication", "other_drug", "report_type"):
+        check(client, set(), product="acetylsalicylic acid", **{name: sneaky})

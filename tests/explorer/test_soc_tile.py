@@ -20,8 +20,8 @@ def listed(client, ask, **params):
 def test_each_class_counts_the_cases_with_a_reaction_in_it(licensed_client, ask):
     tile = ask(licensed_client, "/api/summary")["soc"]
     every = listed(licensed_client, ask)
-    assert tile and len({k for k, _ in tile}) == len(tile)
-    for name, n in tile:
+    assert tile and len({k for k, _, _ in tile}) == len(tile)
+    for name, n, _ in tile:
         assert n == sum(name in c["socs_T"] for c in every)
     # a case with reactions in two classes counts in both
     assert any(len(c["socs_T"]) > 1 for c in every)
@@ -33,12 +33,11 @@ def test_the_tile_counts_under_the_other_filters_and_not_its_own(licensed_client
     for c in listed(licensed_client, ask, sex="F"):
         for s in c["socs_T"]:
             want[s] = want.get(s, 0) + 1
-    assert dict(map(tuple, one["soc"])) == want
+    assert {k: n for k, n, _ in one["soc"]} == want
     name = one["soc"][0][0]
     chosen = ask(licensed_client, "/api/summary", soc=name)
-    assert dict(map(tuple, chosen["soc"])) == dict(
-        map(tuple, ask(licensed_client, "/api/summary")["soc"])
-    )
+    every = ask(licensed_client, "/api/summary")["soc"]
+    assert {k: n for k, n, _ in chosen["soc"]} == {k: n for k, n, _ in every}
 
 
 def test_how_many_cases_the_class_is_found_for_is_counted(licensed_client, ask):
@@ -53,7 +52,7 @@ def test_a_class_filter_keeps_the_cases_with_any_reaction_in_it(licensed_client,
     kept = {c["case_key_T"] for c in every if name in c["socs_T"]}
     assert ask(licensed_client, "/api/summary", soc=name)["cases"] == len(kept)
     assert {c["case_key_T"] for c in listed(licensed_client, ask, soc=name)} == kept
-    two = [n for n, _ in ask(licensed_client, "/api/summary")["soc"][:2]]
+    two = [n for n, _, _ in ask(licensed_client, "/api/summary")["soc"][:2]]
     both = {c["case_key_T"] for c in every if set(two) & set(c["socs_T"])}
     assert ask(licensed_client, "/api/summary", soc=two)["cases"] == len(both)
 

@@ -95,6 +95,17 @@ def test_the_release_and_its_meddra_part_are_read_within_the_memory_rule(license
         same.close()
 
 
+def test_the_explorers_reads_run_on_the_rules_threads_however_many_cores_the_machine_has(release):
+    """rules/explorer-read-memory.md: threads hold buffers, so cores must not decide what fits."""
+    threads = rulebook.value("explorer-read-memory", "threads")
+    opened = OpenRelease(release)
+    try:
+        setting = "SELECT current_setting('threads')"
+        assert opened.cursor().execute(setting).fetchall() == [(threads,)]
+    finally:
+        opened.close()
+
+
 def test_a_manifest_written_anew_is_read_at_the_next_request(
     explorer_app, labelled_release, tmp_path
 ):

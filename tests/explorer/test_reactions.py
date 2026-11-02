@@ -25,7 +25,7 @@ def test_a_pt_counts_every_case_fda_wrote_under_an_older_term(licensed_client, r
     assert want > 0
     assert ask(licensed_client, "/api/summary", pt="Heart rhythm abnormal")["cases"] == want
     assert ask(licensed_client, "/api/summary", reaction="heart RHYTHM abnormal")["cases"] == want
-    reported = dict(map(tuple, ask(licensed_client, "/api/summary")["reactions"]))
+    reported = {k: n for k, n, _ in ask(licensed_client, "/api/summary")["reactions"]}
     assert reported["Heart rhythm abnormal"] == want and "Arrhythmia" not in reported
 
 

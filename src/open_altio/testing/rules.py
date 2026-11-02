@@ -5,8 +5,8 @@
 
 The copy keeps every other value as the real rules folders have it, so tests
 still read the real limits; only the named values differ. Every folder the
-rulebook reads is copied, rules/ and any a package added, so a rule changes
-wherever it lives.
+rulebook reads is copied, rules/ and any a package added (with its prefix), so a
+rule changes wherever it lives.
 """
 
 from __future__ import annotations
@@ -27,17 +27,17 @@ def rules_with(scratch: Path, changes: Mapping[str, Mapping[str, Any]]) -> Itera
     root = Path(scratch) / "rules-override"
     if root.exists():
         shutil.rmtree(root)
-    copies = []
-    for i, folder in enumerate(rulebook.rules_dirs()):
+    copies: list[tuple[Path, str | None]] = []
+    for i, (folder, prefix) in enumerate(rulebook.rules_folders()):
         copy = root / f"{i}-{folder.name}"
         shutil.copytree(folder, copy)
-        copies.append(copy)
+        copies.append((copy, prefix))
     for name, values in changes.items():
-        path = next(c / f"{name}.md" for c in copies if (c / f"{name}.md").is_file())
+        path = next(c / f"{name}.md" for c, _ in copies if (c / f"{name}.md").is_file())
         text = path.read_text(encoding="utf-8")
         _, front, body = text.split("---", 2)
         meta = yaml.safe_load(front)
         meta["values"].update(values)
         path.write_text(f"---\n{yaml.safe_dump(meta, sort_keys=False)}---{body}", encoding="utf-8")
-    with rulebook.use_rules_dirs(copies):
-        yield copies
+    with rulebook.use_rules_dirs(copies) as folders:
+        yield folders
