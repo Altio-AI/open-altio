@@ -3,6 +3,7 @@ them, and read-only SQL over them.
 
     schema(db, manifest)   every table and view, in the order a person should meet them
     manifest_summary(m, f) what the Tables page says about the release as a whole, and its funnel
+    database(ex, v)        the live release for SQL as a viewer may query it
     run_sql(ex, v, ...)    one page of a query's rows, within rule sql-limits
 
 SQL runs through `open_altio.explorer.sql`: one SELECT only, the release's
@@ -118,13 +119,25 @@ def manifest_summary(m: dict, funnel: dict, *, classes: bool = True, by_pt: bool
 # SQL --------------------------------------------------------------------------------------------
 
 
+def database(ex: Explorer, viewer: Viewer) -> SqlDatabase:
+    """The live release for SQL as `viewer` may query it: WHO's classes by `who_files`, the
+    statistics by current PT by `named_by_meddra`, and for a viewer with `meddra` the tables of
+    the licensed MedDRA version the explorer serves."""
+    served = ex.meddra.served() if viewer.meddra else None
+    return ex.sql.current(
+        classes=viewer.who_files,
+        by_pt=viewer.named_by_meddra,
+        meddra=served.version if served else None,
+    )
+
+
 def run_sql(ex: Explorer, viewer: Viewer, text: str, page: int) -> tuple[int, dict]:
     """(HTTP status, answer) for one query: the page asked for, or a problem."""
     started = time.monotonic()
     answer: dict
     status, outcome, shown = 200, "ok", 0
     try:
-        db = ex.sql.current(classes=viewer.who_files, by_pt=viewer.named_by_meddra)
+        db = database(ex, viewer)
         with ex.sql.slot(viewer.id):
             result = db.run(text, page=page)
         shown = len(result.rows)
@@ -135,10 +148,11 @@ def run_sql(ex: Explorer, viewer: Viewer, text: str, page: int) -> tuple[int, di
             "page": result.page,
             "size": result.size,
             "seconds": result.seconds,
+            "counted_on": db.counted_on,
         }
     except (Busy, Refused, LimitHit) as exc:
         status, outcome, answer = exc.status, exc.outcome, {"problem": str(exc)}
-    ex.access.record(
+    ex.announce(
         viewer,
         "sql",
         sql=text,
@@ -149,4 +163,4 @@ def run_sql(ex: Explorer, viewer: Viewer, text: str, page: int) -> tuple[int, di
     return status, answer
 
 
-__all__ = ["GROUPS", "LAYER_WORDS", "manifest_summary", "run_sql", "schema"]
+__all__ = ["GROUPS", "LAYER_WORDS", "database", "manifest_summary", "run_sql", "schema"]

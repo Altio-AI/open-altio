@@ -7,11 +7,24 @@ api.py       the /api routes the page reads its data from
 answers.py   how /api answers: JSON, never cached, refusals as {"problem": ...}
 downloads.py the filtered export and a SQL result as files, each told to the access hook
 filters.py   the filter model: URL query string <-> Filters -> SQL and plain words
+recordfilters.py the filters on the drug records a question counts and on the report, as SQL;
+             recordfields.py their words, codes and onset ranges
 release.py   the one reader of the live release: its folder (or the pointer to it), database
-explore.py   the questions the pages ask: counts, charts, the case list, one case
+explore.py   the questions the pages ask: counts and charts
+caselist.py  the case list, the cases behind any count, and one case
+casecolumns.py more of each case on a page of the case list, and the orders it sorts by
+counted.py   a counted question: a question's cases counted by one field, each value's cases listed
+recount.py   every count of a counted question checked by a second count over the release's tables,
+             and that count as a query to run; recountquery.py reads the question again,
+             recountlabel.py counts Label status again, recountrecords.py the filters on the
+             drug records and the report
+described.py a question in plain words, for a filtered export and a counted question
+eventlist.py a drug's events: one row per event its cases name, each counted once per case;
+             a group of reactions counted as one, with the same figures
 search.py    the searches for products, drugs and reactions
 classes.py   WHO's drug classes: the class filter, its classes, the breakdown, each drug's class
 labels.py    the label flags of a drug's reactions, of one case and of its Statistics pairs
+labelquery.py a group of reactions read against a drug's label
 labelnames.py how a label read is named: product, ingredients and, where they differ, forms
 facts.py     what the pages need from a release that no filter changes, worked out once
 warm.py      the live release made ready before anyone asks, so the first page is quick
@@ -24,6 +37,9 @@ reactions.py what a reaction is: its current PT where the release holds MedDRA, 
 rules_api.py the methods page's /api: the rules, the person's choices and the rebuild with them
 rebuild.py   the release rebuilt with the rules saved beside it, in the background
 statistics.py the Statistics tab's answers: the release's statistics, screened, sorted and paged
+eventstats.py a drug's statistics with each of its events, from the release's statistics
+grouped.py   the statistics of a group of reactions counted as one, and of the cases since a day
+quarterly.py each statistic at the end of every quarter, with screens, since when past and rising
 pages.py     the page, its files and its addresses
 outbox.py    Improve this on a copy: each note kept until the page has sent it to Altio
 """

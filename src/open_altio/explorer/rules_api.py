@@ -16,7 +16,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, Request, Response
 
 from open_altio.faers.insights.cards import drug_classes as class_cards
-from open_altio.faers.insights.methods import card_lines
+from open_altio.faers.insights.methods import card_lines, card_words
 from open_altio.faers.labels.build import as_of as labels_as_of
 from open_altio.rulebook import (
     RuleInfo,
@@ -51,8 +51,31 @@ router = APIRouter(prefix="/api/rules", dependencies=[Depends(viewer)])
 NOT_HERE = "Rules are changed in your own copy of Open Altio, not here."
 CLASSES = "drug_classes"  # the step of rules/steps.yaml whose rules give WHO's drug classes
 # rules the methods page names where they act, beside the data rules: how a drug's cases are
-# counted, the one MedDRA version, and how the label flags' uncertain phrases and groups are read
-NAMED = ("explorer-drug-counts", "meddra-version", "label-coding", "label-groups")
+# counted, the one MedDRA version, how the label flags' uncertain phrases and groups are read, the
+# day a case is dated by, whether a statistic is rising, whether a change is more than chance,
+# the facts and breakdowns of a drug's events, and how a question's cases are counted by a field
+NAMED = (
+    "explorer-drug-counts",
+    "meddra-version",
+    "label-coding",
+    "label-groups",
+    "received-day",
+    "trend-rising",
+    "chance-test",
+    "serious-outcomes",
+    "age-groups",
+    "pregnancy-cases",
+    "not-a-medical-event",
+    "treated-condition",
+    "indication-match",
+    "breakdown-lines",
+    "rechallenge-correction",
+    "breakdown-rose",
+    "breakdown-alarm",
+    "dose-strength",
+    "literature-reference",
+    "counted-question",
+)
 
 
 def _code(name: str) -> str | None:
@@ -163,10 +186,10 @@ def _saved(opened: OpenRelease, built: dict[str, list]) -> dict[str, Any]:
     return {"saved": differences(found), "file": rules_file(opened).read_text(encoding="utf-8")}
 
 
-def _with_lines(card: dict[str, Any]) -> dict[str, Any]:
+def _with_lines(card: dict[str, Any], words: dict) -> dict[str, Any]:
     """A card with its opened words (Shows, Why it matters, What we did) from the package as it
-    is now, filled with the card's numbers from the release."""
-    lines = card_lines(card)
+    is now (`words`, read once for the page), filled with the card's numbers from the release."""
+    lines = card_lines(card, words)
     return {**card, "lines": lines} if lines else card
 
 
@@ -206,6 +229,7 @@ def rules_answer(ex: Explorer, *, who: bool) -> dict[str, Any]:
     methods = methods_of(opened)
     built = built_with(methods)
     infos = catalogue()
+    words = card_words()
     classes = _classes(opened, methods, built, who)
     if classes is None:
         infos = [info for info in infos if info.step.id != CLASSES]
@@ -218,7 +242,7 @@ def rules_answer(ex: Explorer, *, who: bool) -> dict[str, Any]:
         "editable": ex.access.edits_rules,
         "release": _release(opened),
         "meddra": _meddra(ex),
-        "methods": {**methods, "insights": [_with_lines(c) for c in methods["insights"]]},
+        "methods": {**methods, "insights": [_with_lines(c, words) for c in methods["insights"]]},
         "standard": standard_methods(opened) if any(built.values()) else None,
         "rules": [_rule(info) for info in infos],
         "steps": [

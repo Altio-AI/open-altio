@@ -56,7 +56,7 @@ AS_PUBLISHED_BEFORE = (
 )
 
 
-def _entry(data: Data) -> dict[str, Any]:
+def given(data: Data) -> dict[str, Any]:
     """The statistics this viewer is given: those counted by current PT where their reactions
     are named so, else those counted by FDA's text, as in a release without MedDRA."""
     entry = data.opened.manifest.get("statistics") or {"present": False, "reason": BEFORE}
@@ -77,7 +77,7 @@ def _tables(entry: dict[str, Any]) -> tuple[str, str]:
 def about(data: Data, query: Query) -> dict[str, Any]:
     """Whether the release holds statistics (and why not), what was counted, the EBGM fit, and
     each statistic in plain words with its presets and where a person's own screen starts."""
-    entry = _entry(data)
+    entry = given(data)
     if not entry["present"]:
         return {"present": False, "reason": entry["reason"]}
     fit = entry["ebgm"]
@@ -182,7 +182,7 @@ def pairs(data: Data, query: Query) -> dict[str, Any]:
     """One page of pairs: an ingredient's (`ingredient`), or the release's, whose reaction (or,
     across the release, ingredient) holds `find`, meeting the screen `pass`, ordered by `sort`
     (`dir` asc or desc), from `offset`."""
-    entry = _entry(data)
+    entry = given(data)
     if not entry["present"]:
         raise Problem(404, entry["reason"])
     if value_of(query, "by") == "class":
@@ -346,7 +346,7 @@ def strata(data: Data, query: Query) -> dict[str, Any]:
     """The pair of `ingredient` and `reaction` (as the pairs name it, `term`): its ROR within each
     value of each part, every value listed, with no case and an empty ROR where the pair has
     none there. A value not given is NOT_GIVEN, as the filters name it."""
-    entry = _entry(data)
+    entry = given(data)
     if not entry["present"]:
         raise Problem(404, entry["reason"])
     pairs_table, strata_table = _tables(entry)

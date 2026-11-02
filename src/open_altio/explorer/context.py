@@ -10,20 +10,20 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from fastapi import Depends, FastAPI, Request
 
 from open_altio import rulebook
 
 from . import classes, search
-from .access import Access, Viewer
+from .access import OPTIONAL, RECORDED, Access, ContractError, Viewer
 from .explore import Data
-from .facts import LiveFacts
+from .facts import Facts, LiveFacts
 from .meddra import LicensedMeddra
 from .reactions import Reactions
 from .rebuild import Rebuild
-from .release import LiveRelease
+from .release import LiveRelease, OpenRelease
 from .sql import SqlService
 
 if TYPE_CHECKING:
@@ -89,27 +89,22 @@ class Explorer:
     asking: Asking = field(default_factory=Asking)
 
     def data(self, viewer: Viewer) -> Data:
-        """What one request reads: the live release, its facts, its MedDRA version when this
-        viewer may see it, its reactions, named by that version for each viewer the access hook
-        gives it to and as FDA wrote them for any other, and the release's drug classes when it
-        carries them and this viewer may see them."""
+        """What one request reads: the live release, as `read_as` gives it to this viewer."""
         opened = self.release.current()
-        facts = self.facts.of(opened)
-        served = self.meddra.served()
-        shown = served if viewer.meddra else None
-        named = served if viewer.named_by_meddra else None
-        line = viewer.fda_text_line if served is not None and named is None else ""
-        layer = classes.layer_of(opened.manifest)
-        why = classes.NOT_HELD if layer is None else classes.NOT_OPEN
-        return Data(
-            opened,
-            facts,
-            shown,
-            viewer.why_no_smqs,
-            Reactions(facts, named, line),
-            layer if viewer.who else None,
-            why,
-        )
+        return read_as(viewer, opened, self.facts.of(opened), self.meddra)
+
+    def announce(self, viewer: Viewer, kind: str, **fields: Any) -> None:
+        """Tells the access hook what `viewer` did: a kind `RECORDED` lists, with its fields;
+        ContractError for any other kind, or a field it does not list or lacks."""
+        if kind not in RECORDED:
+            raise ContractError(f"announce() takes no kind {kind!r}; the kinds: {list(RECORDED)}")
+        listed, given = set(RECORDED[kind]), set(fields)
+        needed = listed - set(OPTIONAL.get(kind, ()))
+        if given - listed or needed - given:
+            raise ContractError(
+                f"announce({kind!r}) takes {list(RECORDED[kind])}, not {sorted(given)}"
+            )
+        self.access.record(viewer, kind, **fields)
 
     def warm(self) -> None:
         """What the search boxes read under no filter, worked out in the background when a
@@ -121,6 +116,28 @@ class Explorer:
                 search.warm(self.data(WARMING), lambda: self.asking.quiet(seconds))
         except Exception:  # the release went, or is not live yet: nothing is lost
             logging.getLogger(__name__).warning("The explorer was not warmed.", exc_info=True)
+
+
+def read_as(viewer: Viewer, opened: OpenRelease, facts: Facts, meddra: LicensedMeddra) -> Data:
+    """A release as `viewer` reads it: its facts, its MedDRA version when this viewer may see
+    it, its reactions, named by that version for each viewer the access hook gives it to and as
+    FDA wrote them for any other, and the release's drug classes when it carries them and this
+    viewer may see them."""
+    served = meddra.served()
+    shown = served if viewer.meddra else None
+    named = served if viewer.named_by_meddra else None
+    line = viewer.fda_text_line if served is not None and named is None else ""
+    layer = classes.layer_of(opened.manifest)
+    why = classes.NOT_HELD if layer is None else viewer.why_no_classes
+    return Data(
+        opened,
+        facts,
+        shown,
+        viewer.why_no_smqs,
+        Reactions(facts, named, line),
+        layer if viewer.who else None,
+        why,
+    )
 
 
 # who warms the explorer: everything a page may read, so every fact a search reads is made
@@ -139,4 +156,12 @@ def viewer(request: Request, ex: Explorer = Depends(explorer)) -> Viewer:
     return ex.access.viewer(request)
 
 
-__all__ = ["Clock", "Explorer", "SystemClock", "explorer", "explorer_of", "viewer"]
+__all__ = [
+    "Clock",
+    "Explorer",
+    "SystemClock",
+    "explorer",
+    "explorer_of",
+    "read_as",
+    "viewer",
+]

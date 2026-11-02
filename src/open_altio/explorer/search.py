@@ -14,6 +14,7 @@ from open_altio.faers.explorer_db import drug_term
 from . import classes, drugs
 from .answers import Problem
 from .explore import Data, Query, list_length, product_unit, scope, tidy, value_of
+from .filters import DEDUP_CHOICES
 from .found import found_order
 
 
@@ -222,6 +223,25 @@ def drug_search(data: Data, query: Query) -> dict:
     }
 
 
+def _cases_asked(data: Data, query: Query) -> int:
+    """The cases a question counts, through the same condition every page counts with."""
+    sql, params = scope(data, query).where()
+    got = data.rows(
+        f"SELECT count(DISTINCT c.case_id_T) AS n FROM explorer_case_T c WHERE {sql}", params
+    )
+    return int(got[0]["n"])
+
+
+def _settings(data: Data, query: Query) -> dict:
+    """The cases each setting of the product finds, the others as passed: how it is counted
+    (`unit`), each role alone (`roles`) and the copies counted (`dedup`)."""
+    return {
+        "unit": {u: _cases_asked(data, query | {"unit": [u]}) for u in drugs.UNIT_WORDS},
+        "roles": {r: _cases_asked(data, query | {"prole": [r]}) for r in drugs.roles()},
+        "dedup": {d: _cases_asked(data, query | {"dedup": [d]}) for d in DEDUP_CHOICES},
+    }
+
+
 def spellings(data: Data, query: Query) -> dict:
     """The spellings a product page counts, each with its cases in the page's roles under its
     other filters: its drug's spellings in the unit chosen (most cases first, as many as rule
@@ -265,6 +285,7 @@ def spellings(data: Data, query: Query) -> dict:
         "excluded": [[k, by_name.get(k, 0)] for k in unit.excluded],
         "included": [[k, spelled.get(k, 0)] for k in added],
         "unmapped": [s for s in found if s[0] not in unit.included],
+        "settings": _settings(data, query),
     }
 
 
@@ -297,7 +318,8 @@ def term_search(data: Data, query: Query) -> dict:
     part (`meddra=1` asks for them)."""
     q = tidy(value_of(query, "q")).lower()
     kind = value_of(query, "kind", "all")
-    meddra = data.meddra if value_of(query, "meddra") == "1" else None
+    asked = value_of(query, "meddra") == "1"
+    meddra = data.meddra if asked else None
     one_kind = kind != "all"
     pt_counts = data.reactions.counts
     terms, llts, smqs = [], [], []
@@ -327,22 +349,36 @@ def term_search(data: Data, query: Query) -> dict:
         smqs.sort(key=lambda x: found_order(q, x[1].lower()) or 0)  # by name within each
         totals["smq"] = len(smqs)
         smqs = smqs[: list_length("smqs_found_one_kind" if one_kind else "smqs_found")]
-    return {"q": q, "kind": kind, "terms": terms, "llts": llts, "smqs": smqs, "totals": totals}
+    # lower-level terms and SMQs asked for and none given: the line that says why
+    why = data.why_no_smqs if asked and data.meddra is None else None
+    return {
+        "q": q,
+        "kind": kind,
+        "terms": terms,
+        "llts": llts,
+        "smqs": smqs,
+        "totals": totals,
+        "why_no_licensed": why,
+    }
 
 
 def smq_terms(data: Data, query: Query) -> dict:
-    """An SMQ's preferred terms, narrow first, each with its cases under the other filters."""
+    """An SMQ's preferred terms, narrow first, each with its cases under the other filters, and
+    their number. `scope` narrow keeps the narrow terms alone; broad (or none) all of them."""
     code = value_of(query, "code")
+    scope_asked = value_of(query, "scope", "broad")
+    if scope_asked not in ("narrow", "broad"):
+        raise Problem(400, "An SMQ's scope is narrow or broad.")
     q = data.served_meddra().smqs().get(code)
     if not q:
         raise Problem(404, "not found")
-    counts = counts_for(data, sorted(q["broad"]), query)
+    held = q["narrow"] if scope_asked == "narrow" else q["broad"]
+    counts = counts_for(data, sorted(held), query)
     terms = [
-        [data.pt_name(t), "narrow" if t in q["narrow"] else "broad", counts.get(t, 0)]
-        for t in q["broad"]
+        [data.pt_name(t), "narrow" if t in q["narrow"] else "broad", counts.get(t, 0)] for t in held
     ]
     terms.sort(key=lambda t: (t[1] != "narrow", -t[2], t[0]))
-    return {"code": code, "name": q["name"], "terms": terms}
+    return {"code": code, "name": q["name"], "n_terms": len(terms), "terms": terms}
 
 
 def term_counts(data: Data, query: Query) -> dict:

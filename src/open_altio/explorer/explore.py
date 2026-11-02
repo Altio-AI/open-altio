@@ -1,5 +1,5 @@
-"""The explorer's questions about the live release: counts, charts, the case list and one
-case. The searches for products, drugs and reactions are search.py's.
+"""The explorer's questions about the live release: counts, charts and one case. The case list
+is caselist.py's, and the searches for products, drugs and reactions are search.py's.
 
 Every function takes the request's `Data` and its query string as a dict of
 lists (urllib's parse_qs) and returns what /api answers, as plain values.
@@ -36,23 +36,23 @@ them, less those in `pt_out`. No value from the query is ever put into SQL text.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
+from datetime import date
 from typing import Any
+from urllib.parse import urlencode
 
-from open_altio.faers import not_given
+from open_altio.faers.dates import received_day
 from open_altio.faers.derive import direct_report
-from open_altio.faers.duplicates import reason_lines
-from open_altio.faers.explorer_db import CHILD_ORDER
-from open_altio.faers.schema import RAW_COLUMNS
 from open_altio.rulebook import value
 
-from . import classes, drugs, labels, socs
-from .answers import Problem
+from . import classes, drugs, labels, recordfilters, socs
+from .answers import Problem, cases_query
 from .classes import NOT_HELD, Choice, Layer
 from .drugs import Unit
 from .facts import Facts
-from .filters import DIRECT, NOT_GIVEN, Filters, parse
+from .filters import DEDUP_CHOICES, DIRECT, ERA_T, NOT_GIVEN, OUTCOMES_GIVEN, Filters, parse
 from .meddra import ServedMeddra
 from .reactions import Reactions
 from .release import OpenRelease
@@ -88,6 +88,16 @@ class Data:
         if self.meddra is None:
             raise Problem(403, self.why_no_smqs)
         return self.meddra
+
+    def remember(self, name: str, query: Query, make: Callable[[], Any]) -> Any:
+        """An answer that takes a while, kept per release by its question; the MedDRA version
+        that names its reactions, and whether this person may see SMQs and WHO's classes, are
+        part of the key."""
+        meddra = "meddra" if self.meddra is not None else "-"
+        who = "classes" if self.classes is not None else "-"
+        pairs = sorted(((k, v) for k, vs in query.items() for v in vs), key=lambda pair: pair[0])
+        key = f"{name}|{self.opened.name}|{self.reactions.version or '-'}|{meddra}|{who}"
+        return self.facts.remember(f"{key}|{urlencode(pairs)}", make)
 
     def need_classes(self) -> Layer:
         """The drug classes this person sees; refused when there are none."""
@@ -143,7 +153,9 @@ def _unit(data: Data, name: str, roles: tuple[str, ...], exact: bool) -> Unit:
 
 
 def product_unit(data: Data, query: Query) -> Unit | None:
-    """The drug whose page this is, as the page counts it."""
+    """The drug whose page this is, as the page counts it: the one way a question names a
+    product, by its settings `product`, `prole`, `unit`, `include`, `exclude` and `dedup`
+    (docs/reference/api.md, A product). A setting that is not one of its choices is refused."""
     name = value_of(query, "product").strip()
     if not name:
         return None
@@ -152,6 +164,9 @@ def product_unit(data: Data, query: Query) -> Unit | None:
         exact = drugs.chosen_unit(value_of(query, "unit")) == "exact"
     except ValueError as exc:
         raise Problem(400, str(exc)) from None
+    dedup = value_of(query, "dedup").strip()
+    if dedup and dedup not in DEDUP_CHOICES:
+        raise Problem(400, f"Deduplication is {' or '.join(DEDUP_CHOICES)}.")
     unit = _unit(data, name, roles, exact)
     spelled = [s.strip().upper() for s in query.get("include", []) if s.strip()]
     if unit.substance is None:
@@ -221,6 +236,10 @@ class Scope:
             cases, more = self.classes.cases()
             sql += f" AND c.case_id_T IN ({cases})"
             params += more
+        records = recordfilters.Records.of(self.product)
+        for more_sql, more in recordfilters.where(filters, records, self.reactions):
+            sql += f" AND {more_sql}"
+            params += more
         return sql, params
 
 
@@ -228,7 +247,7 @@ def scope(data: Data, query: Query) -> Scope:
     """The Scope a page's query string asks for (the names are in this module's docstring)."""
     product = product_unit(data, query)
     return Scope(
-        filters=labels.narrowed(data, parse(query), product),
+        filters=recordfilters.resolved(data, labels.narrowed(data, parse(query), product)),
         product=product,
         terms=reaction_terms(data, query),
         drugs=drug_choice(data, query),
@@ -251,20 +270,29 @@ def _together(data: Data, jobs: dict[str, tuple[str, list]]) -> dict[str, list[d
 # FDA records is a day: its receipt dates carry no time. A case whose date FDA gave only as a month
 # or a year has no date, so it cannot be placed and is counted apart.
 GRAINS = {
-    "year": "date_trunc('year', c.group_first_dt_T)",
-    "month": "date_trunc('month', c.group_first_dt_T)",
-    "week": "date_trunc('week', c.group_first_dt_T)",
-    "day": "c.group_first_dt_T",
+    "year": "date_trunc('year', {})",
+    "month": "date_trunc('month', {})",
+    "week": "date_trunc('week', {})",
+    "day": "{}",
 }
+# what a timeline counts by: the day its group was first received, or with `by=event` the day the
+# event began as the event date filter reads it, FDA's full dates only, so each case counted there
+# is one `event_from` and `event_to` can pick
+TIMELINE_BY = {"received": "c.group_first_dt_T", "event": "c.event_dt_T"}
 
 
 def timeline(data: Data, query: Query) -> dict:
-    """Cases by the period FDA first received them, at the grain asked for."""
+    """Cases by the period FDA first received them, at the grain asked for; with `by=event`, by
+    the period the event began, a case with no full event date undated."""
     sql, params = scope(data, query).where()
     grain = value_of(query, "grain", "year")
     grain = grain if grain in GRAINS else "year"
+    by = value_of(query, "by", "received")
+    if by not in TIMELINE_BY:
+        raise Problem(400, f"Count the timeline by {' or '.join(TIMELINE_BY)}.")
+    period = GRAINS[grain].format(TIMELINE_BY[by])
     got = data.rows(
-        f"SELECT CAST({GRAINS[grain]} AS DATE) AS k, count(*) AS n FROM explorer_case_T c "
+        f"SELECT CAST({period} AS DATE) AS k, count(*) AS n FROM explorer_case_T c "
         f"WHERE {sql} GROUP BY 1 ORDER BY 1 NULLS LAST",
         params,
     )
@@ -295,7 +323,7 @@ def summary(data: Data, query: Query) -> dict:
             full_params,
         ),
         "years": (
-            "SELECT year(c.group_first_dt_T) AS k, count(*) AS n FROM explorer_case_T c WHERE "
+            f"SELECT year(c.{received_day()}) AS k, count(*) AS n FROM explorer_case_T c WHERE "
             f"{full_sql} GROUP BY 1 ORDER BY 1",
             full_params,
         ),
@@ -326,9 +354,8 @@ def summary(data: Data, query: Query) -> dict:
         )
     sql, params = asked.where(outcomes=())
     jobs["outcome"] = (
-        f"SELECT o AS k, count(*) AS n FROM (SELECT unnest(CASE WHEN len(c.outcomes_T) = 0 "
-        f"THEN ['{NOT_GIVEN}'] ELSE c.outcomes_T END) AS o FROM explorer_case_T c WHERE {sql}) "
-        f"GROUP BY 1 ORDER BY 2 DESC, 1",
+        f"SELECT o AS k, count(*) AS n FROM (SELECT unnest({OUTCOMES_GIVEN}) AS o "
+        f"FROM explorer_case_T c WHERE {sql}) GROUP BY 1 ORDER BY 2 DESC, 1",
         params,
     )
     jobs["given_outcome"] = (
@@ -343,7 +370,9 @@ def summary(data: Data, query: Query) -> dict:
     )
     sql, params = asked.where(eras=("AERS", "FAERS"))
     jobs["era"] = (
-        f"SELECT c.era_T AS k, count(*) AS n FROM explorer_case_T c WHERE {sql} GROUP BY 1",
+        # ordered, so the same question gives the same answer
+        f"SELECT c.era_T AS k, count(*) AS n FROM explorer_case_T c WHERE {sql} "
+        "GROUP BY 1 ORDER BY 2 DESC, 1",
         params,
     )
     product = asked.product
@@ -417,7 +446,9 @@ def summary(data: Data, query: Query) -> dict:
         result["classes"] = classes.breakdown(data, parent, roles, out)
     for k, v in out.items():
         result[k] = [[r["k"], r["n"]] for r in v]
-    result["reactions"] = [[data.pt_name(k), n] for k, n in result["reactions"]]
+    result["reactions"] = [
+        [data.pt_name(k), n, cases_query(query, event=[k])] for k, n in result["reactions"]
+    ]
     # the companies that sent the most cases with the direct reports' bar, most first, then
     # Not given
     senders = result["sender"]
@@ -425,165 +456,60 @@ def summary(data: Data, query: Query) -> dict:
     shown = companies[: list_length("companies_charted")] + [r for r in senders if r[0] == DIRECT]
     result["sender"] = sorted(shown, key=lambda r: -r[1]) + [r for r in senders if r[0] is None]
     if "drugs" in result:
-        result["drugs"] = [[k, n, drugs.title(k)] for k, n in result["drugs"]]
+        result["drugs"] = [
+            [k, n, drugs.title(k), cases_query(query, "drole", dprod=[k])]
+            for k, n in result["drugs"]
+        ]
+    return _bars_queried(result, asked.filters, query)
+
+
+# the filter each chart's bar sets: its cases are the question's with the bar's value as the filter
+BAR_FILTERS = {
+    "sex": "sex",
+    "age": "age",
+    "reporter": "reporter",
+    "country": "country",
+    "sender": "sender",
+    "outcome": "outcome",
+    "soc": "soc",
+}
+ERA_NAMES = {t: e for e, t in ERA_T.items()}
+
+
+def days_query(first: date, last: date, filters: Filters, query: Query, *left_out: str) -> str:
+    """The question narrowed to the received days from `first` to `last` that it takes in (rule
+    received-day), less the names `left_out`: answers.cases_query."""
+    first = max(first, filters.received_from or date.min)
+    last = min(last, filters.received_to or date.max)
+    return cases_query(
+        query, *left_out, received_from=[first.isoformat()], received_to=[last.isoformat()]
+    )
+
+
+def _year_query(year: int | None, filters: Filters, query: Query) -> str | None:
+    """The question narrowed to the received days of `year` it takes in; None for the cases with
+    no full date, which no filter picks."""
+    if year is None:
+        return None
+    return days_query(date(year, 1, 1), date(year, 12, 31), filters, query)
+
+
+def _bars_queried(result: dict[str, Any], filters: Filters, query: Query) -> dict[str, Any]:
+    """The count line's and each chart's bar with, last, the /api/cases question that lists its
+    cases (`cases_query`)."""
+    result["cases_query"] = cases_query(query)
+    for chart, name in BAR_FILTERS.items():
+        if chart in result:
+            result[chart] = [
+                [k, n, cases_query(query, **{name: [NOT_GIVEN if k is None else k]})]
+                for k, n in result[chart]
+            ]
+    result["era"] = [[k, n, cases_query(query, era=[ERA_NAMES[k]])] for k, n in result["era"]]
+    result["years"] = [[y, n, _year_query(y, filters, query)] for y, n in result["years"]]
     return result
 
 
-# the case list and one case ------------------------------------------------------------------
-
-# newest and oldest by the date the case is dated by, as GRAINS
-CASE_ORDER = {
-    "newest": "c.group_first_dt_T DESC NULLS LAST, c.case_id_T",
-    "oldest": "c.group_first_dt_T ASC NULLS LAST, c.case_id_T",
-    "age": "c.age_years_T DESC NULLS LAST, c.case_id_T",
-    "age-asc": "c.age_years_T ASC NULLS LAST, c.case_id_T",
-}
-
-
-def cases(data: Data, query: Query) -> dict:
-    """One page of matching cases (rule explorer-page-size), each with its
-    drugs and reactions."""
-    sql, params = scope(data, query).where()
-    try:
-        page = max(1, int(value_of(query, "page", "1")))
-    except ValueError:
-        page = 1
-    size = int(value("explorer-page-size", "cases_per_page"))
-    order = CASE_ORDER.get(value_of(query, "sort", "newest"), CASE_ORDER["newest"])
-    found = data.rows(
-        "SELECT c.case_id_T, c.era_T, c.case_key_T, c.first_fda_dt_T, c.group_first_dt_T, "
-        "c.event_dt, c.event_dt_T, c.event_dt_prec_T, c.age, c.age_cod, c.age_years_T, c.sex_T, "
-        "c.country_T, c.occp_cod, c.rept_cod, c.outcomes_T, c.dup_kept_T, c.probable_duplicate_T, "
-        "c.serious_no_drug_or_reaction_T "
-        f"FROM explorer_case_T c WHERE {sql} ORDER BY {order} LIMIT ? OFFSET ?",
-        params + [size, (page - 1) * size],
-    )
-    if found:
-        ids = [c["case_id_T"] for c in found]
-        marks = ", ".join("?" for _ in ids)
-        # each drug with its one class when the person sees classes: [code, name, broader]
-        their_classes = classes.on_list(data, ids) if data.classes else {}
-        their_drugs: dict[int, list] = {}
-        for d in data.rows(
-            f"SELECT case_id_T, drug_seq, drugname, prod_ai_norm_T, role_T FROM explorer_drug_T "
-            f"WHERE case_id_T IN ({marks}) ORDER BY drug_seq",
-            ids,
-        ):
-            their_drugs.setdefault(d["case_id_T"], []).append(
-                [
-                    d["drugname"],
-                    d["prod_ai_norm_T"],
-                    d["role_T"],
-                    their_classes.get((d["case_id_T"], d["drug_seq"])),
-                ]
-            )
-        reacs: dict[int, list] = {}
-        for r in data.rows(
-            f"SELECT case_id_T, pt FROM explorer_reac_T WHERE case_id_T IN ({marks})", ids
-        ):
-            reacs.setdefault(r["case_id_T"], []).append(r["pt"])
-        for c in found:
-            c["drugs"] = their_drugs.get(c["case_id_T"], [])
-            c["reactions"] = reacs.get(c["case_id_T"], [])  # FDA's text, exactly as written
-            if data.meddra is not None:
-                c["current_pts_T"] = [data.meddra.current("pt", t) for t in c["reactions"]]
-                c["socs_T"] = list(
-                    dict.fromkeys(
-                        s for t in c["reactions"] if (s := data.meddra.soc_of("pt", t)) is not None
-                    )
-                )
-    shown = {"meddra_version": data.meddra.version} if data.meddra is not None else {}
-    return {"page": page, "size": size, "cases": found} | shown
-
-
-ROUTE = "drug_route_T"
-
-
-def drug_routes(opened: OpenRelease, c: dict) -> dict[str, dict] | None:
-    """Each drug record of case `c` by its drug_seq: the route families it could be in, sorted
-    (`route_families_T`, empty when nothing is known), and which of FDA's fields said so
-    (`route_source_T`), as rule drug-route reads them; None when the release has no routes."""
-    tables = opened.manifest["tables"]
-    if ROUTE not in tables:
-        return None
-    found = opened.rows(
-        "SELECT drug_seq, route_families_T, route_source_T FROM read_parquet(?) "
-        "WHERE era_T = ? AND primaryid = ? AND quarter_T = ?",
-        [str(opened.folder / tables[ROUTE]["path"]), c["era_T"], c["primaryid"], c["quarter_T"]],
-    )
-    return {
-        r["drug_seq"]: {
-            "route_families_T": r["route_families_T"].split(";") if r["route_families_T"] else [],
-            "route_source_T": r["route_source_T"],
-        }
-        for r in found
-    }
-
-
-def case(data: Data, era: str, key: str) -> dict | None:
-    """One case with every child row as the release holds it; `pt_T` and
-    `indi_pt_T` are the spellings shown (rule legacy-term-spelling), a drug's
-    `ingredient_T` its ingredients in words; for a viewer who may see MedDRA's
-    licensed part, `current_pt_T` (on reactions and indications) and
-    `rec_act_current_pt_T` name the current PT a text reads to where it is not
-    the text itself, in `meddra_version`; a drug's `route_families_T` and
-    `route_source_T` are its route families (drug_routes), where the release has
-    them; `not_given_T` on the case and on each child row names the fields that
-    read Not given (rule not-given); `direct_T`
-    is true for a report sent straight to FDA (rule company-names); `reasons`
-    says why a probable duplicate is shown or set aside, one sentence a line,
-    and `group` lists its group's other copies with their own receipt. None
-    when there is no such case."""
-    found = data.rows(
-        "SELECT * FROM explorer_case_T WHERE era_T = ? AND case_key_T = ?", [era, key]
-    )
-    if not found:
-        return None
-    c = found[0]
-    cid = c["case_id_T"]
-    marks = data.rows(
-        f"SELECT {not_given.named(c, 'c')} AS f, {direct_report('c.rept_cod')} AS direct "
-        "FROM explorer_case_T c WHERE case_id_T = ?",
-        [cid],
-    )[0]
-    c["not_given_T"], c["direct_T"] = marks["f"], marks["direct"]
-    # a child row's quarter and report type are its case's
-    context = {"quarter": "k.quarter_T", "report": "k.rept_cod"}
-    for child in ("drug", "reac", "outc", "ther", "indi"):
-        c[child] = data.rows(
-            f"SELECT d.*, {not_given.named(RAW_COLUMNS[child], 'd', **context)} AS not_given_T "
-            f"FROM explorer_{child}_T d, (SELECT quarter_T, rept_cod FROM explorer_case_T "
-            f"WHERE case_id_T = ?) k WHERE d.case_id_T = ? ORDER BY {CHILD_ORDER[child]}",
-            [cid, cid],
-        )
-    routes = drug_routes(data.opened, c)
-    for d in c["drug"]:
-        d["ingredient_T"] = drugs.title(d["substance_T"]) if d.get("substance_T") else None
-        if routes is not None:
-            d |= routes.get(d["drug_seq"], {"route_families_T": [], "route_source_T": "none"})
-    for r in c["reac"]:
-        r["pt_T"] = r["pt_spelling_T"]
-    for i in c["indi"]:
-        i["indi_pt_T"] = i["indi_pt_spelling_T"]
-    if data.meddra is not None:
-        c["meddra_version"] = data.meddra.version
-        for r in c["reac"]:
-            r["current_pt_T"] = data.meddra.current("pt", r["pt"])
-            r["rec_act_current_pt_T"] = data.meddra.current("drug_rec_act", r["drug_rec_act"])
-            r["soc_T"] = data.meddra.soc_of("pt", r["pt"])
-        for i in c["indi"]:
-            i["current_pt_T"] = data.meddra.current("indi_pt", i["indi_pt"])
-    c["reasons"] = reason_lines(c)
-    if data.classes:
-        c["classes"] = classes.in_case(data, cid)
-    c["group"] = []
-    if c["dup_group_T"] is not None and c["probable_duplicate_T"]:
-        c["group"] = data.rows(
-            "SELECT era_T, case_key_T, dup_kept_T, first_fda_dt_T FROM explorer_case_T WHERE "
-            "dup_group_T = ? AND NOT (era_T = ? AND case_key_T = ?) ORDER BY era_T, case_key_T",
-            [c["dup_group_T"], era, key],
-        )
-    return c
+# the filtered export --------------------------------------------------------------------------
 
 
 def export_size(data: Data, query: Query) -> dict:
@@ -612,8 +538,7 @@ __all__ = [
     "Data",
     "Query",
     "Scope",
-    "case",
-    "cases",
+    "days_query",
     "export_size",
     "list_length",
     "product_unit",

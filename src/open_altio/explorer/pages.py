@@ -18,6 +18,7 @@ version reaches everyone on their next visit.
 
 from __future__ import annotations
 
+import mimetypes
 from html import escape
 from pathlib import Path
 
@@ -44,6 +45,7 @@ PAGES = (
 )
 
 router = APIRouter()
+mimetypes.add_type("font/woff2", ".woff2")  # Windows' own list does not hold it
 _files = StaticFiles(directory=str(UI))
 
 

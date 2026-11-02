@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING, Any
 from open_altio.faers.explorer_db import CLASS_TABLES
 
 from . import drugs
+from .access import Viewer
 from .answers import Problem
 from .classnames import abbreviations, shown
 from .found import found_order, found_order_sql
@@ -41,7 +42,7 @@ if TYPE_CHECKING:
 # The length of an ATC code at each level, 1 to 5.
 LENGTHS = (1, 3, 4, 5, 7)
 NOT_HELD = "This release holds no drug classes."
-NOT_OPEN = "WHO's drug classes are not open to you here."
+NOT_OPEN = Viewer.why_no_classes  # what a viewer is told unless the access hook says otherwise
 
 
 @dataclass(frozen=True)

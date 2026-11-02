@@ -7,6 +7,7 @@ described in plain words for a page or an export manifest.
     clause = filters.where()                  # Clause(sql, params) over explorer_case_T c
     filters.query()                           # "drug=aspirin&sex=F", shareable
     filters.manifest()                        # {"query", "filters", "described"}
+    left_out(parse_qs(query_string))          # the values parse leaves out, and why
 
 Query parameters (each list parameter may repeat; a value that is not one of the choices, or
 not a date, is left out):
@@ -14,8 +15,8 @@ not a date, is left out):
     drug            drug name or active ingredient (normalised as drugname_norm_T)
     role            PS, SS, C, I: the matching drug's role (alone: any drug in that role)
     reaction        reaction term (PT), case-blind
-    received_from, received_to   yyyy-mm-dd, on group_first_dt_T (FDA's first receipt of any
-                                 copy of the case, rule dup-shown-copy)
+    received_from, received_to   yyyy-mm-dd, on the day a case is dated by (rule
+                                 received-day, faers.dates.received_day)
     event_from, event_to         yyyy-mm-dd, on event_dt_T (full dates only)
     country         country_T (occurrence, else reporter; a legacy name as its ISO code);
                     _none = not given (rule not-given)
@@ -35,6 +36,18 @@ not a date, is left out):
     label           a product's Label status: the label flags ticked (rule explorer-label-flags);
                     absent means every tick on, `none` none of them. explore.scope resolves the
                     ticks into the cases they keep (label_cases), never written to the address.
+    dose, route, dose_form, lot   what the counted drug's records write, as written, in
+                    capitals with runs of spaces made one; _none = not given (rule not-given)
+    indication      what the drug was taken for, by its key: today's PT where reactions are
+                    counted by it, else FDA's text (reactions.py); _none = not given
+    onset           days from the first dose to the event (rule time-to-onset), `2-7`, both
+                    ends included, either end open (`91-`); _none = not given
+    dechal, rechal  FDA's codes Y, N, D (rule rechallenge-correction); _none = not given
+    other_drug      another drug in the roles the product is counted in, by its ingredients
+                    as the release names them, else FDA's spelling, case-blind; _none = none
+    report_type     FDA's rept_cod, such as EXP, PER, DIR; _none = not given
+    other_reaction  a reaction the case names too, by its key (reactions.py)
+    recordfilters.py turns these into SQL, from the drug records a question counts.
 
 No user value is ever put into SQL text: every value is a parameter.
 """
@@ -49,9 +62,20 @@ from typing import Any
 from urllib.parse import urlencode
 
 from open_altio.faers import not_given
+from open_altio.faers.dates import received_day
 from open_altio.faers.derive import direct_report
 from open_altio.faers.explorer_db import drug_term, reaction_term, sender_key
 from open_altio.rulebook import is_on, value
+
+from .recordfields import (
+    CHALLENGES,
+    DECHALS,
+    RECHALS,
+    RECORD_FIELDS,
+    REPORT_TYPES,
+    is_onset,
+    onset_words,
+)
 
 NOT_GIVEN = "_none"
 DIRECT = "_direct"  # the sender of a report sent straight to FDA, by no company
@@ -88,6 +112,20 @@ SEXES = {"F": "Female", "M": "Male"}
 LABEL_WORDS = "explorer-label-words"  # the label flags' words, as the page says them too
 
 _DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+# why parse leaves a value out
+NOT_A_CHOICE = "not one of its choices"
+NOT_A_DAY = "not a day written yyyy-mm-dd"
+
+# the case's own fields a filter picks by their value: the filter's name, and its column over
+# explorer_case_T c, which a count by the field reads too
+CASE_FIELDS = {
+    "country": "c.country_T",
+    "sex": "c.sex_T",
+    "age": "c.age_band_T",
+    "reporter": "c.reporter_type_T",
+}
+# each outcome code a case gives, as the outcome filter reads them: NOT_GIVEN for none
+OUTCOMES_GIVEN = f"CASE WHEN len(c.outcomes_T) = 0 THEN ['{NOT_GIVEN}'] ELSE c.outcomes_T END"
 
 
 def default_eras() -> tuple[str, ...]:
@@ -146,6 +184,19 @@ class Filters:
     dedup: str = ""  # "": the rule's default
     labels: tuple[str, ...] | None = None  # None: every label flag ticked
     label_cases: tuple[int, ...] | None = None  # the cases `labels` keeps, set by explore.scope
+    doses: tuple[str, ...] = ()
+    routes: tuple[str, ...] = ()
+    dose_forms: tuple[str, ...] = ()
+    lots: tuple[str, ...] = ()
+    indications: tuple[str, ...] = ()
+    onsets: tuple[str, ...] = ()
+    dechals: tuple[str, ...] = ()
+    rechals: tuple[str, ...] = ()
+    other_drugs: tuple[str, ...] = ()
+    report_types: tuple[str, ...] = ()
+    other_reactions: tuple[str, ...] = ()
+    # FDA's indication texts `indications` reads to, set by recordfilters.resolved
+    indication_texts: tuple[str, ...] | None = None
 
     # defaults resolved through the rules ---------------------------------------
 
@@ -174,7 +225,8 @@ class Filters:
     # SQL ---------------------------------------------------------------------
 
     def where(self) -> Clause:
-        """The WHERE condition over `explorer_case_T c`."""
+        """The WHERE condition over `explorer_case_T c`; the filters on drug records and the
+        report are explore.Scope's to add (recordfilters.py), as the product and reactions are."""
         parts: list[str] = []
         params: list[Any] = []
 
@@ -209,21 +261,21 @@ class Filters:
                 "c.case_id_T IN (SELECT case_id_T FROM explorer_reac_term_T WHERE term_T = ?)", reac
             )
         for column, low, high in (
-            ("c.group_first_dt_T", self.received_from, self.received_to),
+            (f"c.{received_day()}", self.received_from, self.received_to),
             ("c.event_dt_T", self.event_from, self.event_to),
         ):
             if low:
                 add(f"{column} >= ?", low)
             if high:
                 add(f"{column} <= ?", high)
-        for column, chosen in (
-            ("c.country_T", self.countries),
-            ("c.sex_T", self.sexes),
-            ("c.age_band_T", self.ages),
-            ("c.reporter_type_T", self.reporters),
+        for name, chosen in (
+            ("country", self.countries),
+            ("sex", self.sexes),
+            ("age", self.ages),
+            ("reporter", self.reporters),
         ):
             if chosen:
-                add(*_in_or_null(column, chosen))
+                add(*_in_or_null(CASE_FIELDS[name], chosen))
         if self.outcomes:
             codes = [o for o in self.outcomes if o != NOT_GIVEN]
             alternatives, values = [], []
@@ -269,6 +321,8 @@ class Filters:
             ("reporter", self.reporters),
         ):
             out += [(name, v) for v in chosen]
+        for name, (attr, _) in RECORD_FIELDS.items():
+            out += [(name, v) for v in getattr(self, attr)]
         if self.sender:
             out.append(("sender", self.sender))
         if self.eras is not None and tuple(self.eras) != default_eras():
@@ -315,6 +369,9 @@ class Filters:
         ):
             if chosen:
                 out.append((label, ", ".join(_code_words(c, words) for c in chosen)))
+        for name, (attr, label) in RECORD_FIELDS.items():
+            if chosen := getattr(self, attr):
+                out.append((label, ", ".join(_record_words(name, c) for c in chosen)))
         if self.sender:
             sender = self.sender.strip()
             out.append(("Company", DIRECT_WORDS if self.direct else _code_words(sender, {})))
@@ -331,8 +388,8 @@ class Filters:
         """What a filtered export records about the filters (rule filtered-vs-full-export)."""
         machine: dict[str, Any] = {}
         for f in fields(self):
-            if f.name == "label_cases":
-                continue  # the cases themselves; `labels` says what kept them
+            if f.name in ("label_cases", "indication_texts"):
+                continue  # what explore.scope resolved them into; the choices say it
             v = getattr(self, f.name)
             if isinstance(v, date):
                 v = v.isoformat()
@@ -372,6 +429,15 @@ def _code_words(code: str, words: Mapping[str, str]) -> str:
     return f"{code} ({words[code]})" if code in words else (words.get(code) or code)
 
 
+def _record_words(name: str, chosen: str) -> str:
+    if chosen == NOT_GIVEN:
+        return not_given_label()
+    if name == "onset":
+        return onset_words(chosen)
+    words = {"dechal": DECHALS, "rechal": RECHALS, "report_type": REPORT_TYPES}.get(name, {})
+    return _code_words(chosen, words)
+
+
 def _range_words(low: date | None, high: date | None) -> str:
     """A date range in words; at least one end is given."""
     if low and high:
@@ -385,6 +451,17 @@ def _unique(values: Iterable[str]) -> tuple[str, ...]:
 
 def parse(query: Mapping[str, Sequence[str]]) -> Filters:
     """Filters from a query string as urllib's parse_qs reads it: each name with its values."""
+    return _read(query)[0]
+
+
+def left_out(query: Mapping[str, Sequence[str]]) -> list[tuple[str, str, str]]:
+    """Each value of the query that `parse` leaves out, as (name, value, why): not one of its
+    name's choices (NOT_A_CHOICE), or not a day (NOT_A_DAY)."""
+    return _read(query)[1]
+
+
+def _read(query: Mapping[str, Sequence[str]]) -> tuple[Filters, list[tuple[str, str, str]]]:
+    dropped: list[tuple[str, str, str]] = []
 
     def given(name: str) -> list[str]:
         return [v for v in (x.strip() for x in query.get(name, [])) if v]
@@ -395,16 +472,22 @@ def parse(query: Mapping[str, Sequence[str]]) -> Filters:
 
     def day(name: str) -> date | None:
         text = one(name)
-        if not _DATE.fullmatch(text):
-            return None
         try:
-            return date.fromisoformat(text)
+            found = date.fromisoformat(text) if _DATE.fullmatch(text) else None
         except ValueError:
-            return None
+            found = None
+        if text and found is None:
+            dropped.append((name, text, NOT_A_DAY))
+        return found
+
+    def kept(name: str, values: Iterable[str], allowed: Iterable[str]) -> tuple[str, ...]:
+        choices = set(allowed)
+        dropped.extend((name, v, NOT_A_CHOICE) for v in values if v not in choices)
+        return tuple(v for v in values if v in choices)
 
     def codes(name: str, allowed: Iterable[str] | None = None) -> tuple[str, ...]:
         chosen = _unique(v if v == NOT_GIVEN else v.upper() for v in given(name))
-        return chosen if allowed is None else tuple(c for c in chosen if c in allowed)
+        return chosen if allowed is None else kept(name, chosen, allowed)
 
     if given("era"):
         eras: tuple[str, ...] | None = codes("era", ERA_T)
@@ -413,12 +496,31 @@ def parse(query: Mapping[str, Sequence[str]]) -> Filters:
     else:
         eras = None
     bands = {b["id"] for b in age_bands()} | {NOT_GIVEN}
-    ticked = given("label")
-    labels: tuple[str, ...] | None = _unique(t for t in ticked if t in label_outcomes())
+    ticked = _unique(given("label"))
+    labels: tuple[str, ...] | None = kept(
+        "label", [t for t in ticked if t != nothing_ticked()], label_outcomes()
+    )
     if not labels and nothing_ticked() not in ticked:
         labels = None  # every tick on
     dedup = one("dedup")
-    return Filters(
+
+    def written(name: str) -> tuple[str, ...]:
+        return _unique(v if v == NOT_GIVEN else " ".join(v.split()).upper() for v in given(name))
+
+    keyed = {
+        attr: _unique(v if v == NOT_GIVEN else reaction_term(v) or v for v in given(name))
+        for name, attr in (("indication", "indications"), ("other_reaction", "other_reactions"))
+    }
+    dropped.extend(
+        ("other_reaction", NOT_GIVEN, NOT_A_CHOICE)
+        for v in given("other_reaction")
+        if v == NOT_GIVEN
+    )
+    onsets = _unique(given("onset"))
+    dropped.extend(("onset", v, NOT_A_CHOICE) for v in onsets if v != NOT_GIVEN and not is_onset(v))
+    if dedup and dedup not in DEDUP_CHOICES:
+        dropped.append(("dedup", dedup, NOT_A_CHOICE))
+    found = Filters(
         drug=one("drug"),
         roles=codes("role", ROLES),
         reaction=one("reaction"),
@@ -428,24 +530,42 @@ def parse(query: Mapping[str, Sequence[str]]) -> Filters:
         event_to=day("event_to"),
         countries=_unique(given("country")),
         sexes=codes("sex"),
-        ages=tuple(a for a in _unique(given("age")) if a in bands),
+        ages=kept("age", _unique(given("age")), bands),
         outcomes=codes("outcome"),
         reporters=codes("reporter"),
         sender=one("sender"),
         eras=eras,
         dedup=dedup if dedup in DEDUP_CHOICES else "",
         labels=labels,
+        doses=written("dose"),
+        routes=written("route"),
+        dose_forms=written("dose_form"),
+        lots=written("lot"),
+        indications=keyed["indications"],
+        onsets=tuple(v for v in onsets if v == NOT_GIVEN or is_onset(v)),
+        dechals=codes("dechal", (*CHALLENGES, NOT_GIVEN)),
+        rechals=codes("rechal", (*CHALLENGES, NOT_GIVEN)),
+        other_drugs=_unique(
+            v if v == NOT_GIVEN else " ".join(v.split()) for v in given("other_drug")
+        ),
+        report_types=codes("report_type"),
+        other_reactions=tuple(v for v in keyed["other_reactions"] if v != NOT_GIVEN),
     )
+    return found, sorted(dropped)
 
 
 __all__ = [
+    "CASE_FIELDS",
     "DEDUP_CHOICES",
     "ERA_LABEL",
     "ERA_T",
     "FORM_MARK",
+    "NOT_A_CHOICE",
+    "NOT_A_DAY",
     "label_words",
     "NOT_GIVEN",
     "OUTCOMES",
+    "OUTCOMES_GIVEN",
     "REPORTERS",
     "ROLES",
     "SEXES",
@@ -455,6 +575,7 @@ __all__ = [
     "default_dedup",
     "default_eras",
     "label_outcomes",
+    "left_out",
     "nothing_ticked",
     "parse",
 ]

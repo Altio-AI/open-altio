@@ -13,29 +13,30 @@ from __future__ import annotations
 
 import os
 import shutil
-import tempfile
 import threading
 import weakref
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import duckdb
 
-from open_altio import rulebook
-from open_altio.faers import EXPLORER_FILE, MANIFEST_FILE, read_manifest
+from open_altio import rulebook, scratch
+from open_altio.faers import EXPLORER_FILE, MANIFEST_FILE, NotARelease, read_manifest
 from open_altio.faers.reader import quoted
 
 MEMORY_RULE = "explorer-read-memory"
 
 
 def read_connection(owner: object) -> duckdb.DuckDBPyConnection:
-    """An in-memory DuckDB held to the explorer's memory limit (rule explorer-read-memory),
+    """An in-memory DuckDB held to the explorer's memory and threads (rule explorer-read-memory),
     spilling past it to a folder of its own, which goes when `owner` is closed or collected."""
-    spill = Path(tempfile.mkdtemp(prefix="open-altio-explorer-"))
+    spill = scratch.make("open-altio-explorer-")
     weakref.finalize(owner, shutil.rmtree, spill, True)
     return duckdb.connect(
         config={
             "memory_limit": f"{rulebook.value(MEMORY_RULE, 'memory_limit_gb')}GB",
+            "threads": int(rulebook.value(MEMORY_RULE, "threads")),
             "temp_directory": str(spill),
         }
     )
@@ -97,6 +98,15 @@ def point_live(pointer: Path, folder: Path) -> None:
     os.replace(staged, pointer)
 
 
+def readable[T](opening: Callable[[Path], T], folder: Path) -> T:
+    """`opening(folder)`, or NotLive saying why the folder is not a release this explorer reads
+    (a newer format, another source), so no page counts over it."""
+    try:
+        return opening(folder)
+    except NotARelease as e:
+        raise NotLive(str(e)) from e
+
+
 class LiveRelease:
     """Finds the live release folder on each request and keeps its database open until the
     folder or the database changes."""
@@ -128,7 +138,7 @@ class LiveRelease:
             # connection is left to the garbage collector, so a request still
             # using it finishes.
             if self._open is None or self._key != key:
-                self._open, self._key = OpenRelease(folder), key
+                self._open, self._key = readable(OpenRelease, folder), key
             return self._open
 
     def user_rules(self) -> rulebook.UserRules:
@@ -153,4 +163,5 @@ __all__ = [
     "live_folder",
     "point_live",
     "read_connection",
+    "readable",
 ]

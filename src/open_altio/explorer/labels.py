@@ -6,6 +6,8 @@ them. A release without them shows no flags, and nothing here fails.
     screens(opened)                       what /api/release tells the page, or None
     narrowed(data, filters, product)      the filters, with the cases Label status keeps
     product_flags(data, drug, exact)      the labels read for a drug and each reaction's flag
+    event_flags(data, drug, exact)        the same flags by event: the key a viewer counts
+                                          reactions under (reactions.py)
     case_flags(data, era, key)            each suspect drug of one case, with its flag per reaction
                                           and the label read, named as labelnames.py names it
     label_counts(data, drug, sql, ps, exact)  cases with a reaction of each flag, under `sql`
@@ -341,6 +343,7 @@ class ProductFlags:
     labels: list[dict]  # the labels read, named (labelnames.named), in the tie-break's order
     reactions: list[list]  # [reaction as shown, its flag], furthest from the label first
     pairs: pa.Table  # (case_id_T, outcome): which cases have a reaction of each flag
+    rows: list[dict]  # the reports' flags each reaction's row is resolved from (ROW_FIELDS)
 
 
 # what a drug's reaction flag is read from: its reports' flags, as they differ
@@ -398,7 +401,7 @@ def _product(data: Data, drug: str, ingredient: OwnLabel | None) -> ProductFlags
     names = labelnames.named(data.opened, read)
     _labelled((flag for _, flag in shown), names)
     labels = [names[x["setid"]] for x in ranked]
-    return ProductFlags(labels, [list(r) for r in shown], pairs)
+    return ProductFlags(labels, [list(r) for r in shown], pairs, found)
 
 
 def _of(data: Data, drug: str, exact: bool = False) -> ProductFlags:
@@ -419,6 +422,29 @@ def product_flags(data: Data, drug: str, exact: bool = False) -> dict:
         return {}
     found = _of(data, drug, exact)
     return {"labels": found.labels, "reactions": found.reactions}
+
+
+def event_flags(data: Data, drug: str, exact: bool = False) -> dict[str, dict]:
+    """Each event's flag for a drug, as `product_flags` reads it, by the key the viewer counts
+    reactions under (reactions.py): with MedDRA the flags of every text FDA wrote that reads to
+    the event's current PT, resolved together as a drug's row is (`product_flag`), each read
+    on one label naming it as `label`. Empty without the flags."""
+    if not held(data.opened):
+        return {}
+
+    def made() -> dict[str, dict]:
+        by_event: dict[str, list[dict]] = {}
+        for f in _of(data, drug, exact).rows:
+            by_event.setdefault(data.reactions.key_of(f["pt"]), []).append(f)
+        closest, own = value(RULE, "closest_to_label"), own_code(drug)
+        best = tiebreak(own)
+        flags = {k: product_flag(fs, closest, own, best) for k, fs in by_event.items()}
+        read = (f["setid"] for f in flags.values() if f["setid"])
+        _labelled(flags.values(), labelnames.named(data.opened, read))
+        return flags
+
+    unit = "exact" if exact else "any"
+    return data.facts.remember(f"event_flags|{drug}|{unit}|{data.reactions.version or '-'}", made)
 
 
 def narrowed(data: Data, filters: Filters, product: Unit | None) -> Filters:
@@ -547,6 +573,7 @@ __all__ = [
     "SORT",
     "OnStatistics",
     "case_flags",
+    "event_flags",
     "held",
     "label_counts",
     "narrowed",

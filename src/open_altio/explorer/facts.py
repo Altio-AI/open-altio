@@ -32,6 +32,7 @@ from .filters import NOT_GIVEN, age_bands, default_dedup, not_given_label
 from .release import OpenRelease
 
 _ANSWERS_KEPT = 512  # answers remembered per release (summary, timeline)
+_RECENT_KEPT = 4  # workings large enough to weigh on memory (a drug's quarter series, tens of MB)
 
 # Every drug a page can open: each combination as the release names it and each ingredient,
 # with every combination holding all of its ingredients (joined on its first, so each drug
@@ -56,6 +57,7 @@ class Facts:
         self._lock = threading.Lock()  # held only to look up; a fact is made outside it
         self._made: OrderedDict[str, Any] = OrderedDict()
         self._answers: OrderedDict[str, Any] = OrderedDict()
+        self._recent: OrderedDict[str, Any] = OrderedDict()
         self._making: dict[tuple, threading.Event] = {}  # facts and answers being made
 
     def once(self, name: str, make: Callable[[], Any]) -> Any:
@@ -121,6 +123,10 @@ class Facts:
         (the most recent answers only). Requests asking for it while it is being made wait for
         that one, so a page's questions side by side make it once, not each."""
         return self._kept(self._answers, key, make, _ANSWERS_KEPT)
+
+    def recent(self, key: str, make: Callable[[], Any]) -> Any:
+        """As `remember`, for a working too large to keep many of: only the last few."""
+        return self._kept(self._recent, key, make, _RECENT_KEPT)
 
     def _kept(
         self, store: OrderedDict[str, Any], key: str, make: Callable[[], Any], most: int | None
@@ -229,6 +235,8 @@ class Facts:
         return {
             "release": meta["release_T"],
             "built_at": meta["built_at_T"],
+            # the day the release was built, as its manifest says
+            "refreshed": self.opened.manifest["built_at"][:10],
             # the first and the last of FDA's quarters it holds, and FDA's systems with the
             # quarters each published
             "quarters": [quarters[0], quarters[-1]],
@@ -249,6 +257,9 @@ class Facts:
             "field_notes": value("explorer-field-notes", "notes"),
             # how long the page's short lists are (rule explorer-lists)
             "lists": dict(rule("explorer-lists").values),
+            # how a threshold steps and how far the Trend column goes (rule
+            # explorer-event-thresholds)
+            "event_thresholds": dict(rule("explorer-event-thresholds").values),
             # the country codes that name no country of today, with a note each (rule
             # legacy-country), and what FDA writes where no country is given (rule
             # country-not-given)

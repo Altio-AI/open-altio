@@ -188,6 +188,7 @@ def missing_files(opened: OpenRelease, inputs: Inputs) -> str | None:
     meddra = next(iter(held["versions"]), None)
     rxnorm = manifest.get("rxnorm") or {}
     flags = manifest.get(LABEL_FLAGS) or {}
+    lists = (manifest.get("medical_events") or {}).get("lists") or {}
     layers = (
         (
             meddra is not None,
@@ -211,7 +212,15 @@ def missing_files(opened: OpenRelease, inputs: Inputs) -> str | None:
             "--labels and the folder labels-fetch filled",
         ),
         (
-            flags.get("important_medical_events") is not None,
+            lists.get("dme", {}).get("present", False),
+            inputs.dme,
+            "holds EMA's Designated Medical Events",
+            "EMA's file",
+            "--dme and EMA's Designated Medical Events file",
+        ),
+        (
+            flags.get("important_medical_events") is not None
+            or lists.get("ime", {}).get("present", False),
             inputs.ime,
             "flags its reactions with EMA's Important Medical Events",
             "EMA's file",

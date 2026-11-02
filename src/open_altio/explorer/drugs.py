@@ -140,6 +140,33 @@ class Unit:
             params += list(self.included) + list(self.roles)
         return " UNION ALL ".join(parts), params
 
+    def records(self, d: str = "d") -> tuple[str, list]:
+        """The condition on `explorer_drug_T` (alias `d`) for the drug records it counts, the
+        records whose cases `cases()` finds, and its parameters."""
+        marks = ", ".join("?" for _ in self.roles)
+        parts: list[str] = []
+        params: list[object] = list(self.roles)
+        if self.substance:
+            if self.exact:
+                sql = f"{d}.substance_T = ?"
+                params.append(self.substance)
+            else:
+                sql = f"list_has_all(string_split({d}.substance_T, '{SEPARATOR}'), ?::VARCHAR[])"
+                params.append(self.parts)
+            if self.excluded:
+                sql += (
+                    f" AND ({d}.drugname_norm_T IS NULL"
+                    f" OR NOT list_contains(?::VARCHAR[], {d}.drugname_norm_T))"
+                )
+                params.append(list(self.excluded))
+            parts.append(sql)
+        if self.included:
+            spelled = ", ".join("?" for _ in self.included)
+            parts.append(f"{d}.substance_T IS NULL AND {d}.drugname_norm_T IN ({spelled})")
+            params += list(self.included)
+        either = " OR ".join(f"({p})" for p in parts)
+        return f"{d}.role_T IN ({marks}) AND ({either})", params
+
     def described(self) -> str:
         """The drug as counted, in plain words, for an export's manifest and the log."""
         if self.substance:

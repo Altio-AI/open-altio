@@ -1,7 +1,7 @@
 """Read-only SQL over the live release, within the limits of rule sql-limits.
 
     sql = SqlService(live)                        # live: the explorer's LiveRelease
-    db = sql.current(classes=True, by_pt=True)    # the live release's SqlDatabase, or NotLive
+    db = sql.current(classes=True, by_pt=True, meddra=None)  # its SqlDatabase, or NotLive
     with sql.slot(viewer.id):                     # Busy past concurrent_queries_per_user
         result = db.run(text, page=1)             # Result, or Refused / LimitHit
         rows = db.write(text, "parquet", target)  # the whole result to a file, or also TooLarge
@@ -19,7 +19,10 @@ drug classes gets a database without the classes layer's tables (the
 manifest's `classes` list): they are neither views nor allowed files there.
 A viewer shown reactions as FDA wrote them gets one without the statistics
 counted by current PT (statistics.by_current_pt), and queries the ones
-counted by FDA's text instead.
+counted by FDA's text instead. A viewer who may see MedDRA's licensed part
+gets its tables too, of the version named (`meddra`), such as `reac_meddra_T`
+and `meddra_pt`, so a count by today's preferred term runs here as well; no
+other viewer's database names them.
 
 How it is locked down, outermost first:
 1. Only one statement, and it must be a SELECT (DuckDB's own parser,
@@ -39,7 +42,6 @@ from __future__ import annotations
 import contextlib
 import re
 import shutil
-import tempfile
 import threading
 import time
 import weakref
@@ -51,12 +53,15 @@ from typing import Any
 import duckdb
 import pyarrow as pa
 
+from open_altio import scratch
 from open_altio.faers import MANIFEST_FILE, read_manifest, register_release
+from open_altio.faers.meddra.licensed import version_tables
 from open_altio.faers.reader import quoted
 from open_altio.faers.statistics import by_current_pt
 from open_altio.rulebook import value
 
-from .release import LiveRelease
+from .answers import counted_on
+from .release import LiveRelease, readable
 from .sql_files import BATCH_ROWS, check_download, write_batches
 
 CATALOG_FILE = "sql_catalog.duckdb"
@@ -169,10 +174,20 @@ class SqlDatabase:
     """The live release as a locked-down, read-only DuckDB catalog. Thread-safe:
     every query runs on its own cursor."""
 
-    def __init__(self, folder: Path, *, classes: bool = True, by_pt: bool = True) -> None:
+    def __init__(
+        self,
+        folder: Path,
+        *,
+        classes: bool = True,
+        by_pt: bool = True,
+        meddra: str | None = None,
+        limits: dict[str, str | int | float] | None = None,
+        home: Path | None = None,
+    ) -> None:
         self.folder = folder
         manifest = read_manifest(folder)
         self.name: str = manifest["release"]
+        self.counted_on = counted_on(manifest)
         entry = manifest.get("classes") or {}
         hidden = set(withheld(manifest, classes=classes, by_pt=by_pt))
         manifest["tables"] = {k: v for k, v in manifest["tables"].items() if k not in hidden}
@@ -180,31 +195,50 @@ class SqlDatabase:
         self.notes = (
             {"who_atc_citation": str(entry["citation"])} if classes and entry.get("present") else {}
         )
-        self._workdir = Path(tempfile.mkdtemp(prefix="open-altio-sql-"))
+        self._workdir = scratch.make("open-altio-sql-", home)
         # The folder goes when this database is closed or garbage collected.
         self._cleanup = weakref.finalize(self, shutil.rmtree, self._workdir, True)
         catalog = self._workdir / CATALOG_FILE
+        licensed = version_tables(folder, meddra)
         build = duckdb.connect(str(catalog))
         try:
             register_release(build, folder, tables=manifest["tables"])
+            for name, path in licensed.items():
+                build.execute(
+                    f"CREATE VIEW {name} AS SELECT * FROM read_parquet({quoted(str(path))})"
+                )
         finally:
             build.close()
         parquet = [str(folder / entry["path"]) for entry in manifest["tables"].values()]
+        parquet += [str(path) for path in licensed.values()]
+        settings: dict[str, str | int | float] = {
+            "memory_limit": f"{value('sql-limits', 'memory_limit_gb')}GiB",
+            "threads": int(value("sql-limits", "threads")),
+        }
+        settings.update(limits or {})
+        # DuckDB reports a temp size limit given at connecting and spills past it, so that one
+        # is SET after connecting, as is the folder an instance with limits spills to
+        after = {k: settings.pop(k) for k in ("max_temp_directory_size",) if k in settings}
+        if limits is not None or home is not None:
+            spill = self._workdir / "spill"
+            spill.mkdir()
+            after["temp_directory"] = str(spill)
         self._con = duckdb.connect(
             str(catalog),
             read_only=True,
             config={
                 "autoload_known_extensions": False,
                 "autoinstall_known_extensions": False,
-                "memory_limit": f"{value('sql-limits', 'memory_limit_gb')}GiB",
-                "threads": int(value("sql-limits", "threads")),
+                **settings,
             },
         )
+        for name, setting in after.items():
+            self._con.execute(f"SET {name} = {quoted(str(setting))}")
         allowed = ", ".join(quoted(p) for p in parquet)
         self._con.execute(f"SET allowed_paths = [{allowed}]")
         self._con.execute("SET enable_external_access = false")
         self._con.execute("SET lock_configuration = true")
-        tables = set(manifest["tables"])
+        tables = set(manifest["tables"]) | set(licensed)
         self.schema = self._schema(tables)
 
     def close(self) -> None:
@@ -333,19 +367,33 @@ def _paged(text: str) -> str:
 
 class SqlService:
     """Opens the live release for SQL (again when the folder or the limits
-    change) and counts each person's running queries."""
+    change) and counts each person's running queries.
 
-    def __init__(self, release: LiveRelease) -> None:
+    `limits` are DuckDB settings (`memory_limit`, `threads`, `max_temp_directory_size`) for a
+    caller keeping its own instance, in place of rule sql-limits' memory and threads; such an
+    instance spills to a folder of its own, under `home` when given. The time limit, the slots,
+    `rows_shown` and the lockdown are as for any instance."""
+
+    def __init__(
+        self,
+        release: LiveRelease,
+        limits: dict[str, str | int | float] | None = None,
+        home: Path | None = None,
+    ) -> None:
         self.release = release
+        self.limits = limits
+        self.home = home
         self._lock = threading.Lock()
-        # with WHO's classes or without them, and by current PT or by FDA's text
-        self._open: dict[tuple[bool, bool], SqlDatabase] = {}
+        # with WHO's classes or without them, by current PT or by FDA's text, and with the
+        # licensed MedDRA version or without it
+        self._open: dict[tuple[bool, bool, str | None], SqlDatabase] = {}
         self._key: tuple | None = None
         self._running: dict[str, int] = {}
 
-    def current(self, *, classes: bool, by_pt: bool) -> SqlDatabase:
-        """The live release for SQL, with WHO's drug classes or without them, and with the
-        statistics counted by current PT or without them."""
+    def current(self, *, classes: bool, by_pt: bool, meddra: str | None = None) -> SqlDatabase:
+        """The live release for SQL, with WHO's drug classes or without them, with the
+        statistics counted by current PT or without them, and with the tables of the licensed
+        MedDRA version `meddra` or without any."""
         folder = self.release.folder()
         stat = (folder / MANIFEST_FILE).stat()
         key = (
@@ -360,9 +408,20 @@ class SqlService:
             # still running on it finishes.
             if self._key != key:
                 self._open, self._key = {}, key
-            if (classes, by_pt) not in self._open:
-                self._open[classes, by_pt] = SqlDatabase(folder, classes=classes, by_pt=by_pt)
-            return self._open[classes, by_pt]
+            shape = (classes, by_pt, meddra)
+            if shape not in self._open:
+                self._open[shape] = readable(
+                    lambda f: SqlDatabase(
+                        f,
+                        classes=classes,
+                        by_pt=by_pt,
+                        meddra=meddra,
+                        limits=self.limits,
+                        home=self.home,
+                    ),
+                    folder,
+                )
+            return self._open[shape]
 
     @contextlib.contextmanager
     def slot(self, who: str) -> Iterator[None]:

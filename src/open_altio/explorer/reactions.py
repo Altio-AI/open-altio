@@ -8,6 +8,7 @@ link itself is shown only where the access hook allows MedDRA's licensed part.
 
     reactions = Reactions(facts, served)   # served: the MedDRA version reactions are named by
     reactions.key(" Seizure ")             # "seizure": a chosen reaction, as it is matched
+    reactions.key_of("Convulsion")         # "seizure": the key FDA's text counts under
     reactions.texts(["seizure"])           # FDA's texts it counts (explorer_reac_term_T.term_T)
     reactions.name("seizure")              # "Seizure", as a page shows it
     reactions.counts                       # key -> kept cases naming it
@@ -56,6 +57,16 @@ class Reactions:
     def key(text: str) -> str | None:
         """A chosen or typed reaction as it is matched: lower case, runs of spaces made one."""
         return reaction_term(text)
+
+    def key_of(self, text: str) -> str:
+        """The key one of FDA's reaction texts counts under, as `keyed()` counts it: with MedDRA
+        its current PT, else, as for a text MedDRA does not name, the text itself."""
+        term = reaction_term(text) or text
+        if self.meddra:
+            read = self.meddra.read("pt").get(term)
+            if read:
+                return read[0].lower()
+        return term
 
     def texts(self, keys: Iterable[str]) -> list[str]:
         """FDA's reaction texts the keys count: each key's own, and with MedDRA every text read

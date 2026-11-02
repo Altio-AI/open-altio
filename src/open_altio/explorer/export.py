@@ -38,7 +38,6 @@ from __future__ import annotations
 
 import json
 import shutil
-import tempfile
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime
@@ -48,6 +47,7 @@ from typing import Any
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 
+from open_altio import scratch
 from open_altio.faers.labels.build import as_of as labels_as_of
 from open_altio.faers.reader import quoted
 from open_altio.rulebook import value
@@ -157,7 +157,7 @@ def write_export(
     with each drug's class, and WHO's citation in the manifest, when `classes`
     names the release's index year and citation."""
     name = f"{marker()}_{opened.name}_{at.strftime('%Y%m%dT%H%M%SZ')}"
-    work = Path(tempfile.mkdtemp(prefix="open-altio-export-"))
+    work = scratch.make("open-altio-export-")
     try:
         folder = work / name
         folder.mkdir()

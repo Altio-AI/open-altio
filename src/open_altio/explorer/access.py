@@ -10,6 +10,11 @@ version or as FDA wrote them. An Access also names the page modules a host adds 
 page (its own screens), the terms a filtered export is made under, and whether
 the rules can be changed and the release rebuilt here, and hears what each
 viewer did with the data, for a host that keeps a usage log.
+
+What it hears is a closed list, part of Open Altio's written contract
+(docs/reference/access-hook.md): the kinds the server announces (`RECORDED`, through
+`Explorer.announce`) and the kinds the page reports to a host's page modules (`REPORTED`, the
+same list as ui/host.js). A product announces kinds of its own from its own code.
 """
 
 from __future__ import annotations
@@ -40,11 +45,43 @@ class Viewer:
     fda_text_line: str = ""
     # why they are shown no SMQs, for when they ask for one (a link with an SMQ in it)
     why_no_smqs: str = "SMQs come from MedDRA's licensed part, which is not open to you here."
+    # why they are shown no drug classes, for when they ask for one, in a release that holds them
+    why_no_classes: str = "WHO's drug classes are not open to you here."
 
     @property
     def named_by_meddra(self) -> bool:
         """Whether this viewer's reactions are named by the release's MedDRA version."""
         return self.meddra or self.todays_names
+
+
+# What the explorer announces to the access hook's `record`: each kind with its fields.
+RECORDED: dict[str, tuple[str, ...]] = {
+    "search": ("search", "words", "results"),  # which search, the words typed, results shown
+    "export_started": ("rows",),  # the export dialog opened, with the rows it would write
+    # a filtered export written: the release, its query and the filters in words, the format,
+    # its rows and the moment it was made
+    "filtered_export": ("release", "query", "described", "format", "rows", "at"),
+    # a SQL query: its text, how it ended, its rows and seconds, and the format of a whole result
+    # downloaded
+    "sql": ("sql", "outcome", "rows", "seconds", "download"),
+}
+# the fields a kind carries only sometimes
+OPTIONAL: dict[str, tuple[str, ...]] = {"sql": ("download",)}
+
+# What the page tells a host's page modules (ui/host.js `REPORTED`, `host.report`), each kind
+# with the fields of its detail: what the person did that the server cannot see.
+REPORTED: dict[str, tuple[str, ...]] = {
+    "screen": ("screen", "tab", "product"),  # a screen or a tab opened
+    "rule": ("rule",),  # a rule read on How we clean FAERS
+    # a search's result picked: an open name as `picked`, a licensed level or a class by its
+    # `level` and `code`
+    "pick": ("search", "words", "picked", "level", "code"),
+    "improve_opened": ("page",),  # Improve this opened, on that page
+}
+
+
+class ContractError(Exception):
+    """A name used that the written contract does not list."""
 
 
 class Access(Protocol):
@@ -72,8 +109,7 @@ class Access(Protocol):
         ...
 
     def record(self, viewer: Viewer, kind: str, **event: Any) -> None:
-        """What the viewer did with the data, and its details: kind "search" (search, words,
-        results), "export_started" (rows), "filtered_export" or "sql"."""
+        """What the viewer did with the data: one of the kinds in `RECORDED`, with its fields."""
         ...
 
 
@@ -111,4 +147,13 @@ class LocalAccess:
         pass
 
 
-__all__ = ["LOCAL", "Access", "LocalAccess", "Viewer"]
+__all__ = [
+    "LOCAL",
+    "OPTIONAL",
+    "RECORDED",
+    "REPORTED",
+    "Access",
+    "ContractError",
+    "LocalAccess",
+    "Viewer",
+]

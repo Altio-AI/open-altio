@@ -7,6 +7,7 @@
     served.texts_of()                    # a PT (lower case) -> FDA's reaction texts read to it
     served.pt_names()                    # a PT (lower case) -> as MedDRA writes it
     served.soc_of("pt", "Arrhythmia")    # the PT's primary system organ class, or None
+    served.primary_paths()               # a PT (lower case) -> its primary SOC, HLGT and HLT names
     served.current("pt", "Arrhythmia")   # {"name", "matched_as"} where the PT is another name
 
 The text to PT link counts and finds reactions for each viewer they are named by it for
@@ -22,6 +23,7 @@ served: the release is shown without MedDRA, and `licensed.older()` says how to 
 
 from __future__ import annotations
 
+import json
 import threading
 from dataclasses import dataclass
 from pathlib import Path
@@ -30,6 +32,8 @@ from typing import Any
 from open_altio.faers.explorer_db import reaction_term
 from open_altio.faers.meddra import (
     COLUMNS,
+    LABEL_GROUPS_FILE,
+    MEDDRA_DIR,
     licensed_dir,
     newest,
     older_part,
@@ -47,6 +51,7 @@ class ServedMeddra:
 
     def __init__(self, folder: Path, entry: dict) -> None:
         self.version: str = entry["version"]
+        self._groups_file = folder / MEDDRA_DIR / self.version / LABEL_GROUPS_FILE
         # what the build reported of each column (texts, and texts and rows matching nothing)
         self.report: dict = entry["terms"]
         # the counts the methods page shows that need MedDRA (written by the methods command)
@@ -64,6 +69,7 @@ class ServedMeddra:
         self._texts: dict[str, tuple[str, ...]] | None = None
         self._pt_names: dict[str, str] | None = None
         self._socs: dict[str, str] | None = None
+        self._paths: dict[str, tuple[str, str, str]] | None = None
         self._soc_texts: dict[str, str] | None = None
 
     def _run(self, sql: str, params: list[Any] | None = None) -> list[tuple]:
@@ -133,6 +139,13 @@ class ServedMeddra:
                 }
             return self._pt_names
 
+    def named_groups(self, key: str) -> list[str] | None:
+        """The MedDRA groups the licensed groups file (rule label-groups) gives under `key`, or
+        None when this release has no such list. Read each time: it is put there after a build."""
+        if not self._groups_file.is_file():
+            return None
+        return json.loads(self._groups_file.read_text(encoding="utf-8")).get(key)
+
     def socs(self) -> dict[str, str]:
         """Each current PT of this version in lower case -> its primary system organ class as
         MedDRA writes it. Worked out once a served version."""
@@ -145,6 +158,21 @@ class ServedMeddra:
                     )
                 }
             return self._socs
+
+    def primary_paths(self) -> dict[str, tuple[str, str, str]]:
+        """Each PT of this version in lower case -> the names of its primary path as MedDRA
+        writes them: (system organ class, high level group term, high level term). Worked out
+        once a served version."""
+        with self._lock:
+            if self._paths is None:
+                self._paths = {
+                    pt.lower(): (soc, hlgt, hlt)
+                    for pt, soc, hlgt, hlt in self._run(
+                        "SELECT pt_name, soc_name, hlgt_name, hlt_name FROM meddra_mdhier "
+                        "WHERE primary_soc_fg = 'Y'"
+                    )
+                }
+            return self._paths
 
     def soc_of(self, column: str, text: str | None) -> str | None:
         """The primary system organ class of the current PT one of FDA's texts in `column`
@@ -264,9 +292,19 @@ class LicensedMeddra:
     def older(self) -> str | None:
         """What to say when the live release's MedDRA part was added by an older Open Altio, and
         so is not served: that, and how to add it again. None otherwise."""
-        _, versions = self._live()
-        chosen = newest(versions)
-        return older_words(chosen) if chosen and older_part(versions[chosen]) else None
+        try:
+            return older_in(self.release.folder())
+        except NotLive:
+            return None
 
 
-__all__ = ["LicensedMeddra", "ServedMeddra"]
+def older_in(release_folder: Path) -> str | None:
+    """What to say when a release's MedDRA part was added by an older Open Altio, and so is not
+    served: that, and how to add it again. None otherwise."""
+    manifest = read_licensed_manifest(release_folder)
+    versions = dict(manifest["meddra"]["versions"]) if manifest else {}
+    chosen = newest(versions)
+    return older_words(chosen) if chosen and older_part(versions[chosen]) else None
+
+
+__all__ = ["LicensedMeddra", "ServedMeddra", "older_in"]
