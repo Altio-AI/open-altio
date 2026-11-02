@@ -2,6 +2,12 @@
 
 Changes to the code, newest first. The code follows [semantic versioning](https://semver.org/). Data releases are named by FDA quarter (for example `2026Q2`); each one carries its own funnel numbers and changelog entry in its `methods.json`, shown on How we clean FAERS.
 
+## 1.1.0.dev23 (development version, 2026-11-02)
+
+Not tagged and not on PyPI, so `uv tool install open-altio` still gives 1.0.0. Run it from source, as the README says.
+
+- Home's update band stays on every visit until its close is pressed; only that press is kept in the browser. Seeing it or reloading no longer hides it, and a newer update shows it again until it is closed.
+
 ## 1.1.0.dev22 (development version, 2026-11-02)
 
 Not tagged and not on PyPI, so `uv tool install open-altio` still gives 1.0.0. Run it from source, as the README says.

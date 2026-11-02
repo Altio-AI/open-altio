@@ -1,8 +1,8 @@
 """Home's updates in a browser (ui/updates.js). The band under the greeting says the newest update
-on the first visit after it, not on later ones, and its close hides it at once; a newer update
-brings it back once. The release card always says the newest; from two updates on, its All
-updates, and the band's, open the history, newest first, its first few showing (rule
-explorer-lists' updates_shown) and the older ones scrolling inside the menu."""
+on every visit until its close is pressed, which hides it at once and for later visits; a newer
+update brings it back until it is closed in turn. The release card always says the newest; from
+two updates on, its All updates, and the band's, open the history, newest first, its first few
+showing (rule explorer-lists' updates_shown) and the older ones scrolling inside the menu."""
 
 from __future__ import annotations
 
@@ -69,7 +69,7 @@ def test_the_updates_file_is_dated_newest_first_each_with_a_short_and_a_full_lin
 
 
 @pytest.mark.parametrize("width", [390, 1024, 1440, 2200])
-def test_the_first_visit_shows_the_newest_in_a_band_and_the_next_does_not(opened, width: int):
+def test_the_band_shows_the_newest_on_every_visit_until_closed(opened, width: int):
     page = home(opened, width)
     assert page.inner_text(WORDS) == updates()[0][1]
     assert page.locator(WORDS).evaluate("(el) => el.scrollWidth <= el.clientWidth")  # none cut
@@ -83,7 +83,13 @@ def test_the_first_visit_shows_the_newest_in_a_band_and_the_next_does_not(opened
     page.reload()
     page.wait_for_selector(LATEST)
     settle(page)
-    assert page.locator(BAND).count() == 0  # a later visit: no band
+    assert page.inner_text(WORDS) == updates()[0][1]  # seeing it hides nothing: a reload shows it
+    assert page.evaluate(BOXES) == with_band
+    page.click(f"{BAND} [data-act='update-hide']")
+    page.reload()
+    page.wait_for_selector(LATEST)
+    settle(page)
+    assert page.locator(BAND).count() == 0  # closed: no band on later visits
     without = page.evaluate(BOXES)
     assert without[0] == with_band[0]  # the greeting stays
     assert without[1][0] < with_band[1][0]  # the band's room is gone with it
@@ -111,14 +117,19 @@ def test_the_close_hides_the_band_at_once_and_for_later_visits(opened):
     assert page.locator(BAND).count() == 0
 
 
-def test_a_newer_update_brings_the_band_back_once(opened):
+def test_a_newer_update_brings_the_band_back_until_it_is_closed(opened):
     page = home(opened)
+    page.click(f"{BAND} [data-act='update-hide']")
     page.reload()
     page.wait_for_selector(LATEST)
     assert page.locator(BAND).count() == 0
     serving(page, NEWER)
     assert page.inner_text(WORDS) == "A newer update."
     assert page.inner_text(LATEST) == "Latest update: A newer update."
+    page.reload()
+    page.wait_for_selector(LATEST)
+    assert page.inner_text(WORDS) == "A newer update."  # still there until closed
+    page.click(f"{BAND} [data-act='update-hide']")
     page.reload()
     page.wait_for_selector(LATEST)
     assert page.locator(BAND).count() == 0

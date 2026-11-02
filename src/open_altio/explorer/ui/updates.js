@@ -1,6 +1,6 @@
 /* Updates to Open Altio, newest first, from updates.txt: each line a day, the band's short line,
-   " | ", and the history's full line. Home's band says the newest once in this browser, until a
-   newer one comes, or until its close hides it; Home's release card always says it, and from two
+   " | ", and the history's full line. Home's band says the newest on every visit until its close
+   is pressed, and again once a newer one comes; Home's release card always says it, and from two
    on opens the history, its newest updates showing (rule explorer-lists' updates_shown) and the
    older ones scrolling inside the menu. Read as the page starts, so Home is drawn with them. */
 
@@ -11,7 +11,7 @@ import { popMenu } from './overlays.js';
 import { listLength } from './state.js';
 import { esc, store, tip } from './util.js';
 
-const SEEN = 'update-seen'; // the newest update this browser has shown in the band
+const CLOSED = 'update-closed'; // the newest update whose band this browser closed
 const parse = (text) => text.split('\n').filter((line) => /^\d{4}-\d{2}-\d{2} /.test(line)).map((line) => {
   const [short, full] = line.slice(11).split(' | ').map((w) => w.trim());
   return { day: line.slice(0, 10), short, full: full || short };
@@ -21,17 +21,9 @@ const reading = fetch('/ui/updates.txt').then((r) => (r.ok ? r.text() : '')).cat
 export const readUpdates = () => reading;
 export const updatesRead = () => all !== null;
 
-// whether this page shows the band: decided once a visit, so Home drawn again keeps its answer
-let band = null;
+// the band shows until its close is pressed for the newest update; seeing it changes nothing
 const keyOf = (u) => `${u.day} ${u.short}`;
-function bandShown() {
-  if (!all?.length) return false;
-  if (band === null) {
-    band = store.get(SEEN, '') !== keyOf(all[0]);
-    if (band) store.set(SEEN, keyOf(all[0]));
-  }
-  return band;
-}
+const bandShown = () => !!all?.length && store.get(CLOSED, '') !== keyOf(all[0]);
 
 // the band under the greeting: the newest update's short line, the history at its end from two on,
 // and its close
@@ -59,7 +51,7 @@ actions({
     menu.style.setProperty('--menu-top', `${r.bottom + 4 + h < window.innerHeight ? r.bottom + 4 : Math.max(12, r.top - h - 4)}px`);
   },
   'update-hide': () => {
-    band = false;
+    store.set(CLOSED, keyOf(all[0]));
     document.getElementById('oa-update')?.remove();
   },
 });
