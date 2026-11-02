@@ -114,8 +114,13 @@ file you name, like MedDRA's own files.
 
 MedDRA
 ------
-MedDRA(R) is a registered trademark of ICH. No MedDRA content is included in
-this repository. The local explorer uses MedDRA only from files you point it
+MedDRA(R) is a registered trademark of ICH. This repository does not ship
+MedDRA: none of its files or tables, no codes, no hierarchy, no SMQ names or
+contents, and no list of the groups the rules read, which you make from your
+own copy (rules/label-groups.md). It does hold single reaction terms, as FAERS
+reports and drug labels use them, in rules, notebooks and test data; the MedDRA
+the tests build is otherwise invented. A few phrases that match a MedDRA group's
+name are there as FDA, a label or WHO wrote them. The local explorer uses MedDRA only from files you point it
 at, under your own MedDRA subscription. The hosted service at
 open.altioai.com shows MedDRA's hierarchy and SMQs only to people whose
 subscription it has verified with MSSO.

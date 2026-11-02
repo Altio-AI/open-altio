@@ -2,7 +2,9 @@
 
 Changes to the code, newest first. The code follows [semantic versioning](https://semver.org/). Data releases are named by FDA quarter (for example `2026Q2`); each one carries its own funnel numbers and changelog entry in its `methods.json`, shown on How we clean FAERS.
 
-## Unreleased
+## 1.1.0.dev21 (development version, 2026-11-01)
+
+Not tagged and not on PyPI, so `uv tool install open-altio` still gives 1.0.0. Run it from source, as the README says.
 
 - The explorer serves its fonts as `font/woff2` on Windows too. Page tests hold on a slower machine and with any fallback font: the Overview's waits for the page's fonts, the Events tab's row test for a row to stand still, the class filter's reads a row in one step and the menu's gives its move ten frames.
 - Tests only: the scratch test states that on Windows a dead process's folder is kept, and the Events tab's row test waits for an opened event's Cases before pressing the next row.
@@ -67,7 +69,9 @@ Changes to the code, newest first. The code follows [semantic versioning](https:
 - The one events table, for any page and any product built on Open Altio: `eventsTable(element, options)` draws a row per event of a drug (or the rows a product gives, of several drugs), each head sorting and narrowing it, a Columns menu of the statistics and the facts about the cases, a Trend line and the label answer, the event's name held in view as it scrolls sideways; a product adds its own columns, a row's class, key and drug, a press on a row and its own pager, and the person's columns, sort and bounds are kept where `kept` keeps them. `tickMenu()` opens a menu of tick boxes. Both join the page's imports ([the page's extension points](https://altio-ai.github.io/open-altio/reference/page-extension/)); `events_shown` joins rule `explorer-lists`. `place(menu, anchor, { fit: true })` keeps a menu inside the window, and a press outside an open menu now only closes it, so the bar, row or tab under it does nothing.
 - A drug's events (`/api/events`) count, for each event, the cases that ended in death or were life-threatening, each once (`death_or_life_threatening`, under rule `serious-outcomes`), so the share of an event's cases that ended in death or nearly did counts each case once. A group of reactions counted as one event of a drug (`GET /api/events/group`, `reaction` repeated): the same figures as an event's row, worked out by the same code under the drug's settings and the filters, each case counted once however many of the group's reactions it names, so a group of one reaction is that event's row. The route and the new column are added to the contract's published questions; no name changes. No case is kept or removed differently.
 
-## 1.0.1 (2026-10-22)
+## 1.0.1 (not released)
+
+Prepared on 2026-10-22 on the branch `release-1.0.1`, never tagged or published. Its fix is part of 1.1.0.dev21.
 
 DuckDB 2.0 support: four list filters now use DuckDB's `lambda` keyword, which DuckDB 2.0 requires. Every result is the same.
 

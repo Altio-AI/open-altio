@@ -30,6 +30,7 @@ ROOT_FILES = [
     "CLAUDE.md",
     "CONTRIBUTING.md",
     "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
     "CHANGELOG.md",
     "NOTICE",
     "CITATION.cff",

@@ -124,6 +124,7 @@ Or follow the steps for your computer:
 
 ### Then
 
+- **The Events tab, in the development version.** A drug's page opens on its events, this quarter against the prior, narrowed by the thresholds in the column menus; press a row to open that event. It is not on PyPI yet, so run it from source: `git clone https://github.com/Altio-AI/open-altio && cd open-altio && uv sync --locked && uv run open-altio demo`.
 - **All of FAERS,** built from FDA's own files on your laptop. Nothing is sent to us.
 - **Your own rules.** Run `open-altio serve`, open **How we clean FAERS**, switch a rule off or change a value, and rebuild. Your choices are saved in a `rules.toml` beside the release, and the release records how they differ from the rules Altio uses for its own releases.
 - **Your own tools.** A release is a folder of Parquet tables and a DuckDB database, documented column by column in the [data dictionary](docs/reference/data-dictionary.md).
@@ -145,6 +146,7 @@ Or follow the steps for your computer:
 | The code | Apache-2.0 ([LICENSE](LICENSE), [NOTICE](NOTICE)) |
 | Releases from open.altioai.com | The [Open Altio Data Licence](https://open.altioai.com/licence) |
 | A release you build yourself | Yours. FDA data is public domain; credit only what you used from others, such as DiAna (CC BY 4.0), as [NOTICE](NOTICE) lists. |
+| MedDRA | Not shipped: you bring your own subscription. [NOTICE](NOTICE) says what is and is not here. |
 
 ## What's in this repository
 
@@ -164,6 +166,7 @@ open-altio/
 ├── CONTRIBUTING.md   how to contribute
 ├── CHANGELOG.md      what changed, by version
 ├── SECURITY.md       reporting a security problem
+├── CODE_OF_CONDUCT.md how we treat each other
 ├── LICENSE           Apache-2.0
 ├── NOTICE            credits and third-party notices
 ├── CITATION.cff      how to cite
@@ -186,7 +189,7 @@ Inside `src/`, each part is described in [How the code fits together](docs/contr
 - **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md). Contributions made with AI are welcome, openly; a person owns each one.
 - **Docs:** [altio-ai.github.io/open-altio](https://altio-ai.github.io/open-altio/), for using it, customising it, contributing, and every command, rule and column.
 
-[Security](SECURITY.md) · [Citing](CITATION.cff) · [Changelog](CHANGELOG.md)
+[Security](SECURITY.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Citing](CITATION.cff) · [Changelog](CHANGELOG.md)
 
 > [!NOTE]
 > FAERS reports do not establish that a product caused an event. FDA has not reviewed or endorsed Open Altio.
