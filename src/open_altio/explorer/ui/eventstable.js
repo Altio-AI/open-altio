@@ -17,6 +17,7 @@ import { OPENS_WITH, fixedColumns, listedColumns } from './eventcolumns.js';
 import { columnsMenu, formsMenu, headMenu } from './eventmenus.js';
 import { actions } from './events.js';
 import { countWords, hiddenWords, limitsOf, limitsWords, meetsThresholds, quartersHtml, screenOfLimits } from './eventthresholds.js';
+import { conditionWords } from './screens.js';
 import { icon } from './icons.js';
 import { labelsOn } from './labels.js';
 import { api } from './server.js';
@@ -235,8 +236,20 @@ class Table {
     return `<th scope="col" data-col="${esc(c.id)}"${cls ? ` class="${cls}"` : ''}${sort ? ` aria-sort="${sort}"` : ''}${at}><span class="oa-et-headline">${words}${arrow}</span></th>`;
   }
 
+  // With `markMeeting`, a row that meets every threshold the table was given (of the columns
+  // showing, with `screensOfColumns`) has each statistic whose own threshold that is marked, as a
+  // host marks one past its threshold: the same rows whether the table shows only those or every
+  // event, whatever the heads' values are now.
+  pastGiven(r, c) {
+    if (!this.o.markMeeting || c.group !== 'statistics' || this.noStats != null) return '';
+    const showing = this.o.screensOfColumns ? new Set(this.columns().map((col) => col.id)) : null;
+    const given = (this.o.thresholds || []).filter((when) => !showing || showing.has(when[0].column));
+    const own = given.find((when) => when[0].column === c.id);
+    return own && meetsThresholds(r, given) ? `Past its threshold: ${conditionWords(own)}` : '';
+  }
+
   cellHtml(c, r, i) {
-    const marked = c.name ? '' : this.o.mark?.(r, c.id) || '';
+    const marked = c.name ? '' : this.o.mark?.(r, c.id) || this.pastGiven(r, c);
     const cls = [c.cls, c.held && 'oa-et-held', c.name && 'oa-et-name', marked && 'oa-et-marked'].filter(Boolean).join(' ');
     const at = c.held && i ? ` style="left: var(--et-held-${i}, 0px)"` : '';
     const tag = c.name ? 'th scope="row"' : 'td';

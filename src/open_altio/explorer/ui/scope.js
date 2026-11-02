@@ -251,7 +251,7 @@ async function drawEvents(sc) {
   const body = document.getElementById('oa-body');
   const about = S.me?.statistics === false ? null : await api('/api/statistics/about').catch(() => null);
   if (!body.isConnected) return;
-  const table = eventsTable(body, { drug: sc.product, thresholds: standard(about), screensOfColumns: true, ...openOptions(sc.product, () => table) });
+  const table = eventsTable(body, { drug: sc.product, thresholds: standard(about), screensOfColumns: true, markMeeting: true, ...openOptions(sc.product, () => table) });
 }
 
 drawn('scope', (r, app) => {

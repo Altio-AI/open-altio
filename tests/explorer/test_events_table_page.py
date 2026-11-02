@@ -116,6 +116,7 @@ extend({
         drug: asked.get('drug'), open,
         ...(asked.has('limits') && { thresholds: JSON.parse(asked.get('limits')) }),
         ...(asked.has('ofcolumns') && { screensOfColumns: true }),
+        ...(asked.has('marking') && { markMeeting: true }),
         ...(asked.has('beyond') && { beyond: (r) => r.pt === asked.get('beyond') }),
         ...(asked.has('opened') && { opened: { key: asked.get('opened'), draw: window.drawCell } }),
       });
@@ -794,6 +795,33 @@ def own_open_rows(page):
     return page.locator(f'{OWN_ROWS}[aria-expanded="true"]').evaluate_all(
         "rows => rows.map((r) => r.dataset.key)"
     )
+
+
+MARKED = f"""() => [...document.querySelectorAll('{OWN_ROWS}')]
+  .filter((r) => r.querySelector('td.oa-et-marked')).map((r) => r.dataset.key)"""
+
+
+@pytest.mark.parametrize("width", [390, 1440])
+def test_with_mark_meeting_the_rows_the_thresholds_keep_are_marked_in_either_view(
+    page_at, stats_host, width
+):
+    """Each row the given thresholds keep has the statistic they name in the warning color, the
+    threshold in its tip, as a host marks a cell; Show every event keeps the mark on those rows
+    and on no other, the Signals tab's look for a row past its thresholds."""
+    page = page_at(warfarin(stats_host) + LIMITS + "&marking=1", width=width)
+    page.wait_for_selector(OWN_ROWS)
+    kept = page.locator(OWN_ROWS).evaluate_all("rows => rows.map((r) => r.dataset.key)")
+    assert kept and page.evaluate(MARKED) == kept
+    cell = page.locator(f"{OWN_ROWS} td.oa-et-marked").first
+    assert cell.get_attribute("data-tip") == "Past its threshold: EB05 at least 2, Cases at least 3"
+    color = "(el) => getComputedStyle(el).color"
+    plain = page.locator(f"{OWN_ROWS} td:not(.oa-et-marked)").first
+    assert cell.evaluate(color) != plain.evaluate(color)  # the warning color, as a host's mark
+    page.click(HEAD_EB05)
+    page.click('.oa-et-menu-line [data-act="et-unbound"]')
+    page.keyboard.press("Escape")
+    page.wait_for_function(f"() => document.querySelectorAll('{OWN_ROWS}').length > {len(kept)}")
+    assert sorted(page.evaluate(MARKED)) == sorted(kept)
 
 
 @pytest.mark.parametrize("width", [390, 1440])
