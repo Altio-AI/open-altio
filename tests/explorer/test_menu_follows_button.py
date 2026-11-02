@@ -43,31 +43,10 @@ def base(release):
         yield url
 
 
-@pytest.fixture(scope="module")
-def labelled(labelled_release):
-    with served(create_app(labelled_release)) as url:
-        yield url
-
-
-# Statistics of a drug: its Filters, Label status and Thresholds menus
-STATISTICS = [
-    ("/product/BLEOMYCIN%20SULFATE/statistics", '[data-act="stat-filters"]', ".menu:popover-open"),
-    ("/product/BLEOMYCIN%20SULFATE/statistics", '[data-act="screens"]', ".menu:popover-open"),
-]
-
-
 @pytest.mark.parametrize("width", WIDTHS)
 @pytest.mark.parametrize("path,button,menu", MENUS)
 def test_the_menu_moves_with_its_button(chromium, base, width, path, button, menu):
     check(chromium, base, width, path, button, menu)
-
-
-@pytest.mark.parametrize("width", WIDTHS)
-@pytest.mark.parametrize("path,button,menu", STATISTICS)
-def test_the_statistics_menus_move_with_their_buttons(
-    chromium, labelled, width, path, button, menu
-):
-    check(chromium, labelled, width, path, button, menu)
 
 
 def check(chromium, base, width, path, button, menu):

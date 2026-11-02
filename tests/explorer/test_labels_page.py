@@ -34,7 +34,7 @@ TICKS = """() => [...document.querySelectorAll('[data-act="opt-label"]')].map((b
 PLACES = """() => {
   const top = document.querySelector('.product-title').getBoundingClientRect().top;
   return [...document.querySelectorAll(
-    '.oa-toolbar, #oa-strip, #oa-body, .oa-cases thead th, .oa-stats thead th')].map((e) => {
+    '.oa-toolbar, #oa-strip, #oa-body, .oa-cases thead th')].map((e) => {
     const r = e.getBoundingClientRect();
     return [Math.round(r.left), Math.round(r.top - top), Math.round(r.width)];
   });
@@ -349,14 +349,6 @@ def test_every_flag_speaks_of_listing_and_not_compared_says_why_under_it(opened,
     )
     assert ticks == [f"{W[k]} {WHY[k]}" if k in WHY else W[k] for k in OUTCOMES]
     page.keyboard.press("Escape")
-    # the Statistics tab: Forms differ's answers wrap inside the column, never cut
-    page.goto(f"{label_site}{PAGE}/statistics")
-    settle(page)
-    split = page.locator('.oa-stats td.oa-label-col:has([data-flag="forms_differ"])')
-    assert split.inner_text().replace("\n", " ") == (
-        f"{W['on_label']} on the by-mouth label, {W['not_on_label'].lower()} on the skin label"
-    )
-    assert split.evaluate("(c) => c.scrollWidth <= c.clientWidth")
     # forms with the same answer are named together
     grouped = page.evaluate("""async () => (await import('/ui/labels.js')).formsSplit({ families: [
       ['by_mouth', 'on_label'], ['eye', 'not_on_label'], ['injected', 'not_on_label'],
@@ -365,8 +357,7 @@ def test_every_flag_speaks_of_listing_and_not_compared_says_why_under_it(opened,
         f"{W['on_label'].lower()} on the by-mouth and under-the-tongue labels, "
         f"{W['not_on_label'].lower()} on the eye and injected labels"
     )
-    shown = page.eval_on_selector_all(".oa-stats [data-flag]", "fs => fs.map((f) => f.innerText)")
-    assert shown and not any("related" in words.lower() for words in [*shown, *ticks])
+    assert not any("related" in words.lower() for words in ticks)
 
 
 @pytest.mark.parametrize("width", [390, 1024, 1440])
@@ -398,90 +389,6 @@ def test_a_release_without_flags_shows_no_label_status_and_no_lines(opened, site
     assert (
         "Used for" in window.text_content() and "each suspect's label" not in window.text_content()
     )
-
-
-# the Statistics tab -----------------------------------------------------------------------------
-
-SHOWN = """() => [...document.querySelectorAll('.oa-stats tbody tr')].map((r) => [
-  r.querySelector('th').innerText, r.querySelector('[data-flag]')?.dataset.flag])"""
-
-
-def test_statistics_label_column_sits_after_reaction_and_sorts_furthest_from_the_label_first(
-    opened, label_site, label_client
-):
-    page = opened(f"{PAGE}/statistics", base=label_site)
-    assert page.locator(".oa-stats tbody tr th").count() == 5  # the tab starts on every pair
-    heads = page.eval_on_selector_all(".oa-stats thead th", "hs => hs.map((h) => h.innerText)")
-    assert [h.title() for h in heads[:3]] == ["Reaction", "Label", "Cases"]
-    shown = page.evaluate(SHOWN)
-    assert len(shown) == 5 and all(flag for _, flag in shown)  # every row flagged
-    # the statistics count any product containing aspirin, so every report is read on
-    # aspirin's own label, the one coded as a combination too: one label, named by its product
-    # and ingredients, with no forms
-    assert page.inner_text(".oa-label-lead") == (
-        "Label compares each reaction with today's US prescription label: Aspirinex (aspirin) "
-        f"label, {day('aspirin-by-mouth')}, on DailyMed. About the label flags"
-    )
-    page.keyboard.press("Escape")
-    press(page, '[data-act="stat-sort"][data-v="label"]')
-    ranks = [OUTCOMES.index(flag) for _, flag in page.evaluate(SHOWN)]
-    assert ranks == sorted(ranks)
-    page.hover('.oa-stats [data-flag="on_label"]')
-    assert page.inner_text("#oa-tip").startswith(
-        f"{W['on_label']} on today's label, in warnings and precautions."
-    )
-
-
-def test_statistics_label_status_narrows_the_list_on_the_strip_and_moves_nothing(
-    opened, label_site, label_client
-):
-    page = opened(f"{PAGE}/statistics", base=label_site)
-    page.click('.oa-toolbar [data-act="stat-filters"]')
-    settle(page)
-    counts = label_client.get(
-        f"/api/statistics?{urlencode(ASPIRIN).replace('product', 'ingredient')}"
-    ).json()["label"]["counts"]
-    ticks = page.evaluate("""() => [...document.querySelectorAll('[data-act="stat-label"]')]
-      .map((b) => [b.dataset.v, b.getAttribute('aria-checked') === 'true',
-        +b.querySelector('.choice-count').innerText])""")
-    assert ticks == [[k, True, counts.get(k, 0)] for k in OUTCOMES]
-    assert "(21 CFR 314.80)" in page.inner_text("#oa-label-options .menu-footnote")
-    before = page.evaluate(PLACES)
-    press(page, '[data-act="stat-unexpected"]')
-    assert [flag for _, flag in page.evaluate(SHOWN)] and all(
-        flag in UNEXPECTED for _, flag in page.evaluate(SHOWN)
-    )
-    assert len(page.evaluate(SHOWN)) == 4
-    assert page.inner_text("#oa-strip .oa-strip-name") == "Label status"
-    assert page.evaluate(PLACES)[:2] == before[:2]  # the toolbar and the strip stay put
-    page.keyboard.press("Escape")
-    press(page, '#oa-strip [data-act="stat-unfilter"]')
-    assert len(page.evaluate(SHOWN)) == 5
-
-
-def test_a_release_without_flags_has_no_label_column_on_statistics(opened, stats_site):
-    page = opened("/product/warfarin/statistics", base=stats_site)
-    heads = page.eval_on_selector_all(".oa-stats thead th", "hs => hs.map((h) => h.innerText)")
-    assert heads and "Label" not in [h.title() for h in heads]
-    assert page.locator('[data-act="stat-filters"]').count() == 0
-
-
-def test_the_cutoffs_tick_is_the_screens_lists_choice_of_every_pair_or_the_passing_ones(
-    opened, label_site
-):
-    page = opened(f"{PAGE}/statistics", base=label_site)
-    page.click('.oa-toolbar [data-act="stat-filters"]')
-    settle(page)
-    tick = '[data-act="stat-pass"]'
-    assert page.get_attribute(tick, "aria-checked") == "false"  # the list opens on every pair
-    assert "Every drug and reaction" in page.inner_text("#oa-countline")
-    assert page.locator(".oa-stats tbody tr th").count() == 5
-    press(page, tick)
-    assert page.get_attribute(tick, "aria-checked") == "true"
-    assert page.inner_text("#oa-countline").endswith("Only those that pass EBGM's threshold")
-    assert page.locator(".oa-stats tbody tr th").count() == 0  # the fake's EBGM passes none
-    press(page, tick)
-    assert page.locator(".oa-stats tbody tr th").count() == 5
 
 
 def test_the_methods_page_says_the_day_the_labels_are_as_of(opened, label_site):

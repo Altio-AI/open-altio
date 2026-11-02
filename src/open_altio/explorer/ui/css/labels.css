@@ -18,13 +18,7 @@
   .oa-about .dialog-body > p { margin: 0; line-height: 1.55; }
   .oa-about-list { margin-bottom: var(--space-2); }
 
-  /* Statistics' Label column keeps its slot whatever it says (statistics.css), so sorting or
-     filtering moves nothing; a long flag wraps rather than being cut */
-  .oa-stats .oa-label-col { white-space: normal; }
-
   /* a flag not compared with the label: its reason in grey under Not compared, as an interval
      sits by its number */
   .oa-flag-reason { display: block; font-size: var(--text-sm); }
-  .oa-label-lead { margin: 0 0 var(--space-6); max-width: 820px; color: var(--ink-soft); font-size: var(--text-md); }
-  .oa-label-lead a { color: var(--link); }
 }

@@ -14,11 +14,10 @@ import { drugWords, learnTitles, productLabel } from './state.js';
 import { esc, num, skeletonRows, tip } from './util.js';
 
 
-// The Statistics tab counts by the ingredient alone (rule statistics-cases), so there the drug's line
-// stands where it stands, disabled, with one tip over the whole line saying why
-const STATISTICS_COUNT = 'Statistics count every product containing the ingredient, as primary or secondary suspect';
+// The Signals tab counts by the ingredient alone, so there the drug's line stands where it stands,
+// disabled, with one tip over the whole line saying why
 const SIGNALS_COUNT = 'Signals count every product containing the ingredient, as primary or secondary suspect';
-const offHere = (sc) => (sc.tab === 'statistics' || sc.tab === 'signals' ? 'aria-disabled="true"' : '');
+const offHere = (sc) => (sc.tab === 'signals' ? 'aria-disabled="true"' : '');
 
 // FDA's role codes, each a tick box with FDA's name for it on hover; `act` says whose roles they are,
 // `off` the group's aria-disabled when ticking them changes nothing
@@ -46,8 +45,8 @@ export function unitSwitch(sc) {
 }
 
 // the drug's line on its page: which products count, and in which roles; one box, so the
-// Statistics tab's one tip covers all of it
-export const drugBar = (sc) => `<span class="oa-drugline"${offHere(sc) ? ` ${tip(sc.tab === 'signals' ? SIGNALS_COUNT : STATISTICS_COUNT)}` : ''}>${unitSwitch(sc)}${roleTicks(sc.roles, 'prole', offHere(sc))}</span>`;
+// Signals tab's one tip covers all of it
+export const drugBar = (sc) => `<span class="oa-drugline"${offHere(sc) ? ` ${tip(SIGNALS_COUNT)}` : ''}>${unitSwitch(sc)}${roleTicks(sc.roles, 'prole', offHere(sc))}</span>`;
 
 // ---- the Spellings filter, on a product's page --------------------------------------------------
 

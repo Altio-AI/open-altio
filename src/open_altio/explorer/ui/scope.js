@@ -18,7 +18,7 @@ import { pinButton } from './products.js';
 import { TABS, current, drawn, productPath, putAddress, render } from './router.js';
 import { rulesNotice } from './rules/page.js';
 import { api } from './server.js';
-import { findStatistics, loadStatistics, loadStrata, paintStatistics, statisticsLead, statisticsToolbar } from './statistics.js';
+import { loadStrata } from './statistics.js';
 import { S, keepProducts, learnTitles, listLength, productLabel, releaseSince, whoOn } from './state.js';
 import { esc, num, skeletonRows, tip } from './util.js';
 
@@ -31,13 +31,13 @@ function scopePage(sc) {
     <p class="oa-subtitle" id="oa-subtitle">${subtitle(sc)}</p>
     <div class="oa-tabs-row">
       <div class="product-tabs" role="tablist" aria-label="Sections">
-        ${TABS.filter(([id]) => (id !== 'statistics' || S.me?.statistics !== false) && (id !== 'signals' || sc.product)).map(([id, label]) => `<a class="product-tab" role="tab" href="${base}/${id}" aria-selected="${sc.tab === id}">${label}</a>`).join('')}
+        ${TABS.filter(([id]) => id !== 'signals' || sc.product).map(([id, label]) => `<a class="product-tab" role="tab" href="${base}/${id}" aria-selected="${sc.tab === id}">${label}</a>`).join('')}
       </div>
       ${sc.product ? `<div class="oa-drugbar" id="oa-drugbar">${drugBar(sc)}</div>` : ''}
     </div>
     <section class="product-panel oa-panel" role="tabpanel">
-      ${sc.tab === 'signals' ? '' : `<div class="oa-toolbar" id="oa-toolbar">${sc.tab === 'statistics' ? statisticsToolbar(sc) : toolbar(sc)}</div>
-      <div class="oa-strip" id="oa-strip">${sc.tab === 'statistics' ? statisticsLead() : filterStrip(sc)}</div>`}
+      ${sc.tab === 'signals' ? '' : `<div class="oa-toolbar" id="oa-toolbar">${toolbar(sc)}</div>
+      <div class="oa-strip" id="oa-strip">${filterStrip(sc)}</div>`}
       <div id="oa-body">${sc.tab === 'signals' ? '' : bodySkeleton(sc)}</div>
     </section>
   </main>`, sc.product ? `p:${sc.product}` : 'all');
@@ -127,8 +127,7 @@ async function loadScope(sc) {
   const jobs = [];
   // a name the release does not hold is no page (noSuchProduct); any other of FDA's names opens its drug
   if (sc.product && !sc.info) jobs.push(api(`/api/product?product=${encodeURIComponent(sc.product)}`).then((p) => { sc.info = p; learnTitles([p]); }).catch((err) => { if (err.message === 'not found') sc.missing = true; else throw err; }));
-  if (sc.tab === 'statistics') jobs.push(loadStatistics(sc));
-  else if (sc.tab !== 'signals') jobs.push(api(`/api/summary?${q}`).then((s) => { sc.summary = s; sc.summaryKey = q; learnTitles((s.drugs || []).map(([name, , named]) => ({ name, title: named }))); }));
+  if (sc.tab !== 'signals') jobs.push(api(`/api/summary?${q}`).then((s) => { sc.summary = s; sc.summaryKey = q; learnTitles((s.drugs || []).map(([name, , named]) => ({ name, title: named }))); }));
   if (sc.tab === 'overview') jobs.push(api(`/api/timeline?grain=${sc.grain || 'year'}&${q}`).then((t) => { sc.timeline = t; }));
   if (sc.tab === 'cases') jobs.push(api(`/api/cases?${query(sc, { page: sc.page, sort: caseSort(sc) })}`).then((c) => { sc.cases = c; }));
   if (sc.tab === 'cases') jobs.push(loadStrata(sc));
@@ -179,7 +178,6 @@ function paintScope(sc) {
   if (sub) sub.innerHTML = subtitle(sc);
   const unit = document.querySelector('#oa-drugbar .oa-unit');
   if (unit) unit.outerHTML = unitSwitch(sc);
-  if (sc.tab === 'statistics') { paintStatistics(sc); return; }
   if (sc.tab === 'signals') return;
   paintCountLine(sc);
   const strip = document.getElementById('oa-strip');
@@ -199,7 +197,7 @@ export function refresh(sc, { keepPage = false, same = false } = {}) {
   const strip = document.getElementById('oa-strip');
   if (same) {
     if (sc.summary && sc.summaryKey) sc.summaryKey = query(sc);
-    if (strip && sc.tab !== 'statistics') strip.innerHTML = filterStrip(sc);
+    if (strip) strip.innerHTML = filterStrip(sc);
     return;
   }
   if (!keepPage) sc.page = 1;
@@ -224,8 +222,7 @@ function keepTitle(sc) {
 }
 
 // A product's address may name one reaction by its preferred term (?reaction=): the page opens with
-// its Reactions filter set to that term, and Statistics, which no filter changes, finds it as if
-// typed in Find. The address then shows the page without it, so the filter is the person's to
+// its Reactions filter set to that term. The address then shows the page without it, so the filter is the person's to
 // change, and an older address carries it to the drug's own page.
 function askedReaction(sc) {
   const p = new URLSearchParams(location.search);
@@ -237,7 +234,6 @@ function askedReaction(sc) {
   Object.assign(sc.f, { pts: [pt], smqs: [], cmqs: [], ptsOut: [] });
   sc.page = 1;
   sc.reaction = pt;
-  if (sc.tab === 'statistics') findStatistics(sc, pt);
 }
 
 // the thresholds: N's and EBGM's own (rule explorer-event-thresholds), then each statistic's standard
@@ -265,7 +261,7 @@ drawn('scope', (r, app) => {
   if (sc.product) { sc.added ??= !S.products.some((p) => p.name === sc.product); keepOpened(sc); } // added: whether this visit put it on the list
   app.innerHTML = scopePage(sc);
   if (sc.tab === 'signals') drawEvents(sc);
-  else if (sc.tab === 'statistics' ? sc.stat?.rows : sc.summary && sc.summaryKey === query(sc) && (sc.tab !== 'cases' || sc.cases)) paintScope(sc);
+  else if (sc.summary && sc.summaryKey === query(sc) && (sc.tab !== 'cases' || sc.cases)) paintScope(sc);
   loadScope(sc);
 });
 

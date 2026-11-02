@@ -17,7 +17,7 @@ A frozen dataclass, one for each person asking.
 | `who` | | Whether they may see WHO's drug classes on the pages: the class filter and each drug's class. |
 | `sql` | `True` | Read-only SQL, and its whole result as a file. |
 | `exports` | `True` | The filtered export. |
-| `statistics` | `True` | The Statistics tab: EBGM, PRR, ROR, RRR and IC for each pair. |
+| `statistics` | `True` | The statistics: EBGM, PRR, ROR, RRR and IC for each pair, on the Signals tab and in an opened event. |
 | `who_files` | `False` | WHO's drug classes in files: the class tables in SQL and on the Tables page, and each drug's class in a filtered export. A product may give it apart from `who`, as a licence asks. |
 | `todays_names` | `True` | Reactions named and counted by the release's MedDRA version, each under its current preferred term, for a viewer without `meddra` too. `False` shows them as FDA wrote them. |
 | `fda_text_line` | `""` | The line the pages show where reactions are listed, for a viewer shown FDA's text in a release that holds MedDRA. |

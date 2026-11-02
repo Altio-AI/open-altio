@@ -59,9 +59,6 @@ def test_shown_fdas_text_the_page_says_so_in_one_quiet_line_where_reactions_are(
     chart = page.locator(".oa-chart", has=page.locator(".oa-pt-line")).inner_text()
     assert "Arrhythmia" in chart and "Heart rhythm abnormal" not in chart
     assert "MedDRA 29.1" not in chart
-    stats = opened("/all/statistics", base=fda_text_site, width=width)
-    stats.wait_for_selector(".oa-stat-lead")
-    assert LINE in stats.inner_text(".oa-stat-lead")
 
 
 @pytest.mark.parametrize("width", WIDTHS)
@@ -136,18 +133,6 @@ def test_where_reactions_are_counted_the_page_names_the_meddra_version(opened, p
     page.click('#oa-filter-menu [data-act="filter-row"][data-row="reactions"]')
     page.wait_for_selector("#oa-term-find:visible")
     assert "current PT in MedDRA 29.1" in page.inner_text("#oa-filter-menu")
-
-
-@pytest.mark.parametrize("width", WIDTHS)
-def test_a_statistics_pair_opens_as_many_cases_as_its_row_counts(opened, licensed_client, width):
-    [row] = licensed_client.get("/api/statistics?ingredient=metformin&find=acidosis").json()["rows"]
-    every = {"statistics-screens": {"list": "all"}}  # the list not screened, so the pair is in it
-    page = opened("/product/metformin/statistics", width=width, kept=every)
-    assert "Reactions under today's MedDRA 29.1 terms." in page.inner_text(".oa-stat-lead")
-    page.click(f'tr[data-act="stat-row"][data-term="{row["term"]}"]')
-    settle(page)
-    assert page.evaluate("location.pathname").endswith("/cases")
-    assert page.inner_text("#oa-countline").startswith(f"{row['cases']:,} case")
 
 
 @pytest.mark.parametrize("width", WIDTHS)

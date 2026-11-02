@@ -249,7 +249,7 @@ One pair's ROR within each value of each part of a case. Not found (404) for a p
 
 ### `GET /api/statistics/group`
 
-A drug's ingredient against a group of reactions counted as one event, on all the cases the statistics count or on those FDA received since a day: the group's table of cases and every statistic of the Statistics tab, scored under the release's own fitted prior. A case counts once however many of the group's reactions it names. Given one reaction and no day, the answer is that pair's own statistics. A value the table cannot give is null; where the release's prior did not fit, `not_available` gives the reason EBGM, EB05 and EB95 are null. Refused (400) for a combination, which has statistics only for each ingredient.
+A drug's ingredient against a group of reactions counted as one event, on all the cases the statistics count or on those FDA received since a day: the group's table of cases and every statistic `GET /api/statistics` gives, scored under the release's own fitted prior. A case counts once however many of the group's reactions it names. Given one reaction and no day, the answer is that pair's own statistics. A value the table cannot give is null; where the release's prior did not fit, `not_available` gives the reason EBGM, EB05 and EB95 are null. Refused (400) for a combination, which has statistics only for each ingredient.
 
 - Function: `grouped.statistics`.
 - Asks: `product`, `reaction` (repeated), `received_from` (`yyyy-mm-dd`, optional). The filters are not read.

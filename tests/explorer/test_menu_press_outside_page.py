@@ -75,17 +75,6 @@ def test_the_menus_own_button_closes_it_and_a_press_inside_still_chooses(opened)
     assert page.locator(OPEN).count() == 1  # the press inside opened the row's choices
 
 
-def test_a_press_on_a_row_outside_the_thresholds_menu_opens_no_cases(opened, stats_site):
-    page = opened("/all/statistics", base=stats_site)
-    page.click('[data-act="screens"]')
-    page.wait_for_selector(OPEN)
-    press_clear(page, '[data-act="stat-row"]')
-    assert page.locator(OPEN).count() == 0
-    assert page.url.endswith("/all/statistics")
-    press_clear(page, '[data-act="stat-row"]')
-    page.wait_for_url("**/cases*")
-
-
 # A menu whose rows change, opened from a button that stands where the test puts it
 MENU = """async (fromFoot) => {
   const { popMenu } = await import('/ui/app.js');

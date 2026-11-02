@@ -1,6 +1,6 @@
 # The statistics
 
-For anyone reading the Statistics tab, or the `statistics_T` table, who wants to know how the numbers are made and how far to trust them.
+For anyone reading the statistics on a drug's Signals tab, or the `statistics_T` table, who wants to know how the numbers are made and how far to trust them.
 
 Each statistic's formula, source and presets are its rule. This page says how they fit together.
 
@@ -51,7 +51,7 @@ These come straight from each pair's table of cases ([prr](https://github.com/Al
 Each pair's ROR is worked out again on the cases of one age band alone, and of one sex alone ([ror-strata](https://github.com/Altio-AI/open-altio/blob/main/rules/ror-strata.md)), a part at a time, never crossed.
 
 - **Reading it.** Where the ratio is high overall but not within any age band, who reports, not the drug, may be the reason.
-- **Where to see it.** Pressing a pair on the Statistics tab opens its cases, with these ratios under them.
+- **Where to see it.** A drug's Cases tab narrowed to one reaction shows these ratios under its cases.
 
 ## By drug class
 
@@ -60,7 +60,7 @@ Every statistic but the time to onset is worked out again with each drug's WHO c
 - **A prior per level.** Each level gets its own EBGM prior, fitted on that level's cells alone, since a broader class holds its narrower ones.
 - **Once per class.** A case counts once for a class however many of its drugs are in it.
 - **Certain levels only.** A drug counts at every level its class is certain at. One whose report does not say which of its uses it was ("can't tell") counts at none.
-- **Reading it.** On a drug's Statistics tab, its class's EB05 stands beside its own. When the two are close, the reaction is reported for the whole class. When the drug's is far higher, it stands out for the drug.
+- **Reading it.** On an opened event's Compared tab, a class's EB05 can stand beside the drug's own. When the two are close, the reaction is reported for the whole class. When the drug's is far higher, it stands out for the drug.
 
 ## Time to onset
 
@@ -76,7 +76,7 @@ A median from a few drugs says little.
 
 ## Thresholds
 
-Each statistic's common thresholds are presets on its rule. On the Statistics tab you may pick one, set your own numbers or use none.
+Each statistic's common thresholds are presets on its rule. On a drug's Signals tab each statistic starts at its standard one, and its column's head menu sets another value.
 
 !!! note
     Meeting a threshold is not a signal and not evidence that the drug caused the reaction. Spontaneous reports say what people chose to report, so a pair can stand out because of publicity, a lawsuit or how a company reports, and a real effect can hide in a reaction everyone reports.

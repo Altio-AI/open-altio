@@ -400,6 +400,9 @@ ROUTES = {
     "/product/valsartan": ("/product/valsartan", "scope", "Signals"),
     # the tab's old address opens it under its own
     "/product/valsartan/events": ("/product/valsartan/signals", "scope", "Signals"),
+    # the removed Statistics tab opens the page's first tab
+    "/product/valsartan/statistics": ("/product/valsartan/signals", "scope", "Signals"),
+    "/all/statistics": ("/all/overview", "scope", "Overview"),
     "/product/sacubitril%3Bvalsartan/cases": (
         "/product/sacubitril%3Bvalsartan/cases",
         "scope",

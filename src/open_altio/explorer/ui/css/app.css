@@ -185,7 +185,6 @@
   /* the filters in force: one line that always keeps its height */
   .oa-strip { display: flex; align-items: center; gap: var(--space-6); height: 40px; padding: 0 var(--space-5); border-radius: var(--radius-sm); background: var(--accent-soft); font-size: var(--text-md); overflow: hidden; }
   .oa-strip-items { display: flex; align-items: center; gap: var(--space-8); flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); }
-  .oa-strip:has(> .oa-strip-lead) { height: auto; min-height: 40px; padding-block: var(--space-2); }
   .oa-strip-item { display: inline-flex; align-items: center; gap: var(--space-1); flex: 0 0 auto; max-width: 420px; }
   .oa-strip-edit { display: inline-flex; align-items: baseline; gap: var(--space-3); min-width: 0; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer; }
   .oa-strip-name { color: var(--ink-soft); }

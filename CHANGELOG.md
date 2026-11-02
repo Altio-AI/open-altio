@@ -7,6 +7,7 @@ Changes to the code, newest first. The code follows [semantic versioning](https:
 Not tagged and not on PyPI, so `uv tool install open-altio` still gives 1.0.0. Run it from source, as the README says.
 
 - A product page's Events tab is now called Signals, at `/product/<drug>/signals`. Its old address, `/product/<drug>/events`, opens it under the new one.
+- The Statistics tab is gone from every product page and from All cases. Its figures show on the Signals tab and in its column menus, and a pair's ROR by age band and by sex under a drug's cases narrowed to one reaction. An old link to a Statistics tab opens the page's first tab.
 
 ## 1.1.0.dev21 (development version, 2026-11-01)
 

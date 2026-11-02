@@ -190,48 +190,6 @@ def test_a_page_of_fdas_spelling_with_no_ingredient_is_its_own_product(opened):
     assert page.get_attribute('[data-act="unit"][data-v="exact"]', "aria-selected") == "true"
 
 
-@pytest.mark.parametrize("width", [390, 1440])
-def test_on_the_statistics_tab_the_drugs_line_stands_disabled_where_it_stands(opened, width):
-    page = opened("/product/valsartan/overview", width=width)
-    press(page, '[data-act="unit"][data-v="exact"]')
-    line = (".oa-unit", ".oa-roles", '.oa-roles [data-v="C"]')
-    before = boxes(page, line)
-    press(page, '.product-tab[href$="/statistics"]')
-    assert boxes(page, line) == before
-    controls = page.locator(".oa-drugbar :is(.view-switch-half, .oa-choice)")
-    assert controls.count() == 6
-    assert all(c.get_attribute("aria-disabled") == "true" for c in controls.all())
-    # one tip over the whole greyed line, the same wherever the pointer is on it
-    assert page.locator(".oa-drugbar [data-tip]").count() == 1
-    for piece in (
-        '[data-act="unit"][data-v="any"]',
-        '[data-act="unit"][data-v="exact"]',
-        ".oa-roles .field-label",
-        '.oa-roles [data-v="PS"]',
-        '.oa-roles [data-v="C"]',
-    ):
-        page.hover(piece, force=True)
-        assert page.inner_text("#oa-tip") == (
-            "Statistics count every product containing the ingredient, "
-            "as primary or secondary suspect"
-        )
-        holder = page.evaluate(
-            "(s) => document.querySelector(s).closest('[data-tip]').className", piece
-        )
-        assert holder == "oa-drugline", piece
-    page.click('[data-act="unit"][data-v="any"]', force=True)
-    page.click('.oa-drugbar [data-act="prole"][data-v="C"]', force=True)
-    settle(page)
-    assert page.get_attribute('[data-act="unit"][data-v="exact"]', "aria-selected") == "true"
-    assert ticked(page, ".oa-drugbar") == ["PS", "SS"]
-    press(page, '.product-tab[href$="/overview"]')
-    assert page.locator('.oa-drugbar [aria-disabled="true"]').count() == 0
-    page.hover('.oa-roles [data-v="PS"]')
-    assert page.inner_text("#oa-tip") != "" and "Statistics count" not in page.inner_text("#oa-tip")
-    assert page.get_attribute('[data-act="unit"][data-v="exact"]', "aria-selected") == "true"
-    assert not sideways(page)
-
-
 @pytest.mark.parametrize("width", WIDTHS)
 def test_the_drugs_filter_finds_ingredients_and_spellings_with_role_tick_boxes(opened, width):
     page = opened("/all/overview", width=width)
@@ -315,17 +273,9 @@ def test_an_address_naming_a_reaction_opens_the_cases_with_that_reaction_filtere
     assert strip(page) == [] and count(page) == every
 
 
-def test_an_address_naming_a_reaction_narrows_statistics_and_follows_an_older_name(
-    opened, stats_site, stats_client, licensed_client
+def test_an_older_address_naming_a_drug_opens_its_page_with_the_reaction_filtered(
+    opened, licensed_client
 ):
-    pt = fewest_event(stats_client, "warfarin")
-    page = opened(f"/product/warfarin/statistics?reaction={quote(pt)}", base=stats_site)
-    assert page.input_value("#oa-stat-find") == pt
-    terms = page.eval_on_selector_all(
-        "tr[data-act='stat-row']", "rs => rs.map((r) => r.dataset.term.toLowerCase())"
-    )
-    assert terms and terms[0] == pt.lower() and all(pt.lower() in t for t in terms)
-    assert page.evaluate("location.search") == ""
     # an older address opens its drug's page with the reaction still filtered
     pt = fewest_event(licensed_client, "acetylsalicylic acid")
     page = opened(f"/product/ASPIRIN/cases?reaction={quote(pt)}")

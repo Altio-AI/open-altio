@@ -2,13 +2,14 @@
 widths: no cell's words run into the next cell or are cut off, every cell of a row sets its first
 line on one line, and every grey line about a value (FDA's own value, where ours came from, a
 rule's link, a current PT, a label's result) sits on a line of its own under the value, flush with
-it. The case list, Statistics and a pair's ROR by age band and by sex, the case window, Tables and
+it. The case list, a pair's ROR by age band and by sex, the case window, Tables and
 SQL with its results, the export's files, the rules, and the filters' lists with a count column."""
 
 from __future__ import annotations
 
 from collections.abc import Callable
 from typing import Any
+from urllib.parse import quote
 
 import pytest
 
@@ -60,7 +61,14 @@ def drug_search(words: str) -> Callable[[Any], None]:
 
 
 def strata(page: Any) -> None:
-    page.locator(".oa-stats tbody tr").first.click()
+    """The product's cases narrowed to its first pair's reaction, under which the ROR sits."""
+    got = page.evaluate("fetch('/api/statistics?ingredient=warfarin&pass=').then((r) => r.json())")
+    page.goto(
+        page.url.split("/product")[0]
+        + "/product/warfarin/cases?reaction="
+        + quote(got["rows"][0]["term"])
+    )
+    page.wait_for_selector(".oa-strata")
     settle(page)
 
 
@@ -73,16 +81,9 @@ TABLES = {
         nothing,
         ".oa-cases tr",
     ),
-    "Statistics": ("stats_site", "/all/statistics", nothing, ".oa-stats tr"),
-    "a product's Statistics": (
-        "stats_site",
-        "/product/warfarin/statistics",
-        nothing,
-        ".oa-stats tr",
-    ),
     "a pair's ROR by age band and by sex": (
         "stats_site",
-        "/product/warfarin/statistics",
+        "/product/warfarin/cases",
         strata,
         ".oa-strata-table tr",
     ),

@@ -43,13 +43,13 @@ def test_each_screen_and_tab_opened_is_reported_once_and_rules_read_by_name(open
     page = hearing(opened("/"))
     go(page, "/all/overview")
     go(page, "/all/cases")
-    go(page, "/product/valsartan/statistics")
+    go(page, "/product/valsartan/cases")
     page.evaluate("() => import('/ui/router.js').then((m) => m.render())")  # drawn again
     go(page, "/methods?open=ebgm,prr")
     assert heard(page, "screen") == [
         {"kind": "screen", "screen": "scope", "tab": "overview", "product": ""},
         {"kind": "screen", "screen": "scope", "tab": "cases", "product": ""},
-        {"kind": "screen", "screen": "scope", "tab": "statistics", "product": "valsartan"},
+        {"kind": "screen", "screen": "scope", "tab": "cases", "product": "valsartan"},
         {"kind": "screen", "screen": "methods", "tab": "", "product": ""},
     ]
     assert heard(page, "rule") == [

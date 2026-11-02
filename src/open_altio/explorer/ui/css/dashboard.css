@@ -23,7 +23,7 @@
      row's ground, and a hairline marks its edge while the table has more to scroll. */
   table.oa-freeze :is(th, td):first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); }
   table.oa-freeze thead :is(th, td):first-child { z-index: 2; }
-  :is(.oa-stats, .case-table).oa-freeze tbody tr:hover > :first-child { background: var(--mist); }
+  .case-table.oa-freeze tbody tr:hover > :first-child { background: var(--mist); }
   :is(.dashboard-frame, .oa-cases-frame, .oa-case-scroll, .oa-card-cols):has(> table.oa-freeze) { container-type: scroll-state; }
   @container scroll-state(scrollable: x) {
     table.oa-freeze :is(th, td):first-child { box-shadow: inset calc(-1 * var(--hairline)) 0 var(--line); }

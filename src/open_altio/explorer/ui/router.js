@@ -10,10 +10,10 @@ import { closeMenus, hideTip } from './overlays.js';
 import { S, scopeFor } from './state.js';
 
 // a product's and All cases' tabs, as their addresses name them
-export const TABS = [['signals', 'Signals'], ['overview', 'Overview'], ['cases', 'Cases'], ['statistics', 'Statistics']];
+export const TABS = [['signals', 'Signals'], ['overview', 'Overview'], ['cases', 'Cases']];
 const TAB_IDS = TABS.map(([id]) => id);
-// a product's tabs by their old addresses, each opening the tab it became
-const OLD_TABS = { events: 'signals' };
+// tabs by their old addresses: Events became Signals, and Statistics, gone, opens the page's first tab
+const OLD_TABS = { events: 'signals', statistics: 'signals' };
 
 let currentRoute = null;
 export const current = () => currentRoute;
@@ -41,6 +41,7 @@ export function pageAt(parts) {
     const tab = OLD_TABS[third] || third;
     return second && tabOk(tab) ? { page: 'scope', product: second, tab: tab || 'signals', ...(tab !== third && { address: productPath(second, tab) }) } : null;
   }
+  if (first === 'all' && second === 'statistics' && !third) return { page: 'scope', product: null, tab: 'overview', address: '/all/overview' };
   if (first === 'all') return !third && second !== 'signals' && tabOk(second) ? { page: 'scope', product: null, tab: second || 'overview' } : null;
   if (second) return null;
   if (first === 'release') return { page: 'release' };

@@ -1,8 +1,8 @@
 """Sorting by a column title, in a browser, the same in every sortable table: the first press puts
 the highest first (a name A to Z), the second the lowest first, the third the table's own order
-again, every chevron neutral; and nothing on the page moves. Statistics' own order is EB05
-highest first, the case list's newest first. On a phone the case list is cards, sorted by one
-choice above them, so its titles are pressed at a tablet's width and a desktop's."""
+again, every chevron neutral; and nothing on the page moves. The case list's own order is newest
+first. On a phone the case list is cards, sorted by one choice above them, so its titles are
+pressed at a tablet's width and a desktop's."""
 
 from __future__ import annotations
 
@@ -11,8 +11,6 @@ from typing import Any
 import pytest
 
 from open_altio.testing.browser import settle
-
-SCREEN = "pass="  # the tab starts on every drug and reaction
 
 # each sortable title's chevron state, by the column it sorts
 MARKS = """(sel) => Object.fromEntries([...document.querySelectorAll(sel)]
@@ -27,33 +25,6 @@ BOXES = """(sel) => [...document.querySelectorAll(sel)].map((h) => {
 def press(page: Any, selector: str) -> None:
     page.click(selector)
     settle(page)
-
-
-def terms(page: Any) -> list[str]:
-    return page.eval_on_selector_all(".oa-stats tbody tr", "rs => rs.map((r) => r.dataset.term)")
-
-
-@pytest.mark.parametrize("width", [390, 1440])
-@pytest.mark.parametrize(("column", "first"), [("cases", "desc"), ("reaction", "asc")])
-def test_a_statistics_title_sorts_highest_then_lowest_then_the_tabs_own_order(
-    opened, stats_site, stats_client, width, column, first
-):
-    page = opened("/product/warfarin/statistics", base=stats_site, width=width)
-    titles = '.oa-stats thead [data-act="stat-sort"]'
-    asked = f"/api/statistics?ingredient=warfarin&{SCREEN}"
-    own = [r["term"] for r in stats_client.get(asked).json()["rows"]]
-    assert terms(page) == own and set(page.evaluate(MARKS, titles).values()) == {"none"}
-    heads = page.evaluate(BOXES, ".oa-stats thead th")
-    second = "asc" if first == "desc" else "desc"
-    for mark in (first, second, "none"):
-        press(page, f'{titles}[data-v="{column}"]')
-        marks = page.evaluate(MARKS, titles)
-        assert marks.pop(column) == mark and set(marks.values()) == {"none"}
-        by = f"&sort={column}&dir={mark}" if mark != "none" else ""
-        want = [r["term"] for r in stats_client.get(asked + by).json()["rows"]]
-        assert terms(page) == want, mark
-        assert page.evaluate(BOXES, ".oa-stats thead th") == heads  # nothing moves
-    assert terms(page) == own
 
 
 def ages(page: Any) -> list[str]:

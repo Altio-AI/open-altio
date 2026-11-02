@@ -60,7 +60,7 @@ Everything about the data:
 - **The case window** shows one case with every value. See [the case window](#the-case-window) below.
 - **Not given.** See [not given](#not-given) below.
 - **FDA system** is the system of each case's latest version. The cases FDA carried from AERS into FAERS count as FAERS cases, though many were first received before. The Received by FDA filter finds the cases first reported before FAERS.
-- **Statistics,** on a product's page and on All cases: EBGM with EB05 and EB95, PRR, ROR, RRR and IC for each ingredient and reaction, worked out once for the release ([below](#statistics)).
+- **Statistics,** on a product's Signals tab: EBGM with EB05 and EB95, PRR, ROR, RRR and IC for each ingredient and reaction, worked out once for the release ([below](#statistics)).
 - **Label flags,** when the release holds them: whether today's US prescription label of each suspect drug lists a reaction ([see below](#label-flags)).
 - **Tables and SQL.** Every table of the release, with its columns marked FDA or Open Altio, read-only SQL, and downloads. A link can carry a query: an address ending `/release?query=SELECT 1` opens the page with that query in the box once the tables are listed. The address then loses `query`, so a reload or a shared link does not fill the box again. The query is never run for you; press Run.
 - **Exports** of what your filters show.
@@ -133,33 +133,12 @@ The Drugs filter on All cases works the same way: choose ingredients or FDA's sp
 
 ## Statistics
 
-The Statistics tab lists ingredient and reaction pairs with how much more often they are reported together than expected.
+A drug's Signals tab, and an event opened there, show EBGM with EB05 and EB95, PRR, ROR, RRR and IC for each ingredient and reaction.
 
 - **The same cases.** Every statistic counts the cases the release keeps that name the ingredient as primary or secondary suspect, in any product containing it, and a reaction.
 - **Reactions.** Where the release has MedDRA, each reaction is counted and named under its preferred term today. Otherwise it is counted under FDA's text.
 - **Worked out once.** The build works them out once for the whole release, so the filters do not change them, nor do a drug page's products and roles.
-- **Combinations.** A combination's tab links to each of its ingredients'.
-
-The columns and controls:
-
-
-- **EBGM** is how many times more often than expected, with small counts pulled towards the ratio usual in the release. **EB05** and **EB95** bound it.
-- **Exp. count,** the expected count, is the cases expected if the two were unrelated, worked out within age band, sex and year received.
-- **Beside them** stand **PRR** with its two chi-squares (**Chi²**, and **Yates** with Yates' correction), **ROR** with its 95% interval under it, and **RRR** and **IC** with IC025 under it. A head's tip gives its full name.
-- **Onset** is the median time from the first dose, day 1, to the reaction, in days, over the ingredient's suspect drugs in the pair's cases that give both dates to the day. In grey, how many drugs that is of all of them. Its tip says why the others have none.
-- **Width.** The table fits a laptop's screen. On a narrower one it scrolls sideways inside its frame with its first column held in view, as the case list and the other wide tables do.
-- **Sorting.** Press a column title to sort by it: highest first (a name A to Z), then lowest first, then back to the table's own order, EB05 highest first. The case list's titles sort the same way, back to newest first.
-- **Thresholds** sets the thresholds. Each statistic offers the common ones as presets, or your own numbers, or none.
-    - The presets are EB05 at least 2 with at least 3 cases, Evans 2001 for PRR, a lower ROR bound above 1, and IC025 above 0.
-    - A number that passes its statistic's threshold is marked.
-    - One threshold narrows the list: by default EBGM's.
-    - Your choices stay in this browser.
-- **By class,** where the release holds WHO's drug classes. The button beside Thresholds on All cases' tab lists class and reaction pairs instead of ingredient and reaction pairs, at one level of the class: Therapeutic, Pharmacological or Chemical subgroup. The columns and thresholds are the same, without Onset. A row opens every case's Cases tab filtered to the class and the reaction.
-- **Class EB05,** on a drug's tab, is its class's EB05 with the same reaction, beside the drug's own, at the level **Class level** chooses. Its tip names the class.
-    - When the two are close, the reaction is reported for the whole class. When the drug's is far higher, it stands out for the drug.
-    - Where the classes are not shown, neither is.
-    - Neither is shown to anyone shown reactions as FDA wrote them in a release with MedDRA, because the class statistics are counted only by today's MedDRA terms.
-- **A row** opens the pair's cases. Under them is the pair's **ROR by age band and by sex**: the ROR worked out again on the cases of each age band alone and of each sex alone, every group listed, empty where its table has a cell of 0.
+- **ROR by age band and by sex.** A drug's Cases tab narrowed to one reaction shows, under its cases, the pair's ROR worked out again on the cases of each age band alone and of each sex alone, every group listed, empty where its table has a cell of 0.
 - **How these are worked out** opens the rules behind each statistic.
 
 !!! note
@@ -227,13 +206,12 @@ Which label a flag is read on:
 - **Another form's label.** Where none of the forms the report could be has a label of its own, or the report does not say the form, the flag is read on another form's label and says which ("Listed on the injected label; no by-mouth label").
 - **No RxNorm code.** A drug record with no RxNorm code shows Not compared, no label found.
 - **Trial products.** A trial product (a study drug, a placebo or a blinded drug) has no flag.
-- **Any product containing an ingredient,** as a drug's page opens and as its Statistics tab always counts. Every reaction is judged against the ingredient's own label: valsartan's page reads its reports of Entresto on valsartan's label. An ingredient with no label of its own shows Not compared, no label found for the products that hold it with others, while its reports of the ingredient alone keep their own label.
+- **Any product containing an ingredient,** as a drug's page opens and as its Signals tab always counts. Every reaction is judged against the ingredient's own label: valsartan's page reads its reports of Entresto on valsartan's label. An ingredient with no label of its own shows Not compared, no label found for the products that hold it with others, while its reports of the ingredient alone keep their own label.
 - **The product alone, and a combination's page.** The flags are those of exactly that product's reports, each read on its own label.
 - **More than one label.** Where reports were read on more than one label that agree, the flag names the drug's own label first, then the newest, then the lower set ID, so the same release always names the same label.
 
 - **The case window** shows, under each reaction, one line per suspect drug with its flag, and links each drug's label on DailyMed.
 - **Label status,** in a drug's filters menu, keeps the cases with at least one reaction whose flag for the drug is ticked. Every flag is ticked from the start, so the list opens on its true total. **Unexpected only** ticks Not listed, Possibly listed, Forms differ, Can't tell, and Not compared for no label found and for a procedure, in one click. It combines with every other filter.
-- **On a drug's Statistics tab,** the Label column after Reaction gives each pair's flag, and sorting by it puts Not listed first. Filters holds Label status, which narrows the pairs the same way. It also holds Only reactions that pass the cutoffs, which is the Thresholds menu's choice between every pair and the pairs that pass a threshold.
 - **About the label flags,** linked beside them, says what each flag means and how each was decided.
 
 How the screens show them is [rule explorer-label-flags](https://github.com/Altio-AI/open-altio/blob/main/rules/explorer-label-flags.md). A release without the tables shows no flags.

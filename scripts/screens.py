@@ -312,11 +312,6 @@ EXPLORER = [
         click('tr[data-act="case"]:has(.case-key:text-is("9013013"))', "#oa-case .oa-case-lead"),
         whole=False,
     ),
-    Shot(
-        "statistics-by-pt",
-        "/product/metformin/statistics",
-        kept={"statistics-screens": {"list": "all"}},
-    ),
     Shot("rules-meddra-terms", "/rules?open=meddra-terms"),
     Shot(
         "export",

@@ -50,19 +50,6 @@ def test_the_link_shows_only_where_no_label_was_found_and_opens_improve_this_fil
     page.context.close()
 
 
-def test_a_drugs_page_without_a_label_offers_it_in_its_lead(chromium, base):
-    page = open_page(chromium, base + "/product/BLEOMYCIN%20SULFATE/statistics")
-    settle(page)
-    assert page.locator(".oa-label-lead .oa-request-label").count() == 1
-    page.click(".oa-label-lead .oa-request-label")
-    assert page.input_value("#oa-note-text") == ASK
-    page.context.close()
-    page = open_page(chromium, base + "/product/acetylsalicylic%20acid/statistics")
-    settle(page)
-    assert page.locator(".oa-request-label").count() == 0
-    page.context.close()
-
-
 @pytest.mark.parametrize("width", [320, 768, 1024, 1440])
 def test_the_link_shows_opens_and_moves_nothing_at_every_width(chromium, base, width):
     page = open_page(chromium, base + "/", width=width)

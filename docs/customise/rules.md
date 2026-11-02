@@ -19,7 +19,7 @@ Run the explorer on your own machine (`open-altio serve`) and open **Rules**. Ea
 - **Which copy of a group of duplicates is shown.**
 - **Not given.** It is always on, so every screen reads one empty state.
 - **The rules that read a patient's sex, age, weight and age band.** They add a value beside FDA's own, which the later steps read.
-- **The statistics' rules.** They take no case out. You set the thresholds you read them by on the Statistics tab.
+- **The statistics' rules.** They take no case out. You set the thresholds you read them by on a drug's Signals tab, in each column's head menu.
 
 **To rebuild,** change something and a bar says how many rules you changed and offers **Rebuild with your rules**.
 
