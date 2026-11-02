@@ -1,4 +1,4 @@
-/* A drug's Events tab opens an event under its row. A press on a row opens Open Altio's opened event
+/* A drug's Signals tab opens an event under its row. A press on a row opens Open Altio's opened event
    in the cell the events table keeps under it through every sort, narrowing and redraw while the row
    is listed; a press on the open row closes it, and one row is open at a time. The address keeps the
    row open as ?open=<event>, so a reload or a link opens it again, whatever the thresholds say. */

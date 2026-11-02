@@ -755,13 +755,13 @@ def test_a_hosts_listed_column_starts_hidden_and_narrows_by_its_ticks(page_at, s
     assert "show steps" in page.inner_text(".menu:popover-open").lower()
 
 
-# ---- a drug's own Events tab: a press on a row opens its event ---------------------------------
+# ---- a drug's own Signals tab: a press on a row opens its event --------------------------------
 OWN_ROWS = ".oa-et-frame > table > tbody > tr[data-key]"
 
 
 def own_events(page_at, stats_host, width=1440):
-    """The Events tab of a drug's own page, every event showing."""
-    page = page_at(f"{stats_host}/product/warfarin/events", width=width)
+    """The Signals tab of a drug's own page, every event showing."""
+    page = page_at(f"{stats_host}/product/warfarin/signals", width=width)
     page.wait_for_selector('[data-act="et-head"][data-col="eb05"]')
     page.click('[data-act="et-head"][data-col="eb05"]')
     page.click('.oa-et-menu-line [data-act="et-unbound"]')
@@ -873,7 +873,7 @@ def test_in_a_window_too_short_for_the_cap_the_page_scrolls_as_before(page_at, s
 
 
 def test_a_drugs_events_tab_starts_every_statistic_and_they_narrow_together(page_at, stats_host):
-    page = page_at(f"{stats_host}/product/warfarin/events")
+    page = page_at(f"{stats_host}/product/warfarin/signals")
     page.wait_for_selector('[data-act="et-head"][data-col="eb05"]')
     assert "N at least 3" in page.get_attribute(
         '[data-act="et-head"][data-col="newest"]', "data-tip"

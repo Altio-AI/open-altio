@@ -397,14 +397,16 @@ ROUTES = {
     "/all": ("/all", "scope", "Overview"),
     "/all/overview": ("/all/overview", "scope", "Overview"),
     "/all/cases": ("/all/cases", "scope", "Cases"),
-    "/product/valsartan": ("/product/valsartan", "scope", "Events"),
+    "/product/valsartan": ("/product/valsartan", "scope", "Signals"),
+    # the tab's old address opens it under its own
+    "/product/valsartan/events": ("/product/valsartan/signals", "scope", "Signals"),
     "/product/sacubitril%3Bvalsartan/cases": (
         "/product/sacubitril%3Bvalsartan/cases",
         "scope",
         "Cases",
     ),
     # an older address names FDA's active ingredient: the page of the drug it is read to opens
-    "/product/aspirin": ("/product/acetylsalicylic%20acid/events", "scope", "Events"),
+    "/product/aspirin": ("/product/acetylsalicylic%20acid/signals", "scope", "Signals"),
     "/product/ASPIRIN/cases": ("/product/acetylsalicylic%20acid/cases", "scope", "Cases"),
     "/release": ("/release", "release", None),
     "/sql": ("/release", "release", None),  # the old addresses of Tables and SQL

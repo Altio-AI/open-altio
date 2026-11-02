@@ -2,6 +2,12 @@
 
 Changes to the code, newest first. The code follows [semantic versioning](https://semver.org/). Data releases are named by FDA quarter (for example `2026Q2`); each one carries its own funnel numbers and changelog entry in its `methods.json`, shown on How we clean FAERS.
 
+## 1.1.0.dev22 (development version, 2026-11-02)
+
+Not tagged and not on PyPI, so `uv tool install open-altio` still gives 1.0.0. Run it from source, as the README says.
+
+- A product page's Events tab is now called Signals, at `/product/<drug>/signals`. Its old address, `/product/<drug>/events`, opens it under the new one.
+
 ## 1.1.0.dev21 (development version, 2026-11-01)
 
 Not tagged and not on PyPI, so `uv tool install open-altio` still gives 1.0.0. Run it from source, as the README says.

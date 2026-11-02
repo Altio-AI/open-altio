@@ -232,7 +232,7 @@ def test_a_copy_asks_nobody_but_itself_for_anything_but_a_note_sent(chromium, fa
     tab = context.new_page()
     tab.goto(page_url + "/")
     tab.fill("#oa-find", "valsar")
-    tab.click('#oa-find-results a[href="/product/valsartan/events"]')
+    tab.click('#oa-find-results a[href="/product/valsartan/signals"]')
     tab.wait_for_selector(".oa-title-spellings")
     for path in ("/product/valsartan/cases", "/all/overview", "/methods"):
         tab.evaluate("(path) => import('/ui/router.js').then((m) => m.go(path))", path)

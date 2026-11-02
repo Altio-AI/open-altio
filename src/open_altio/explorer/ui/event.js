@@ -1,5 +1,5 @@
 /* An event opened under its row: what a host draws in the cell an events table opens under a row
-   (eventstable.js `opened`), with openedEvent(element, { drug, row, ... }), on a drug's Events tab
+   (eventstable.js `opened`), with openedEvent(element, { drug, row, ... }), on a drug's Signals tab
    (scope.js) and wherever a host mounts it. Top down: the row's copy, its numbers under the table's
    heads; the line, the window's dates (event-dates.js), then each filter with its x and + Add a filter
    (event-filters.js), and Clear all; the bar, the tabs Overview, Compared and Cases with its count,

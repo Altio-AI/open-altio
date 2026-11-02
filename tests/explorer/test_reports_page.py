@@ -70,7 +70,7 @@ def test_a_rule_opened_on_the_methods_page_is_a_rule_read(opened):
 def test_a_product_picked_from_home_is_reported_with_the_words_typed(opened):
     page = hearing(opened("/"))
     page.fill("#oa-find", "valsar")
-    page.click('#oa-find-results a[href="/product/valsartan/events"]')
+    page.click('#oa-find-results a[href="/product/valsartan/signals"]')
     assert until(page, "pick") == [
         {"kind": "pick", "search": "products", "words": "valsar", "picked": "valsartan"}
     ]
@@ -143,5 +143,5 @@ def test_a_hook_that_fails_never_stops_the_click(opened):
     broken = "() => { throw new Error('the host is gone'); }"
     page.evaluate(f"() => import('/ui/host.js').then((m) => {{ m.host.report = {broken}; }})")
     page.fill("#oa-find", "valsar")
-    page.click('#oa-find-results a[href="/product/valsartan/events"]')
-    page.wait_for_function("() => location.pathname === '/product/valsartan/events'")
+    page.click('#oa-find-results a[href="/product/valsartan/signals"]')
+    page.wait_for_function("() => location.pathname === '/product/valsartan/signals'")

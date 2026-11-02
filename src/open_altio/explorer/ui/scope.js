@@ -31,14 +31,14 @@ function scopePage(sc) {
     <p class="oa-subtitle" id="oa-subtitle">${subtitle(sc)}</p>
     <div class="oa-tabs-row">
       <div class="product-tabs" role="tablist" aria-label="Sections">
-        ${TABS.filter(([id]) => (id !== 'statistics' || S.me?.statistics !== false) && (id !== 'events' || sc.product)).map(([id, label]) => `<a class="product-tab" role="tab" href="${base}/${id}" aria-selected="${sc.tab === id}">${label}</a>`).join('')}
+        ${TABS.filter(([id]) => (id !== 'statistics' || S.me?.statistics !== false) && (id !== 'signals' || sc.product)).map(([id, label]) => `<a class="product-tab" role="tab" href="${base}/${id}" aria-selected="${sc.tab === id}">${label}</a>`).join('')}
       </div>
       ${sc.product ? `<div class="oa-drugbar" id="oa-drugbar">${drugBar(sc)}</div>` : ''}
     </div>
     <section class="product-panel oa-panel" role="tabpanel">
-      ${sc.tab === 'events' ? '' : `<div class="oa-toolbar" id="oa-toolbar">${sc.tab === 'statistics' ? statisticsToolbar(sc) : toolbar(sc)}</div>
+      ${sc.tab === 'signals' ? '' : `<div class="oa-toolbar" id="oa-toolbar">${sc.tab === 'statistics' ? statisticsToolbar(sc) : toolbar(sc)}</div>
       <div class="oa-strip" id="oa-strip">${sc.tab === 'statistics' ? statisticsLead() : filterStrip(sc)}</div>`}
-      <div id="oa-body">${sc.tab === 'events' ? '' : bodySkeleton(sc)}</div>
+      <div id="oa-body">${sc.tab === 'signals' ? '' : bodySkeleton(sc)}</div>
     </section>
   </main>`, sc.product ? `p:${sc.product}` : 'all');
 }
@@ -48,7 +48,7 @@ function title(sc) {
   if (!sc.product) return 'All cases';
   const n = sc.summary?.spellings ?? sc.info?.spellings?.[sc.info.kind === 'spelling' ? 'exact' : sc.unit];
   const spellings = n == null ? '' : `<button type="button" class="oa-link oa-title-spellings" data-act="spellings" data-row="spellings" ${tip("FDA's spellings this page counts: open them to leave one out or add one")}>${num(n)} ${n === 1 ? 'spelling' : 'spellings'}</button>`;
-  const counted = sc.tab === 'events' ? ` <span class="oa-title-counted"><span class="oa-has-tip" ${tip('Primary suspect')}>PS</span> or <span class="oa-has-tip" ${tip('Secondary suspect')}>SS</span></span> ` : '';
+  const counted = sc.tab === 'signals' ? ` <span class="oa-title-counted"><span class="oa-has-tip" ${tip('Primary suspect')}>PS</span> or <span class="oa-has-tip" ${tip('Secondary suspect')}>SS</span></span> ` : '';
   return `${esc(productLabel(sc.product))}${counted}<span class="oa-title-end">${spellings}${pinButton(sc.product)}</span>`;
 }
 
@@ -128,11 +128,11 @@ async function loadScope(sc) {
   // a name the release does not hold is no page (noSuchProduct); any other of FDA's names opens its drug
   if (sc.product && !sc.info) jobs.push(api(`/api/product?product=${encodeURIComponent(sc.product)}`).then((p) => { sc.info = p; learnTitles([p]); }).catch((err) => { if (err.message === 'not found') sc.missing = true; else throw err; }));
   if (sc.tab === 'statistics') jobs.push(loadStatistics(sc));
-  else if (sc.tab !== 'events') jobs.push(api(`/api/summary?${q}`).then((s) => { sc.summary = s; sc.summaryKey = q; learnTitles((s.drugs || []).map(([name, , named]) => ({ name, title: named }))); }));
+  else if (sc.tab !== 'signals') jobs.push(api(`/api/summary?${q}`).then((s) => { sc.summary = s; sc.summaryKey = q; learnTitles((s.drugs || []).map(([name, , named]) => ({ name, title: named }))); }));
   if (sc.tab === 'overview') jobs.push(api(`/api/timeline?grain=${sc.grain || 'year'}&${q}`).then((t) => { sc.timeline = t; }));
   if (sc.tab === 'cases') jobs.push(api(`/api/cases?${query(sc, { page: sc.page, sort: caseSort(sc) })}`).then((c) => { sc.cases = c; }));
   if (sc.tab === 'cases') jobs.push(loadStrata(sc));
-  if (sc.product && labelsOn() && sc.tab !== 'events') loadLabelCounts(sc, q);
+  if (sc.product && labelsOn() && sc.tab !== 'signals') loadLabelCounts(sc, q);
   const settled = await Promise.allSettled(jobs);
   if (seq !== loadSeq) return;
   if (sc.missing) { if (current()?.scope === sc) noSuchProduct(sc); return; }
@@ -180,7 +180,7 @@ function paintScope(sc) {
   const unit = document.querySelector('#oa-drugbar .oa-unit');
   if (unit) unit.outerHTML = unitSwitch(sc);
   if (sc.tab === 'statistics') { paintStatistics(sc); return; }
-  if (sc.tab === 'events') return;
+  if (sc.tab === 'signals') return;
   paintCountLine(sc);
   const strip = document.getElementById('oa-strip');
   if (strip) strip.innerHTML = filterStrip(sc);
@@ -264,7 +264,7 @@ drawn('scope', (r, app) => {
   askedReaction(sc);
   if (sc.product) { sc.added ??= !S.products.some((p) => p.name === sc.product); keepOpened(sc); } // added: whether this visit put it on the list
   app.innerHTML = scopePage(sc);
-  if (sc.tab === 'events') drawEvents(sc);
+  if (sc.tab === 'signals') drawEvents(sc);
   else if (sc.tab === 'statistics' ? sc.stat?.rows : sc.summary && sc.summaryKey === query(sc) && (sc.tab !== 'cases' || sc.cases)) paintScope(sc);
   loadScope(sc);
 });

@@ -148,7 +148,7 @@ export function scopeFor(product) {
   const key = product ? `p:${product}` : 'all';
   if (!S.scopes[key]) {
     S.scopes[key] = {
-      key, product, tab: product ? 'events' : 'overview', roles: defaultRoles(), unit: drugWords().default_unit, exclude: [], include: [],
+      key, product, tab: product ? 'signals' : 'overview', roles: defaultRoles(), unit: drugWords().default_unit, exclude: [], include: [],
       page: 1, sortCol: null, sortDir: 0,
       f: { pts: [], smqs: [], cmqs: [], ptsOut: [], dprods: [], droles: defaultRoles(), atc: [], atcOut: [], soc: [], aroles: defaultRoles(), could: false, from: '', to: '', efrom: '', eto: '', sex: [], age: [], outcome: [], reporter: [], country: [], sender: '', era: null, dedup: S.release.dedup, label: null },
       summary: null, cases: null, info: null,

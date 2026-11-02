@@ -10,8 +10,10 @@ import { closeMenus, hideTip } from './overlays.js';
 import { S, scopeFor } from './state.js';
 
 // a product's and All cases' tabs, as their addresses name them
-export const TABS = [['events', 'Events'], ['overview', 'Overview'], ['cases', 'Cases'], ['statistics', 'Statistics']];
+export const TABS = [['signals', 'Signals'], ['overview', 'Overview'], ['cases', 'Cases'], ['statistics', 'Statistics']];
 const TAB_IDS = TABS.map(([id]) => id);
+// a product's tabs by their old addresses, each opening the tab it became
+const OLD_TABS = { events: 'signals' };
 
 let currentRoute = null;
 export const current = () => currentRoute;
@@ -22,7 +24,7 @@ export const go = (path) => { if (path !== here()) history.pushState(null, '', p
 // put an address in place of the one shown, adding no step to the history
 export const putAddress = (path) => { if (path !== here()) history.replaceState(null, '', path); };
 
-export const productPath = (name, tab = 'events') => `/product/${encodeURIComponent(name)}/${tab}`;
+export const productPath = (name, tab = 'signals') => `/product/${encodeURIComponent(name)}/${tab}`;
 
 // the address's parts, decoded; null for an address that cannot be read
 export function addressParts(path = location.pathname) {
@@ -35,8 +37,11 @@ export function pageAt(parts) {
   const tabOk = (t) => !t || TAB_IDS.includes(t);
   if (more.length) return null;
   if (!first) return { page: 'home' };
-  if (first === 'product') return second && tabOk(third) ? { page: 'scope', product: second, tab: third || 'events' } : null;
-  if (first === 'all') return !third && second !== 'events' && tabOk(second) ? { page: 'scope', product: null, tab: second || 'overview' } : null;
+  if (first === 'product') {
+    const tab = OLD_TABS[third] || third;
+    return second && tabOk(tab) ? { page: 'scope', product: second, tab: tab || 'signals', ...(tab !== third && { address: productPath(second, tab) }) } : null;
+  }
+  if (first === 'all') return !third && second !== 'signals' && tabOk(second) ? { page: 'scope', product: null, tab: second || 'overview' } : null;
   if (second) return null;
   if (first === 'release') return { page: 'release' };
   if (first === 'sql') return { page: 'release', tab: 'sql', address: '/release' };

@@ -118,7 +118,7 @@ A view choice is how a person leaves a view, kept for their next visit: today `s
 
 ## An opened event: `openedEvent`
 
-`openedEvent(element, options)` draws an event opened under its row into `element`, the box an events table's `opened.draw` is handed, and gives back its handle. A drug's Events tab opens one this way, and a product mounts it the same:
+`openedEvent(element, options)` draws an event opened under its row into `element`, the box an events table's `opened.draw` is handed, and gives back its handle. A drug's Signals tab opens one this way, and a product mounts it the same:
 
 ```js
 eventsTable(el, { drug: 'valsartan', opened: { draw: (box, row) => openedEvent(box, { drug: 'valsartan', row }) } });

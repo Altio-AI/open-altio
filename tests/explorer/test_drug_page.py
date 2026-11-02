@@ -256,9 +256,9 @@ def test_the_drugs_filter_finds_ingredients_and_spellings_with_role_tick_boxes(o
 def test_home_finds_a_drug_by_a_spelling_and_offers_spellings_with_no_ingredient(opened):
     page = opened("/")
     page.fill("#oa-find", "diovan")
-    page.wait_for_selector('#oa-find-results a[href="/product/valsartan/events"]')
+    page.wait_for_selector('#oa-find-results a[href="/product/valsartan/signals"]')
     page.fill("#oa-find", "valsar")
-    page.wait_for_selector('#oa-find-results a[href="/product/VALSARTAN%20TEVA/events"]')
+    page.wait_for_selector('#oa-find-results a[href="/product/VALSARTAN%20TEVA/signals"]')
     assert "WITH NO INGREDIENT" in page.inner_text("#oa-find-results").upper()
 
 
