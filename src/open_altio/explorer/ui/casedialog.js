@@ -41,7 +41,7 @@ function knownDay(clean, prec, raw) {
 }
 
 // the address shown with a case named in it, or with none
-function caseAddress(c) {
+export function caseAddress(c) {
   const p = new URLSearchParams(location.search);
   p.delete('case'); p.delete('era');
   if (c) { p.set('case', c.key); if (c.era) p.set('era', c.era); }
@@ -50,7 +50,7 @@ function caseAddress(c) {
 
 // a case by its number, in the system named, or in either when none is: a case number is the
 // release's own (no two cases share one), and an export or a bookmark may give it alone
-async function findCase(era, key) {
+export async function findCase(era, key) {
   let missing = null;
   for (const e of era ? [era] : Object.keys(ERA)) {
     try { return await api(`/api/case/${encodeURIComponent(e)}/${encodeURIComponent(key)}`); } catch (err) { missing = err; }
@@ -58,7 +58,7 @@ async function findCase(era, key) {
   throw missing;
 }
 
-async function openCase(era, key, nav = null) {
+export async function openCase(era, key, nav = null) {
   caseNav = nav;
   let dlg = document.getElementById('oa-case');
   if (!dlg) {
@@ -176,7 +176,7 @@ function onsetCell(d) {
 
 // the therapy lines, each drug's on rows together and in the drugs' order: the drug by the name it
 // was reported under, its number beside where two drugs share that name, clean dates and duration
-// beside FDA's, and the drug's one time to onset across its rows
+// beside FDA's, and the drug's one time to onset on its first row, its later rows' cell empty
 function therapyRows(c, ordered) {
   const at = new Map(ordered.map((d, i) => [d.drug_seq, i]));
   const lines = [...(c.ther || [])].sort((a, b) => (at.get(a.dsg_drug_seq) ?? at.size) - (at.get(b.dsg_drug_seq) ?? at.size));
@@ -190,9 +190,8 @@ function therapyRows(c, ordered) {
   };
   return lines.map((t, i) => {
     const first = i === 0 || lines[i - 1].dsg_drug_seq !== t.dsg_drug_seq;
-    let span = 1;
-    while (first && lines[i + span]?.dsg_drug_seq === t.dsg_drug_seq) span += 1;
-    const onset = first ? `<td${span > 1 ? ` rowspan="${span}"` : ''}>${onsetCell(drugs.get(t.dsg_drug_seq))}</td>` : '';
+    const cell = first ? onsetCell(drugs.get(t.dsg_drug_seq)) : '';
+    const onset = cell ? `<td ${tip('Counted from the first dose of this drug')}>${cell}</td>` : '<td></td>';
     return `<tr><td>${drugCell(t.dsg_drug_seq)}</td><td>${fda(knownDay(t.start_dt_T, t.start_dt_prec_T, t.start_dt), t.start_dt)}</td><td>${fda(knownDay(t.end_dt_T, t.end_dt_prec_T, t.end_dt), t.end_dt)}</td><td>${duration(t)}</td>${onset}</tr>`;
   }).join('');
 }
@@ -207,16 +206,29 @@ function withCaseLinks(line, group) {
     : esc(part))).join('');
 }
 
-function caseDialog(c, flags) {
+// the sentence under a case's lead: FDA keeps the narrative out of its public files
+export const NARRATIVE = "FDA does not publish the reporter's narrative in its public files, so a case shows only the coded fields.";
+// the heads of the drugs' and the therapy dates' tables, each with its tip where it has one; WHO class only where
+// the case carries the classes
+export const drugHeads = (classes) => [['Role'], ['As reported'], ['Ingredient'], ['Used for', 'What the drug was given for, as this report says'], ...(classes ? [['WHO class (ATC)']] : []), ['Route'], ['Dose'], ['Stopped and restarted', 'Whether the reaction abated when the drug was stopped, and came back when it was restarted']];
+export const THERAPY_HEADS = [['Drug'], ['Start'], ['End'], ['Duration'], ['Time to onset', 'Days from the first dose, day 1, to the event, from two dates known to the day']];
+const heads = (list) => list.map(([words, said]) => (said ? `<th ${tip(said)}>${words}</th>` : `<th>${words}</th>`)).join('');
+
+// A case's facts, each drawn as the case window draws it: the window lays them out below (caseDialog), and
+// an opened event's Cases tab lays the same facts out in place (event-case.js)
+export function caseParts(c, flags) {
   const serious = (c.outcomes_T || []).length > 0;
   const faersFrom = eras().FAERS[0];
-  const chips = [`<span class="oa-chip" ${tip(c.era_T === 'faers' ? `The system of the case's latest version: FAERS, FDA's since ${faersFrom}` : `The system of the case's latest version: AERS, FDA's before ${faersFrom}`)}>${ERA[c.era_T]}</span>`];
-  if (serious) chips.push(`<span class="oa-chip oa-chip-serious" ${tip('The report gave at least one serious outcome')}>Serious</span>`);
+  // the case's qualifiers: its system, and serious where the report gave a serious outcome
+  const qualifiers = [{ words: ERA[c.era_T], tip: c.era_T === 'faers' ? `The system of the case's latest version: FAERS, FDA's since ${faersFrom}` : `The system of the case's latest version: AERS, FDA's before ${faersFrom}` }];
+  if (serious) qualifiers.push({ words: 'Serious', tip: 'The report gave at least one serious outcome', serious: true });
   // why a probable duplicate is shown or set aside: the release's own sentences (/api/case), one a
   // line, each case number in them a link to that copy; and the flag on a report with no usable drug
   // or reaction that still gives a serious outcome
-  const flag = c.serious_no_drug_or_reaction_T ? `<p class="oa-case-flag"><span class="oa-chip oa-chip-serious">${UNUSABLE_SERIOUS}</span>${note(ruleTag('no-drug-or-reaction', 'fixed rule: no-drug-or-reaction'))}</p>` : '';
-  const lines = (c.reasons || []).map((line) => `<p>${withCaseLinks(line, c.group || [])}</p>`).join('');
+  const unusable = !!c.serious_no_drug_or_reaction_T;
+  const flag = unusable ? `<p class="oa-case-flag"><span class="oa-chip oa-chip-serious">${UNUSABLE_SERIOUS}</span>${note(ruleTag('no-drug-or-reaction', 'fixed rule: no-drug-or-reaction'))}</p>` : '';
+  const reasons = (c.reasons || []).map((line) => withCaseLinks(line, c.group || []));
+  const lines = reasons.map((line) => `<p>${line}</p>`).join('');
   const why = flag || lines ? `<div class="oa-case-why" data-aside="${!c.dup_kept_T}">${flag}${lines}</div>` : '';
   // the system of the case's latest version: a case FDA carried from AERS into FAERS is a FAERS case,
   // though first received before FAERS began
@@ -230,12 +242,10 @@ function caseDialog(c, flags) {
   const by = BY[c.reporter_type_T] ? `, reported by ${BY[c.reporter_type_T]}` : '';
   const outcomes = (c.outcomes_T || []).map((o) => labelOf(OUTCOME, o).toLowerCase());
   const lead = `${who.charAt(0).toUpperCase()}${who.slice(1)}${where}${by}. First received ${day(c.group_first_dt_T)}${grouped ? ' (any copy)' : ''}.${outcomes.length ? ` Serious: ${outcomes.join(', ')}.` : ''}`;
-  const dl = (pairs) => `<dl class="field-list oa-fields">${pairs.filter(Boolean).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
   const weight = fda(c.wt_kg_T != null ? `${fix(c.wt_kg_T, 1)} kg` : 'Not given', c.wt ? `${c.wt} ${c.wt_cod || ''}`.trim() : '');
   const eventDay = knownDay(c.event_dt_T, c.event_dt_prec_T, c.event_dt);
   // each drug's WHO class, where the release carries them and this person may see them
   const classes = c.classes ? Object.fromEntries(c.classes.map((x) => [x.drug_seq, x])) : null;
-  const classTd = (d) => (classes ? `<td>${classCell(classes[d.drug_seq])}</td>` : '');
   const v = c.meddra_version;
   // what each drug was given for, as this report says: FAERS's indications, by the drug's place on the report
   const usedFor = (d) => {
@@ -244,19 +254,56 @@ function caseDialog(c, flags) {
     return said.length ? said.map((x) => `<span class="oa-case-line">${x}</span>`).join('') : `<span class="oa-faint oa-has-tip" ${tip('FAERS gives no indication for this drug on this report')}>Not given</span>`;
   };
   const ordered = byRole(c.drug || []);
+  // a drug record's cells, in the heads' order (drugHeads)
+  const drugCells = (d) => [roleCell(d), field(d, 'drugname'), ingredient(d), usedFor(d), ...(classes ? [classCell(classes[d.drug_seq])] : []), routeCell(d), doseCell(d), challengeCell(d)];
+  const flagged = !!flags?.drugs?.length;
+  // the reactions that came back when the drug was given again, as FDA wrote them (FAERS only)
+  const backs = (c.reac || []).filter((r) => r.drug_rec_act).map((r) => termShown(r.drug_rec_act, r.drug_rec_act, r.rec_act_current_pt_T, v));
+  const outcomeCells = (c.outcomes_T || []).map((o) => fda(labelOf(OUTCOME, o), o));
+  const group = (c.group || []).map((g) => `<li><button type="button" class="oa-link" data-act="case-jump" data-era="${esc(g.era_T)}" data-key="${esc(g.case_key_T)}">Case ${esc(g.case_key_T)}</button> <span class="oa-faint">${ERA[g.era_T]}, received ${day(g.first_fda_dt_T)}</span> ${g.dup_kept_T ? '<span class="oa-chip">Kept</span>' : '<span class="oa-chip oa-chip-aside">Set aside</span>'}</li>`).join('');
+  const patient = [
+    ['Age', `${fda(ageYears || 'Not given', c.age ? `${c.age} ${c.age_cod || ''}`.trim() : '')}${c.age_band_T ? note(`${esc(ages()[c.age_band_T])} ${ruleTag('age-bands', 'fixed rule: age-bands')}`) : ''}`],
+    ['Sex', fda(c.sex_T ? labelOf(SEX, c.sex_T) : 'Not given', c.sex)],
+    ['Weight', weight],
+    ['Country', countryCell(c)],
+    ['Where it happened', place(c, 'occr_country')],
+    ['Reporter\'s country', place(c, 'reporter_country')],
+  ];
+  const report = [
+    ['Case number', fda(c.caseid || 'None (an AERS report without one)', '')],
+    ['Report', fda(c.primaryid, '')],
+    c.caseversion ? ['Version', fda(c.caseversion, '')] : null,
+    ['FDA quarter', fda(String(c.quarter_T || '').toUpperCase(), '')],
+    ['FDA system', system],
+    grouped ? ['First received (any copy)', fda(day(c.group_first_dt_T), '')] : null,
+    [grouped ? 'First received (this copy)' : 'First received', fda(day(c.first_fda_dt_T), c.init_fda_dt)],
+    ['This version received', fda(fdaDay(c.fda_dt), '')],
+    ['Report type', fda(labelOf(REPT, c.rept_cod), c.rept_cod)],
+    ['Who reported', fda(c.reporter_type_T ? labelOf(REPORTER, c.reporter_type_T) : '', c.occp_cod)],
+    ['Company', fda(c.direct_T ? companyName('_direct') : c.company_T, c.mfr_sndr)],
+  ];
+  return {
+    serious, qualifiers, unusable, flag, reasons, why, lead, grouped, flagged, v, classes, ordered, drugCells, backs, outcomeCells,
+    eventDay: fda(eventDay, c.event_dt), ther: therapyRows(c, ordered), group, patient, report,
+    noOutcome: noOutcome(c.rept_cod),
+  };
+}
+
+function caseDialog(c, flags) {
+  const p = caseParts(c, flags);
+  const { why, classes, ordered, flagged, ther, group } = p;
+  const chips = p.qualifiers.map((q) => `<span class="oa-chip${q.serious ? ' oa-chip-serious' : ''}" ${tip(q.tip)}>${q.words}</span>`);
+  const dl = (pairs) => `<dl class="field-list oa-fields">${pairs.filter(Boolean).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+  const v = p.v;
   const cols = 7 + !!classes;
   // a quiet row between the suspects and the drugs taken alongside them, where the case has both
   const alongside = ordered.findIndex((d) => d.role_T === 'C');
   const divider = `<tr class="oa-case-divider"><th colspan="${cols}" scope="rowgroup"><span>Taken alongside</span></th></tr>`;
-  const drugs = ordered.map((d, i) => `${i > 0 && i === alongside ? divider : ''}<tr><td>${roleCell(d)}</td><td>${field(d, 'drugname')}</td><td>${ingredient(d)}</td><td>${usedFor(d)}</td>${classTd(d)}<td>${routeCell(d)}</td><td>${doseCell(d)}</td><td>${challengeCell(d)}</td></tr>`).join('');
-  const flagged = !!flags?.drugs?.length;
+  const drugs = ordered.map((d, i) => `${i > 0 && i === alongside ? divider : ''}<tr>${p.drugCells(d).map((x) => `<td>${x}</td>`).join('')}</tr>`).join('');
   // the term in one piece, so the label lines go under it
   const reac = (c.reac || []).map((r) => `<li${flagged ? ' class="oa-reac-labelled"' : ''}><span>${termShown(r.pt_T, r.pt, r.current_pt_T, v)}</span>${r.soc_T ? `<span class="oa-fda" ${tip(`System organ class, in MedDRA ${v}`)}>System organ class: ${esc(r.soc_T)}</span>` : ''}${reactionLines(flags, r.pt)}</li>`).join('');
-  // the reactions that came back when the drug was given again, as FDA wrote them (FAERS only)
-  const back = (c.reac || []).filter((r) => r.drug_rec_act).map((r) => `<li>${termShown(r.drug_rec_act, r.drug_rec_act, r.rec_act_current_pt_T, v)}</li>`).join('');
-  const outcome = (c.outcomes_T || []).map((o) => `<li>${fda(labelOf(OUTCOME, o), o)}</li>`).join('') || `<li class="oa-faint">${esc(noOutcome(c.rept_cod))}</li>`;
-  const ther = therapyRows(c, ordered);
-  const group = (c.group || []).map((g) => `<li><button type="button" class="oa-link" data-act="case-jump" data-era="${esc(g.era_T)}" data-key="${esc(g.case_key_T)}">Case ${esc(g.case_key_T)}</button> <span class="oa-faint">${ERA[g.era_T]}, received ${day(g.first_fda_dt_T)}</span> ${g.dup_kept_T ? '<span class="oa-chip">Kept</span>' : '<span class="oa-chip oa-chip-aside">Set aside</span>'}</li>`).join('');
+  const back = p.backs.map((x) => `<li>${x}</li>`).join('');
+  const outcome = p.outcomeCells.map((x) => `<li>${x}</li>`).join('') || `<li class="oa-faint">${esc(p.noOutcome)}</li>`;
   const nav = caseNav && caseNav.sc.cases ? `<span class="oa-faint">${num((caseNav.sc.cases.page - 1) * caseNav.sc.cases.size + caseNav.index + 1)} of ${num(caseNav.sc.summary?.cases)}</span>
       <button type="button" class="btn" data-act="case-step" data-v="-1" ${caseNav.index <= 0 ? 'disabled' : ''}>${icon('arrowLeft')}<span>Previous</span></button>
       <button type="button" class="btn" data-act="case-step" data-v="1" ${caseNav.index >= caseNav.sc.cases.cases.length - 1 ? 'disabled' : ''}><span>Next</span>${icon('arrowRight')}</button>` : '';
@@ -264,39 +311,19 @@ function caseDialog(c, flags) {
   return `<div class="dialog-head"><div class="oa-case-title"><h2 class="dialog-title">Case ${esc(c.case_key_T)} <span class="oa-chips">${chips.join('')}</span></h2>${why}</div>
       <button type="button" class="icon-btn" data-act="close-dialog" aria-label="Close">${icon('close')}</button></div>
     <div class="dialog-body oa-case-body">
-      <p class="oa-case-lead">${esc(lead)}</p>
-      <p class="oa-faint oa-case-narrative">FDA does not publish the reporter's narrative in its public files, so a case shows only the coded fields.</p>
+      <p class="oa-case-lead">${esc(p.lead)}</p>
+      <p class="oa-faint oa-case-narrative">${NARRATIVE}</p>
       ${part('What happened', dl([
         [flagged ? 'Reactions, and each suspect\'s label' : 'Reactions', `<ul class="oa-list oa-reac-list">${reac || '<li>None recorded</li>'}</ul>${labelSources(flags)}`],
         back ? ['Came back when the drug was given again', `<ul class="oa-list">${back}</ul>`] : null,
         ['Outcomes', `<ul class="oa-list">${outcome}</ul>`],
-        ['Event date', fda(eventDay, c.event_dt)],
+        ['Event date', p.eventDay],
       ]))}
-      ${part('The drugs', `<div class="oa-case-scroll"><table class="case-table oa-case-drugs oa-freeze"><colgroup><col class="oa-cd-role"><col class="oa-cd-short"><col><col class="oa-cd-short">${classes ? '<col>' : ''}<col><col><col></colgroup><thead><tr><th>Role</th><th>As reported</th><th>Ingredient</th><th ${tip('What the drug was given for, as this report says')}>Used for</th>${classes ? '<th>WHO class (ATC)</th>' : ''}<th>Route</th><th>Dose</th><th ${tip('Whether the reaction abated when the drug was stopped, and came back when it was restarted')}>Stopped and restarted</th></tr></thead><tbody>${drugs || `<tr><td colspan="${cols}">None recorded</td></tr>`}</tbody></table></div>
-        ${ther ? `<h4 class="oa-case-sub">Therapy dates</h4><div class="oa-case-scroll"><table class="case-table oa-case-therapy oa-freeze"><thead><tr><th>Drug</th><th>Start</th><th>End</th><th>Duration</th><th ${tip('Days from the first dose, day 1, to the event, from two dates known to the day')}>Time to onset</th></tr></thead><tbody>${ther}</tbody></table></div>` : ''}`)}
+      ${part('The drugs', `<div class="oa-case-scroll"><table class="case-table oa-case-drugs oa-freeze"><colgroup><col class="oa-cd-role"><col class="oa-cd-short"><col><col class="oa-cd-short">${classes ? '<col>' : ''}<col><col><col></colgroup><thead><tr>${heads(drugHeads(classes))}</tr></thead><tbody>${drugs || `<tr><td colspan="${cols}">None recorded</td></tr>`}</tbody></table></div>
+        ${ther ? `<h4 class="oa-case-sub">Therapy dates</h4><div class="oa-case-scroll"><table class="case-table oa-case-therapy oa-freeze"><thead><tr>${heads(THERAPY_HEADS)}</tr></thead><tbody>${ther}</tbody></table></div>` : ''}`)}
       <div class="oa-case-cols oa-case-pair">
-      ${part('The patient', dl([
-        ['Age', `${fda(ageYears || 'Not given', c.age ? `${c.age} ${c.age_cod || ''}`.trim() : '')}${c.age_band_T ? note(`${esc(ages()[c.age_band_T])} ${ruleTag('age-bands', 'fixed rule: age-bands')}`) : ''}`],
-        ['Sex', fda(c.sex_T ? labelOf(SEX, c.sex_T) : 'Not given', c.sex)],
-        ['Weight', weight],
-        ['Country', countryCell(c)],
-        ['Where it happened', place(c, 'occr_country')],
-        ['Reporter\'s country', place(c, 'reporter_country')],
-      ]))}
-      ${part('About the report', dl([
-        ['Case number', fda(c.caseid || 'None (an AERS report without one)', '')],
-        ['Report', fda(c.primaryid, '')],
-        c.caseversion ? ['Version', fda(c.caseversion, '')] : null,
-        ['FDA quarter', fda(String(c.quarter_T || '').toUpperCase(), '')],
-        ['FDA system', system],
-        grouped ? ['First received (any copy)', fda(day(c.group_first_dt_T), '')] : null,
-        [grouped ? 'First received (this copy)' : 'First received', fda(day(c.first_fda_dt_T), c.init_fda_dt)],
-        ['This version received', fda(fdaDay(c.fda_dt), '')],
-        ['Report type', fda(labelOf(REPT, c.rept_cod), c.rept_cod)],
-        ['Who reported', fda(c.reporter_type_T ? labelOf(REPORTER, c.reporter_type_T) : '', c.occp_cod)],
-        ['Company', fda(c.direct_T ? companyName('_direct') : c.company_T, c.mfr_sndr)],
-        group ? ['Probable duplicates', `<ul class="oa-list">${group}</ul>`] : null,
-      ]))}
+      ${part('The patient', dl(p.patient))}
+      ${part('About the report', dl([...p.report, group ? ['Probable duplicates', `<ul class="oa-list">${group}</ul>`] : null]))}
       </div>
     </div>
     <div class="dialog-foot"><p class="dialog-note">Cleaned values, with FDA's own under them where they differ.</p>${nav}</div>`;

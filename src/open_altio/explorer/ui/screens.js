@@ -15,7 +15,7 @@ export const WORDS = {
   chi_square: 'Chi-square', chi_square_yates: 'Chi-square, Yates', ror: 'ROR', ror_lower: 'ROR lower bound',
   ror_upper: 'ROR upper bound', rrr: 'RRR', ic: 'IC', ic025: 'IC025',
 };
-const COMPARE = { at_least: 'at least', above: 'above', at_most: 'at most', below: 'below' };
+export const COMPARE = { at_least: 'at least', above: 'above', at_most: 'at most', below: 'below' };
 const TESTS = { at_least: (v, t) => v >= t, above: (v, t) => v > t, at_most: (v, t) => v <= t, below: (v, t) => v < t };
 
 let about = null; // the release's statistics, as /api/statistics/about says
@@ -29,7 +29,7 @@ let row = 'list'; // the menu's open row
 export function useScreens(found, onChange) { about = found; changed = onChange; }
 
 const statistic = (id) => about.statistics.find((s) => s.id === id);
-const opOf = (cond) => Object.keys(cond).find((k) => k !== 'column');
+export const opOf = (cond) => Object.keys(cond).find((k) => k !== 'column');
 
 export function screenOf(id) {
   const mine = kept.by?.[id];
@@ -40,10 +40,12 @@ export function screenOf(id) {
 
 export const listedBy = () => kept.list || 'all';
 
-// whether the pair meets the statistic's screen; an empty value meets no condition
+// whether a pair's values meet every condition of a screen; an empty value meets no condition
+export const meets = (when, pair) => when.every((c) => pair[c.column] != null && TESTS[opOf(c)](pair[c.column], c[opOf(c)]));
+// whether the pair meets the statistic's screen
 export function passes(id, pair) {
   const sc = screenOf(id);
-  return sc.preset !== 'none' && sc.when.every((c) => pair[c.column] != null && TESTS[opOf(c)](pair[c.column], c[opOf(c)]));
+  return sc.preset !== 'none' && meets(sc.when, pair);
 }
 
 // the screen that narrows the list, as /api/statistics reads it
@@ -53,7 +55,7 @@ export function passParam() {
   return screenOf(list).when.map((c) => `${c.column}:${opOf(c)}:${c[opOf(c)]}`).join(',');
 }
 
-const conditionWords = (when) => when.map((c) => `${WORDS[c.column]} ${COMPARE[opOf(c)]} ${c[opOf(c)]}`).join(', ');
+export const conditionWords = (when) => when.map((c) => `${WORDS[c.column]} ${COMPARE[opOf(c)]} ${c[opOf(c)]}`).join(', ');
 export function screenWords(id) {
   const sc = screenOf(id);
   if (sc.preset === 'none') return 'None';

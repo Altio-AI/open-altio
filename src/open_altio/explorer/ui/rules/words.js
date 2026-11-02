@@ -15,6 +15,10 @@ export const SHARED_CHART = {
   'label-population': LABEL_CODING,
   'atc-spelling-bridges': "WHO's spellings are joined to ours once, in a reviewed list, not record by record, so there is nothing of its own to count.",
   'dup-shown-copy': 'It only picks which copy of a duplicate you see, so it moves no total.',
+  'treated-condition': "It reads the label flag for the disease the drug treats, so it shares that flag's chart.",
+  'label-groups': 'Its groups decide which terms name no medical event and which a procedure, so it shares those two charts.',
+  'breakdown-lines': "Its shares count only the reports that give a field, so it shares the chart of a field FDA's files stopped giving.",
+  'rechallenge-correction': 'It reads rechallenge as rule Not given does, so it shares the chart of the filler that rule reads.',
 };
 
 // each finding of the release's methods, by its id
@@ -94,5 +98,15 @@ export const RULE_WORDS = {
   'label-treated-disease': { matters: "Reports often name the disease the drug was given for.", did: "Flag it as the treated disease; a worse form, such as status asthmaticus, is judged." },
   'label-not-a-medical-event': { matters: "Not working, wrong or off-label use, a faulty product or exposure name no health effect.", did: "Set these aside; a real reaction in the report gets its own flag." },
   'label-procedure': { matters: "A procedure can be the only trace of serious harm.", did: "Flag terms such as liver transplant or dialysis as procedures, kept in view." },
+  'label-coding': { matters: 'Some label phrases name a reaction in words the fixed rules cannot read.', did: 'An agent, then a reviewer, answers one question for each phrase; the rules, not they, set the flag.' },
+  'trend-rising': { matters: 'A pair whose numbers keep growing tells more than one that reached them long ago and stayed.', did: 'Compare a statistic at the newest quarter end with its value a set number of quarter ends before.' },
+  'chance-test': { matters: 'With many reports a small change is certain to differ from zero, and with few a large one may be luck.', did: 'Test every change in a share between two periods the same way: Fisher\'s exact test on a small table, the chi-square test on a large one.' },
+  'pregnancy-cases': { matters: 'FAERS has no field that says a case concerns a pregnancy.', did: "Count an event's cases that also name a term of MedDRA's pregnancy SMQ; only a viewer with MedDRA sees it." },
+  'not-a-medical-event': { matters: 'A drug that did not work, or a faulty product, is not a harm the drug did.', did: "Mark a term whose MedDRA class, group or own name says how a product was used, made or worked." },
+  'breakdown-rose': { matters: 'On an event with few reports, the value that moved most is often luck.', did: 'Count a value as risen only when its share is up a set number of points and the change passes the chance test.' },
+  'breakdown-alarm': { matters: 'With many reports, a change of a few points passes a chance test and still matters little.', did: 'Mark a breakdown line when the value it shows moves a set number of points and the change passes the chance test.' },
+  'dose-strength': { matters: 'More reports at the highest strength can show a harm that grows with the dose.', did: 'Read the strength each report writes in its dose, and give the share at the highest strength.' },
+  'counted-question': { matters: 'A number nobody can open is a number nobody can check.', did: 'Count distinct cases by one field at a time, and give each value the question that lists exactly its cases.' },
+  'indication-match': { matters: 'An event that is the disease the drug was given for may be the disease showing itself.', did: 'For the condition the drug treats, give the share of cases whose reported indication is the event.' },
   'label-flags': { matters: "A reaction not on the label is the first thing a safety reviewer asks about.", did: "Flag each drug and reaction by fixed rules anyone can rerun; the flags hold no MedDRA codes." },
 };

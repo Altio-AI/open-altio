@@ -5,8 +5,8 @@
    person's own copy the switches and the Rebuild bar work as they always have (edit.js). */
 
 import { actions } from '../events.js';
-import { asOf, framed, improveBtn } from '../frame.js';
-import { report } from '../host.js';
+import { cornerEnd, framed, improveBtn, shownAsOf } from '../frame.js';
+import { host, report } from '../host.js';
 import { icon, markSvg } from '../icons.js';
 import { closeMenus, popMenu } from '../overlays.js';
 import { current, drawn, render } from '../router.js';
@@ -35,7 +35,7 @@ const loaded = api('/api/rules')
 
 const TITLE = 'How we clean FAERS';
 const plain = (content) => `<div class="oa-plain">
-    <header class="oa-plain-head"><a class="brand-home" href="/" aria-label="Open Altio">${markSvg()}<span class="brand-name">Open Altio</span></a><div class="oa-corner">${asOf(ctx?.data.release.quarters[1].toUpperCase())}${improveBtn()}</div></header>
+    <header class="oa-plain-head"><a class="brand-home" href="/" aria-label="${esc(host.brand)}">${markSvg()}<span class="brand-name">${esc(host.brand)}</span></a><div class="oa-corner">${shownAsOf('methods', ctx?.data.release.quarters[1].toUpperCase())}${improveBtn()}${cornerEnd('methods')}</div></header>
     ${content}
   </div>`;
 const asked = () => (new URLSearchParams(location.search).get('open') || '').split(',')[0];

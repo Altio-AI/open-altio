@@ -90,6 +90,7 @@ export function storyOf(ctx) {
   const chosen = cls && ['dose', 'route', 'indication'].reduce((t, k) => t + (cls.chosen_by[k] || 0), 0);
   const CHOICE = [['only_code', 'Only one class'], ['cannot_tell', "Can't tell"], ['group_class', 'Group class'], ['route', 'By route'], ['shared_class', 'Shared class'], ['indication', 'By indication'], ['dose', 'By dose']];
   const flagsCard = cardOf('label-flags');
+  const outcomes = cardOf('serious-outcomes');
   const labelsCard = cardOf('label-choice');
   const BOXES = {
     drug_names: { name: 'Drug names', step: 'clean', rule: 'drug-names',
@@ -123,6 +124,8 @@ export function storyOf(ctx) {
         chart: counts([['Cases', st.cases], ['Pairs', st.pairs], ['Terms', st.reactions], ['Ingredients', st.ingredients]]),
         shows: 'Each pair is one suspect ingredient with one reaction.', matters: 'Every statistic for a pair counts the same cases.',
         did: 'Count the cases naming a suspect ingredient and a reaction.' }) },
+    facts: { name: 'Event facts', step: 'organize', rule: 'serious-outcomes', why: outcomes?.id,
+      ...(outcomes?.numbers && { count: outcomes.numbers.serious, unit: "serious cases, by FDA's outcome codes" }) },
     classes: { name: 'WHO classes', step: 'organize', rule: 'atc-class-choice',
       ...(cls ? { count: cls.codes, unit: "classes from WHO's ATC index, a layer a host can switch off",
         title: `${num(chosen + (cls.chosen_by.shared_class || 0))} drug rows needed a choice among WHO classes; ${num(cls.chosen_by.cannot_tell || 0)} could not be told`,
@@ -153,7 +156,7 @@ export function storyOf(ctx) {
     { id: 'find', q: 'Find every report of my drug, however FDA spelled it', clean: ['drug_names'], boxes: ['rxnorm'], answer: 'a_cases' },
     { id: 'label', q: "Is this reaction on my drug's label?", clean: ['drug_names'], boxes: ['routes', 'labels'], answer: 'a_flags' },
     ...(data.classes ? [{ id: 'class', q: "How many cases does my drug's class have?", clean: ['drug_names'], boxes: ['classes'], answer: 'a_classes' }] : []),
-    { id: 'signal', q: 'Is this reaction reported more than expected?', clean: ['drug_names', 'terms'], boxes: ['pairs'], answer: 'a_stats' },
+    { id: 'signal', q: 'Is this reaction reported more than expected?', clean: ['drug_names', 'terms'], boxes: ['pairs', 'facts'], answer: 'a_stats' },
   ];
   const ITEMS = Object.fromEntries([...FUNNEL, ...BAND, ...Object.entries({ ...BOXES, ...ANSWERS }).map(([id, t]) => ({ ...t, id }))].map((t) => [t.id, t]));
   // a box with no finding and no card of its own opens on its first rule's chart, where it has one

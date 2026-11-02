@@ -19,7 +19,7 @@ import { esc, num, skeletonRows, tip } from './util.js';
 // WHO's short line, under whatever shows a class, as the MedDRA version shows under reactions; it
 // opens the rule with WHO's full citation
 export const whoLine = () => `<a class="oa-who-line" href="/methods?open=atc-index">Drug classes: WHO ATC ${esc(classLayer().index_year)}, WHO Collaborating Centre for Drug Statistics Methodology, Oslo</a>`;
-const yearChip = () => `<span class="oa-atc-year" ${tip("The year of WHO's ATC index this release's classes come from")}>WHO ATC ${classLayer().index_year}</span>`;
+export const yearChip = () => `<span class="oa-atc-year" ${tip("The year of WHO's ATC index this release's classes come from")}>WHO ATC ${classLayer().index_year}</span>`;
 
 export function classesPane(sc) {
   return `<div class="oa-pane-head oa-atc-head"><p class="menu-heading">Drug class (ATC)</p>${yearChip()}</div>
@@ -43,7 +43,7 @@ const classKey = (sc) => `${query(unticked(sc))}|${(menuState.classQ || '').trim
 
 // the class a class is in: an ATC code is 1, 3, 4, 5 or 7 characters, by level
 const UP = { 7: 5, 5: 4, 4: 3, 3: 1 };
-const parentOf = (code) => code.slice(0, UP[code.length] || 0);
+export const parentOf = (code) => code.slice(0, UP[code.length] || 0);
 const marks = (f) => [...f.atc, ...f.atcOut];
 function onAt(f, code) {
   const near = marks(f).filter((c) => code.startsWith(c)).sort((a, b) => b.length - a.length)[0];
@@ -73,59 +73,68 @@ export function stepTo(f, code) {
   f.atcOut = f.atcOut.filter((o) => f.atc.some((c) => o !== c && o.startsWith(c)));
 }
 
-const typed = () => (menuState.classQ || '').trim().toLowerCase();
-function marked(text) {
-  const q = typed();
+function marked(text, q) {
   const i = q ? String(text).toLowerCase().indexOf(q) : -1;
   return i < 0 ? esc(text) : `${esc(text.slice(0, i))}<mark class="search-mark">${esc(text.slice(i, i + q.length))}</mark>${esc(text.slice(i + q.length))}`;
 }
 
-function classChoice(sc, c) {
-  const on = tickOf(sc.f, c.code);
-  return `<button type="button" class="menu-item oa-choice" role="menuitemcheckbox" aria-checked="${on}" data-act="class-pick" data-code="${esc(c.code)}" data-cases="${c.cases}" ${c.cases === 0 && !on ? 'data-state="empty"' : ''}>
+// A tree of classes, in the Drug class filter or wherever classes are ticked as it ticks them: `t` is
+// { f (atc, atcOut), q (what was typed, in lower case), words (as typed), open and shut (the classes
+// opened and closed by hand), kids (code) => the classes listed under it, pick and expand (the
+// presses' acts) }.
+function classChoice(t, c) {
+  const on = tickOf(t.f, c.code);
+  return `<button type="button" class="menu-item oa-choice" role="menuitemcheckbox" aria-checked="${on}" data-act="${t.pick}" data-code="${esc(c.code)}" data-cases="${c.cases}" ${c.cases === 0 && !on ? 'data-state="empty"' : ''}>
     <span class="oa-tick" aria-hidden="true" ${partTip(on, 'class')}>${tickMark(on)}</span>
-    <span class="menu-choice-words"><span><span class="oa-atc-code">${marked(c.code)}</span>${marked(c.name || '')}</span></span>
+    <span class="menu-choice-words"><span><span class="oa-atc-code">${marked(c.code, t.q)}</span>${marked(c.name || '', t.q)}</span></span>
     <span class="choice-count">${num(c.cases)}</span></button>`;
 }
 
 // a class and, opened, the classes under it: those found when something is typed, else all of them
-function node(sc, c, listed) {
-  if (!c.more) return classChoice(sc, c);
-  const ms = menuState;
+function node(t, c, listed) {
+  if (!c.more) return classChoice(t, c);
   const found = listed.filter((k) => k.level === c.level + 1 && k.code.startsWith(c.code));
-  const searched = typed() && found.length;
-  const open = ms.classOpen.has(c.code) || (searched && !ms.classShut.has(c.code));
-  const under = searched && !ms.classOpen.has(c.code) ? found : ms.classKids[`${c.code}|${classKey(sc)}`];
-  const btn = `<button type="button" class="icon-btn oa-expand" data-act="class-expand" data-code="${esc(c.code)}" aria-expanded="${!!open}" aria-label="${open ? 'Hide' : 'Show'} its classes" ${tip(open ? 'Hide its classes' : 'Show its classes')}>${icon('chevronDown')}</button>`;
-  const inner = !open ? '' : `<div class="oa-group-terms">${under ? under.map((k) => node(sc, k, listed)).join('') : skeletonRows(2)}</div>`;
-  return `<div class="oa-group" data-open="${!!open}"><div class="oa-group-row">${classChoice(sc, c)}${btn}</div>${inner}</div>`;
+  const searched = t.q && found.length;
+  const open = t.open.has(c.code) || (searched && !t.shut.has(c.code));
+  const under = searched && !t.open.has(c.code) ? found : t.kids(c.code);
+  const btn = `<button type="button" class="icon-btn oa-expand" data-act="${t.expand}" data-code="${esc(c.code)}" aria-expanded="${!!open}" aria-label="${open ? 'Hide' : 'Show'} its classes" ${tip(open ? 'Hide its classes' : 'Show its classes')}>${icon('chevronDown')}</button>`;
+  const inner = !open ? '' : `<div class="oa-group-terms">${under ? under.map((k) => node(t, k, listed)).join('') : skeletonRows(2)}</div>`;
+  return `<div class="oa-group" data-open="${!!open}"><div class="oa-group-row">${classChoice(t, c)}${btn}</div>${inner}</div>`;
 }
 
-// the classes chosen and left out, as the pane opened or the search last changed: they keep their
-// rows while ticks change, so nothing moves under the pointer
-function pinned(ms) {
-  const key = classKey(ms.sc);
-  if (ms.classPin?.key !== key) ms.classPin = { key, chosen: [...ms.sc.f.atc], out: [...ms.sc.f.atcOut], known: {} };
-  const r = ms.classResult;
-  if (r?.key === key) [...r.chosen, ...r.left_out].forEach((c) => { ms.classPin.known[c.code] = c; });
-  return ms.classPin;
+// the classes chosen and left out, as the pane opened or the search last changed (`key`), kept on
+// `holder`: they keep their rows while ticks change, so nothing moves under the pointer; `rows` the
+// classes known so far
+export function pinned(holder, key, f, rows) {
+  if (holder.classPin?.key !== key) holder.classPin = { key, chosen: [...f.atc], out: [...f.atcOut], known: {} };
+  rows.forEach((c) => { holder.classPin.known[c.code] = c; });
+  return holder.classPin;
+}
+
+// Chosen (with `more`, other rows chosen beside the classes), Left out, then the classes of `r`, an
+// answer of /api/classes, as a tree
+export function classRows(t, r, pin, { more = '' } = {}) {
+  const parts = [];
+  const rows = (codes) => codes.map((code) => pin.known[code]).filter(Boolean).map((c) => classChoice(t, c)).join('');
+  if (pin.chosen.length || more) parts.push(`<p class="menu-heading">Chosen</p><div class="oa-choices">${rows(pin.chosen)}${more}</div>`);
+  if (pin.out.length) parts.push(`<p class="menu-heading">Left out</p><div class="oa-choices">${rows(pin.out)}</div>`);
+  const roots = r.classes.filter((c) => c.level === Math.min(...r.classes.map((k) => k.level)));
+  if (roots.length) parts.push(`${pin.chosen.length || pin.out.length || more ? '<p class="menu-heading">Classes</p>' : ''}<div class="oa-choices">${roots.map((c) => node(t, c, r.classes)).join('')}</div>`);
+  else parts.push(`<p class="oa-pane-none">No class has "${esc(t.words)}" in its code or name.</p>`);
+  return parts.join('');
 }
 
 export function paintClassResults() {
   const box = document.getElementById('oa-class-results');
   if (!box || !menuState) return;
-  const { sc, classResult: r } = menuState;
+  const ms = menuState;
+  const { sc, classResult: r } = ms;
   paintCould();
-  if (!r || r.key !== classKey(sc)) { box.innerHTML = skeletonRows(3); return; }
-  const parts = [];
-  const pin = pinned(menuState);
-  const rows = (codes) => codes.map((code) => pin.known[code]).filter(Boolean).map((c) => classChoice(sc, c)).join('');
-  if (pin.chosen.length) parts.push(`<p class="menu-heading">Chosen</p><div class="oa-choices">${rows(pin.chosen)}</div>`);
-  if (pin.out.length) parts.push(`<p class="menu-heading">Left out</p><div class="oa-choices">${rows(pin.out)}</div>`);
-  const roots = r.classes.filter((c) => c.level === Math.min(...r.classes.map((k) => k.level)));
-  if (roots.length) parts.push(`${pin.chosen.length || pin.out.length ? '<p class="menu-heading">Classes</p>' : ''}<div class="oa-choices">${roots.map((c) => node(sc, c, r.classes)).join('')}</div>`);
-  else parts.push(`<p class="oa-pane-none">No class has "${esc(menuState.classQ.trim())}" in its code or name.</p>`);
-  box.innerHTML = parts.join('');
+  const key = classKey(sc);
+  if (!r || r.key !== key) { box.innerHTML = skeletonRows(3); return; }
+  const words = (ms.classQ || '').trim();
+  const t = { f: sc.f, q: words.toLowerCase(), words, open: ms.classOpen, shut: ms.classShut, kids: (code) => ms.classKids[`${code}|${key}`], pick: 'class-pick', expand: 'class-expand' };
+  box.innerHTML = classRows(t, r, pinned(ms, key, sc.f, [...r.chosen, ...r.left_out]));
 }
 
 // one tick for the drugs that could be a chosen class: the report does not say which of its classes;
@@ -162,8 +171,8 @@ export function searchClasses() {
   }, 110);
 }
 
-const learnTree = (code, kids) => known.kids.set(code, kids.map((c) => c.code));
-const learnOwn = (list) => list.forEach((c) => known.own.set(c.code, !!c.own));
+export const learnTree = (code, kids) => known.kids.set(code, kids.map((c) => c.code));
+export const learnOwn = (list) => list.forEach((c) => known.own.set(c.code, !!c.own));
 
 async function loadKids(code) {
   const ms = menuState;

@@ -3,11 +3,14 @@
 
 const PATHS = {
   admin: '<path d="M12 3.5 5.5 6v5.2c0 4 2.7 7.6 6.5 8.8 3.8-1.2 6.5-4.8 6.5-8.8V6z"/>',
+  reset: '<path d="M4 9h11a5 5 0 0 1 0 10H9M8 5 4 9l4 4"/>',
   arrowLeft: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
   arrowRight: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   bin: '<path d="M5 7h14M10 7V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/><path d="M6.5 7l1 12a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12M10 11v5M14 11v5"/>',
   bullets: '<path d="M9.5 7h10M9.5 12h10M9.5 17h10"/><circle cx="4.8" cy="7" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.8" cy="12" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.8" cy="17" r="1.3" fill="currentColor" stroke="none"/>',
   check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  arrowUp: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+  arrowDown: '<path d="M12 5v14M6 13l6 6 6-6"/>',
   chevronDown: '<path d="M6 10l6 6 6-6"/>',
   chevronRight: '<path d="M10 6l6 6-6 6"/>',
   close: '<path d="M6 6l12 12M18 6 6 18"/>',

@@ -56,6 +56,11 @@
 .oa-improve-top { display: inline-flex; align-items: center; gap: var(--space-3); min-width: 44px; justify-content: center; }
 .oa-improve-top :is(.icon, .icon svg) { width: 16px; height: 16px; }
 .oa-improve-top .oa-improve-words { display: none; }
+.oa-corner-end { display: inline-flex; align-items: center; gap: var(--space-4); min-width: var(--corner-end-room, 0); flex-shrink: 0; }
+/* with a host's buttons in the bar, how current the data is gives way by wrapping onto two lines */
+.oa-topbar .oa-asof { white-space: normal; min-width: 0; line-height: 1.2; }
+.oa-topbar .oa-asof .oa-dot { display: none; }
+.oa-topbar .oa-asof-part { display: block; white-space: nowrap; }
 .frame-page > .oa-corner, .frame-page > .side-rail { display: none; }
 .side-panel {
   position: fixed; top: 0; left: 0; bottom: 0; z-index: 60;

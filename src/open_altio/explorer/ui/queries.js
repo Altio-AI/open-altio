@@ -12,6 +12,13 @@ import { store } from './util.js';
 export const inAccount = () => !!host.queries;
 // the group the person may share a query with, by its name; '' where there is none
 export const shareGroup = () => host.queries?.group || '';
+// the words the builder uses about where a query is kept, as a host gives them (host.queries.words):
+// the intro, the save button and, from the query, the line after it is chosen; today's words by default
+export const queryWords = () => ({
+  intro: host.queries?.words?.intro || '',
+  save: host.queries?.words?.save || 'Save and run',
+  saved: (q) => host.queries?.words?.saved?.(q) || `CMQ ${q.name}: ${q.terms.length} terms, chosen under Reactions.`,
+});
 export const isMine = (q) => q.mine !== false;
 export const mayChange = (q) => isMine(q) || !!q.changes;
 

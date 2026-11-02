@@ -1,0 +1,174 @@
+/* An opened event's Cases tab (event-cases.js) and a case opened in place (event-case.js).
+   SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  /* the pane: its toolbar on one line, then the cases in a card on the table's own ground that
+     fills the rest of the screen and scrolls inside, its heads stuck at its top, the pager under it */
+  .oa-ec { container: oa-ec / inline-size; display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
+  .oa-ec-tools { flex-wrap: nowrap; gap: var(--space-6) var(--space-8); }
+  .oa-ec-tools .oa-ec-find { flex: 0 1 260px; min-width: 140px; }
+  .oa-ec-count { min-width: 13em; }
+  .oa-ec-buttons { display: flex; flex: 0 0 auto; flex-wrap: nowrap; justify-content: flex-end; gap: var(--space-5); margin-left: auto; }
+  .oa-ec-buttons .btn { white-space: nowrap; }
+  .oa-ec-buttons .btn[aria-pressed="true"] { --btn-bg: var(--accent-soft); --btn-ink: var(--accent); --btn-line: var(--accent-line); }
+  .oa-ec-dupinc { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--ink-soft); font-size: var(--text-md); white-space: nowrap; cursor: pointer; }
+  .oa-ec-dupinc input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+  .oa-ec-dupn { margin-left: var(--space-1); }
+
+  .oa-ec-cases { display: flex; flex-direction: column; min-width: 0; }
+  .oa-ec-body { min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; background: var(--panel); border: var(--hairline) solid var(--line); border-radius: var(--radius); }
+  /* what is loading shows faintly where it will be, so nothing moves */
+  .oa-ec-cases[data-state="loading"] .oa-ec-body tbody { opacity: 0.5; transition: opacity var(--motion-fast); }
+
+  /* fixed columns, each as wide as its head and its usual words on one line; Suspect drugs and
+     Seriousness take what is left. The widths add up to the table's least width (event-cols.js), so a
+     narrower frame scrolls sideways inside, Case held at its left */
+  .oa-ec-table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-size: var(--text-md); }
+  .oa-ec-table :is(th, td) { padding: var(--space-5) var(--space-4); border-bottom: var(--hairline) solid var(--line); background: var(--panel); text-align: left; vertical-align: middle; white-space: normal; line-height: 1.4; overflow-wrap: break-word; }
+  .oa-ec-table :is(th, td):first-child { position: sticky; left: 0; z-index: 1; padding-left: var(--space-7); }
+  .oa-ec-table :is(th, td):last-child { padding-right: var(--space-7); }
+  .oa-ec-table :is(th, td).oa-num { text-align: right; }
+  .oa-ec-table thead th { position: sticky; top: 0; z-index: 2; padding-block: var(--space-6); color: var(--ink-faint); font-size: var(--text-xs); font-weight: var(--weight-regular); letter-spacing: var(--tracking-caps); text-transform: uppercase; vertical-align: top; white-space: nowrap; }
+  .oa-ec-table thead th:first-child { z-index: 3; }
+  .oa-ec-table thead .oa-ec-head { max-width: 100%; }
+  .oa-ec-table tbody tr { cursor: pointer; }
+  .oa-ec-table tbody tr:hover { background: none; }
+  .oa-ec-table tbody tr.oa-ec-row:hover > td { background: color-mix(in srgb, var(--ink-faint) 9%, var(--panel)); }
+  .oa-ec-table tbody tr.oa-ec-row[aria-current="true"] > td { background: color-mix(in srgb, var(--accent) 8%, var(--panel)); }
+  .oa-ec-table tbody tr.oa-ec-row:focus-visible { outline: var(--focus-ring); outline-offset: -2px; }
+  .oa-ec-table .case-key { white-space: nowrap; }
+  .oa-ec-table td.oa-ec-none { color: var(--ink-faint); }
+  .oa-ec-table td.oa-ec-skeleton .skeleton-row { display: block; margin: var(--space-5) 0; }
+  .oa-ec-nowrap { white-space: nowrap !important; }
+  .oa-ec-role { margin-left: 0; }
+
+  .oa-ec-cases { --ec-case: 92px; --ec-received: 96px; --ec-event: 118px; --ec-start: 148px; --ec-stop: 148px; --ec-age: 74px; --ec-sex: 74px; --ec-weight: 92px; --ec-country: 132px; --ec-drugs: 190px; --ec-role: 68px; --ec-dose: 96px; --ec-route: 112px; --ec-dose_form: 140px; --ec-indication: 104px; --ec-lot: 112px; --ec-onset: 76px; --ec-dechal: 128px; --ec-rechal: 130px; --ec-reporter: 100px; --ec-report_type: 124px; --ec-company: 140px; --ec-reactions: 176px; --ec-outcome: 128px; }
+  .oa-ec-c-case { width: var(--ec-case); }
+  .oa-ec-c-received { width: var(--ec-received); }
+  .oa-ec-c-event { width: var(--ec-event); }
+  .oa-ec-c-start { width: var(--ec-start); }
+  .oa-ec-c-stop { width: var(--ec-stop); }
+  .oa-ec-c-age { width: var(--ec-age); }
+  .oa-ec-c-sex { width: var(--ec-sex); }
+  .oa-ec-c-weight { width: var(--ec-weight); }
+  .oa-ec-c-country { width: var(--ec-country); }
+  .oa-ec-c-role { width: var(--ec-role); }
+  .oa-ec-c-dose { width: var(--ec-dose); }
+  .oa-ec-c-route { width: var(--ec-route); }
+  .oa-ec-c-dose_form { width: var(--ec-dose_form); }
+  .oa-ec-c-indication { width: var(--ec-indication); }
+  .oa-ec-c-lot { width: var(--ec-lot); }
+  .oa-ec-c-onset { width: var(--ec-onset); }
+  .oa-ec-c-dechal { width: var(--ec-dechal); }
+  .oa-ec-c-rechal { width: var(--ec-rechal); }
+  .oa-ec-c-reporter { width: var(--ec-reporter); }
+  .oa-ec-c-report_type { width: var(--ec-report_type); }
+  .oa-ec-c-company { width: var(--ec-company); }
+  .oa-ec-c-reactions { width: var(--ec-reactions); }
+  .oa-ec-c-outcome { width: var(--ec-outcome); }
+
+  /* a case's duplicates: "1 duplicate" and its chevron under the number, turned while open; the rows
+     under the case on a quiet grey, its number, its date and the sentence lined up with the columns */
+  .oa-ec-dupmark, .oa-ec-dupbtn { display: flex; align-items: center; gap: var(--space-1); margin-top: var(--space-1); color: var(--ink-faint); font-size: var(--text-sm); font-weight: var(--weight-regular); white-space: nowrap; }
+  .oa-ec-dupbtn { appearance: none; padding: 0; border: 0; background: none; font-family: inherit; text-align: left; cursor: pointer; text-decoration: underline dotted var(--ink-pale); text-underline-offset: var(--underline-offset); }
+  .oa-ec-dupbtn:hover, .oa-ec-dupbtn[aria-expanded="true"] { color: var(--ink-soft); }
+  .oa-ec-dupbtn .icon, .oa-ec-dupbtn .icon svg { width: 12px; height: 12px; }
+  .oa-ec-dupbtn .icon { transition: transform var(--motion-fast); }
+  .oa-ec-dupbtn[aria-expanded="true"] .icon { transform: rotate(180deg); }
+  .oa-ec-table tbody tr.oa-ec-duprow { cursor: default; }
+  .oa-ec-table tbody tr.oa-ec-duprow > td { background: color-mix(in srgb, var(--ink-faint) 11%, var(--panel)); color: var(--ink-soft); vertical-align: top; }
+  .oa-ec-dupcase { appearance: none; padding: 0; border: 0; background: none; color: var(--ink-soft); font: inherit; font-weight: var(--weight-strong); cursor: pointer; }
+  .oa-ec-dupcase:hover { color: var(--ink); text-decoration: underline; text-underline-offset: var(--underline-offset); }
+  .oa-ec-dupwhy { line-height: 1.5; }
+  .oa-ec-dupphrase { text-decoration: underline dotted var(--ink-pale); text-underline-offset: var(--underline-offset); }
+  .oa-ec-dupclash { color: var(--warn); }
+  .oa-ec-dupclash .oa-ec-dupphrase { text-decoration-color: var(--warn-line); }
+  .oa-ec-dupnone { color: var(--ink-faint); }
+
+  /* the pager under the card: the range, the pages, how many a page */
+  .oa-ec-pager { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-6); padding-top: var(--space-5); }
+  .oa-ec-prange { margin: 0; color: var(--ink-soft); font-size: var(--text-md); white-space: nowrap; }
+  .oa-ec-prange strong { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-ec-range-sk { display: inline-block; width: 160px; vertical-align: middle; }
+  .oa-ec-pages { display: flex; align-items: center; gap: var(--space-2); font-variant-numeric: tabular-nums; }
+  .oa-ec-pnum { appearance: none; min-width: 30px; height: 30px; padding: 0 var(--space-2); border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; color: var(--ink-soft); font: inherit; font-size: var(--text-md); cursor: pointer; }
+  .oa-ec-pnum:hover { color: var(--ink); }
+  .oa-ec-pnum[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-ec-pgap { min-width: 22px; color: var(--ink-faint); text-align: center; }
+  .oa-ec-pstep { width: 30px; height: 30px; color: var(--ink-soft); }
+  .oa-ec-pstep[aria-disabled="true"] { color: var(--ink-pale); cursor: not-allowed; }
+  .oa-ec-pstep :is(.icon, .icon svg) { width: 14px; height: 14px; }
+  .oa-ec-back { display: inline-flex; transform: scaleX(-1); }
+  .oa-ec-per { justify-self: end; white-space: nowrap; --btn-ink: var(--ink); }
+  .oa-ec-rule { margin: var(--space-2) 0; border: 0; border-top: var(--hairline) solid var(--line); }
+  .oa-ec-perown { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-5) var(--space-4); color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-ec-perown .field-input { width: 64px; padding-block: var(--space-2); }
+
+  /* the menus: Columns' groups side by side, a head's long list scrolling inside */
+  .oa-ec-colgroups { columns: 3 150px; column-gap: var(--space-5); }
+  .oa-ec-colgroup { break-inside: avoid; }
+  .menu.oa-ec-colmenu { width: min(560px, calc(100vw - 24px)); }
+  .menu.oa-ec-hmenu { width: min(300px, calc(100vw - 24px)); }
+  .oa-ec-hmenu .oa-ec-hfind { box-sizing: border-box; width: calc(100% - 2 * var(--space-3)); margin: 0 var(--space-3) var(--space-2); }
+  .oa-ec-hmenu .oa-ec-hlist { max-height: min(52vh, 460px); overflow-y: auto; }
+
+  /* ---- a case in place: every part headed as a breakdown group is, every table in the cases' style,
+     every value on one line ---- */
+  .oa-cv { container: oa-cv / inline-size; padding-top: var(--space-2); }
+  .oa-cv-top { display: flex; align-items: baseline; gap: var(--space-5); margin: 0 0 var(--space-3); font-size: var(--text-md); white-space: nowrap; }
+  .oa-cv-top .oa-cv-back { text-decoration: none; }
+  .oa-cv-top .oa-cv-back:is(:hover, :focus-visible) { text-decoration: underline; }
+  .oa-cv-case { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-cv-q { overflow: hidden; color: var(--ink-faint); font-size: var(--text-sm); text-overflow: ellipsis; }
+  .oa-cv-gt { display: flex; align-items: baseline; gap: var(--space-4); min-width: 0; margin: 0 0 var(--space-1); padding-bottom: var(--space-2); border-bottom: var(--hairline) solid var(--line); font-size: var(--text-md); line-height: 1.35; white-space: nowrap; }
+  .oa-cv-gtitle { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-cv-gsub { overflow: hidden; color: var(--ink-faint); font-size: var(--text-note); text-overflow: ellipsis; }
+  .oa-cv-part { min-width: 0; margin: 0 0 var(--space-7); }
+  .oa-cv-part.oa-cv-happened { margin-bottom: var(--space-5); }
+  .oa-cv dl.oa-cv-fields { grid-template-columns: max-content minmax(0, 1fr); column-gap: var(--space-8); margin: var(--space-3) 0 0; }
+  .oa-cv-happened dl.oa-cv-fields { margin-top: 0; }
+  .oa-cv dl.oa-cv-fields dd { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .oa-cv-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-10); }
+  /* a value that differs from what FDA wrote: the quiet dotted underline of things that change */
+  .oa-cv .oa-cv-changed { text-decoration: underline dotted var(--ink-pale); text-underline-offset: var(--underline-offset); }
+  /* tables: one line a row; past the part's width they scroll sideways inside their own frame */
+  .oa-cv-scroll { min-width: 0; overflow-x: auto; }
+  .oa-cv-scroll .oa-ec-table { width: max-content; min-width: 100%; table-layout: auto; }
+  .oa-cv-scroll .oa-ec-table :is(th, td) { white-space: nowrap; overflow-wrap: normal; padding-right: var(--space-8); }
+  .oa-cv-scroll .oa-ec-table :is(th, td):first-child { position: static; padding-left: 0; }
+  .oa-cv-scroll .oa-ec-table thead th { position: static; padding-block: var(--space-4); }
+  .oa-cv-scroll .oa-ec-table tbody tr { cursor: default; }
+  .oa-cv-scroll .oa-ec-table thead .oa-cv-own { color: var(--ink); }
+  .oa-cv-label { color: inherit; text-decoration: none; }
+  .oa-cv-label:is(:hover, :focus-visible) { text-decoration: underline; }
+  .oa-cv-scroll .oa-case-divider th { padding-block: var(--space-2); color: var(--ink-faint); font-size: var(--text-sm); text-transform: none; letter-spacing: normal; }
+  .oa-cv-under { display: flex; align-items: baseline; gap: var(--space-6); margin-top: var(--space-3); font-size: var(--text-md); white-space: nowrap; }
+  .oa-cv-under .oa-link { text-decoration: none; }
+  .oa-cv-under .oa-link:is(:hover, :focus-visible) { text-decoration: underline; }
+  .oa-cv-under .oa-cv-about { margin-left: auto; color: var(--ink-faint); font-size: var(--text-sm); }
+  .oa-cv-note { margin: 0 0 var(--space-3); color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-cv-narrative { margin: 0 0 var(--space-4); overflow: hidden; color: var(--ink-faint); font-size: var(--text-sm); text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* a narrow event: the toolbar wraps, Find on a line of its own; the case's two lists one under the other */
+@container oa-ec (max-width: 760px) {
+  .oa-ec-tools { flex-wrap: wrap; }
+  .oa-ec-tools .oa-ec-find { flex: 1 1 100%; }
+  .oa-ec-buttons { margin-left: 0; }
+  .oa-ec-cases { --ec-event: 106px; --ec-start: 140px; --ec-stop: 140px; --ec-weight: 84px; --ec-country: 124px; --ec-route: 104px; --ec-dose_form: 124px; --ec-lot: 104px; --ec-rechal: 122px; --ec-report_type: 116px; --ec-company: 132px; }
+}
+@container oa-cv (max-width: 620px) {
+  .oa-cv-pair { grid-template-columns: minmax(0, 1fr); }
+  .oa-cv-narrative-rest { display: none; }
+}
+@container oa-ec (max-width: 620px) {
+  .oa-ec-pager { grid-template-columns: minmax(0, 1fr) auto; row-gap: var(--space-3); }
+  .oa-ec-pages { grid-column: 1 / -1; grid-row: 2; flex-wrap: wrap; justify-content: center; }
+  .oa-ec-prange { white-space: normal; }
+}
+@container oa-ec (max-width: 480px) {
+  .oa-ec-buttons { flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-start; min-width: 0; }
+  .oa-ec-buttons .btn { max-width: 100%; }
+  .oa-ec-dupinc { white-space: normal; }
+  .oa-ec-count { min-width: 0; }
+}

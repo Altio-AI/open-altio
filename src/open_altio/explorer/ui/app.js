@@ -10,6 +10,8 @@ import './scope.js';
 import './charts.js';
 import './cases.js';
 import './casedialog.js';
+import './event-cases.js';
+import './event-case.js';
 import './labels.js';
 import './filtermenu.js';
 import './drugs.js';
@@ -22,10 +24,13 @@ import './tables.js';
 import './sql.js';
 import './improve.js';
 import './rules/page.js';
+import './event-overview.js';
+import './event-breakdowns.js';
+import './event-compared.js';
 import { host } from './host.js';
 import { render } from './router.js';
 import { api } from './server.js';
-import { S, applyTheme } from './state.js';
+import { S, applyTheme, readKept } from './state.js';
 import { esc } from './util.js';
 
 applyTheme();
@@ -37,25 +42,33 @@ async function startHere() {
   S.release = await api('/api/release');
 }
 async function boot() {
+  document.title = host.brand;
   await (host.start || startHere)();
+  await readKept();
   render();
 }
 // A host's page modules come after this one on the page (src/open_altio/explorer/pages.py); every
 // module on it has run, and so extended the page, by DOMContentLoaded.
 document.addEventListener('DOMContentLoaded', () => boot().catch((err) => {
-  document.getElementById('app').innerHTML = `<main class="door"><div class="door-card panel"><h1 class="door-brand">Open Altio</h1><p class="banner">The server did not answer: ${esc(err.message)}</p></div></main>`;
+  document.getElementById('app').innerHTML = `<main class="door"><div class="door-card panel"><h1 class="door-brand">${esc(host.brand)}</h1><p class="banner">The server did not answer: ${esc(err.message)}</p></div></main>`;
 }), { once: true });
 
 // what a page module may use
 export { takeDownload } from './downloads.js';
 export { ACTS } from './events.js';
+export { openedEvent, registerEventPane } from './event.js';
+export { overviewSection } from './event-overview.js';
+export { tickMenu } from './eventmenus.js';
+export { eventsTable } from './eventstable.js';
+export { meetsThresholds } from './eventthresholds.js';
 export { openPane } from './filtermenu.js';
 export { framed, improveBtn, railButton, railPlace, sidePlace } from './frame.js';
-export { extend } from './host.js';
+export { EXTEND_KEYS, SLOTS, extend } from './host.js';
 export { icon, markSvg } from './icons.js';
 export { busy, choice, closeMenus, dialog, formProblem, layer, openedBy, place, popMenu, showProblem, toast } from './overlays.js';
 export { addressParts, current, go, here, pageAt, putAddress, render } from './router.js';
 export { api, post } from './server.js';
-export { S, meddraOn, rereadStored } from './state.js';
+export { S, keepView, meddraOn, rereadStored, viewChoice } from './state.js';
+export { termSearch } from './termsearch.js';
 export { quartersOf, rowsIn } from './tablewords.js';
 export { day, esc, num, size, store, tip, trim } from './util.js';

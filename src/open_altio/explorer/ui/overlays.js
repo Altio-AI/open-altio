@@ -26,33 +26,71 @@ export function dialog(heading, body, foot = '') {
   return dlg;
 }
 
-// a menu under its anchor, as far left as it fits
-export function place(menu, anchor) {
+// A menu under its anchor, as far left as it fits. With `fit` it stays inside the window: under its
+// anchor where it fits, else over it, else beside it on the side with more room; where none of
+// those holds it, on the roomier of under and over, as tall as that room and scrolling inside. With
+// `beside` false it never goes beside: a menu of a whole line must leave that line to press.
+export function place(menu, anchor, { fit = false, beside = true } = {}) {
   follow(menu, anchor);
   const r = anchor.getBoundingClientRect();
-  const width = menu.offsetWidth;
-  const left = Math.max(12, Math.min(r.left, window.innerWidth - width - 12));
-  menu.style.setProperty('--menu-top', `${r.bottom + 6}px`);
+  const [top, left] = fit ? fitted(menu, r, beside) : [r.bottom + 6, Math.max(12, Math.min(r.left, window.innerWidth - menu.offsetWidth - 12))];
+  menu.style.setProperty('--menu-top', `${top}px`);
   menu.style.setProperty('--menu-left', `${left}px`);
+}
+const EDGE = 12;
+const GAP = 6;
+function fitted(menu, r, beside) {
+  const wide = window.innerWidth, high = window.innerHeight;
+  menu.style.maxHeight = '';
+  menu.style.overflowY = '';
+  menu.style.maxWidth = `${wide - 2 * EDGE}px`;
+  const w = menu.offsetWidth, h = menu.offsetHeight;
+  const along = Math.max(EDGE, Math.min(r.left, wide - w - EDGE));
+  const under = high - EDGE - (r.bottom + GAP), over = r.top - GAP - EDGE;
+  if (h <= under) return [r.bottom + GAP, along];
+  if (h <= over) return [r.top - GAP - h, along];
+  const right = wide - EDGE - (r.right + GAP), left = r.left - GAP - EDGE;
+  const tall = Math.min(h, high - 2 * EDGE);
+  const scroll = (room) => { if (h > room) { menu.style.maxHeight = `${room}px`; menu.style.overflowY = 'auto'; } };
+  if (beside && w <= Math.max(right, left)) {
+    scroll(tall);
+    return [Math.max(EDGE, Math.min(r.top, high - EDGE - tall)), right >= left ? r.right + GAP : r.left - GAP - w];
+  }
+  scroll(Math.max(under, over));
+  return [under >= over ? r.bottom + GAP : Math.max(EDGE, r.top - GAP - h), along];
 }
 
 // Clicking the button that opened a menu closes it: the browser closes the menu as the click
-// starts, so that is noted here and the click itself does not open the menu again.
+// starts, so that is noted here and the click itself does not open the menu again. A press anywhere
+// else outside an open menu only closes it, as a menu does on a desktop: the row, link or bar under
+// it does nothing, so closing a menu never opens a row by the way.
 let menuOpener = null;
-let clickClosesMenu = false;
+let pressed = ''; // what the press now ending does to an open menu: 'opener', 'outside', or nothing
 // the control a menu was opened from
 export const openedBy = (el) => { menuOpener = el; };
+const openMenu = () => [...document.querySelectorAll('.menu[popover]')].find((m) => m.matches(':popover-open'));
 document.addEventListener('pointerdown', (e) => {
+  const open = openMenu();
+  if (!open || open.contains(e.target)) { pressed = ''; return; }
   const opener = e.target.closest?.('[data-act]');
-  const open = document.querySelector('#oa-layer [popover]:popover-open');
-  clickClosesMenu = !!(open && opener && (opener === menuOpener || (opener.classList.contains('oa-filters-btn') && open.id === 'oa-filter-menu')));
+  const own = opener && (opener === menuOpener || (opener.classList.contains('oa-filters-btn') && open.id === 'oa-filter-menu'));
+  pressed = own ? 'opener' : 'outside';
 }, true);
 // whether the click now ending is the one that closed a menu; asked once per click
 export function closedByThisClick() {
-  const closed = clickClosesMenu;
-  clickClosesMenu = false;
+  const closed = pressed !== '';
+  pressed = '';
   return closed;
 }
+// a press outside: closes the menus, and nothing under it hears the click (a click from a key,
+// detail 0, had no press)
+document.addEventListener('click', (e) => {
+  if (pressed !== 'outside' || e.detail === 0) return;
+  pressed = '';
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  closeMenus();
+}, true);
 
 // A menu stays where it was set against its button as the page scrolls or the window changes:
 // whenever the button has moved, the menu moves by the same amount.
@@ -79,6 +117,28 @@ function carry() {
 document.addEventListener('scroll', carry, true);
 window.addEventListener('resize', carry);
 
+// A menu stays against its control as its rows change: one over the control keeps its foot there as
+// it narrows, one under keeps its head, and it goes to the other side once it no longer fits where it
+// is and fits better there. One beside its control stays as it was set.
+function keepAgainst(menu) {
+  let gap = null;
+  const sizes = new ResizeObserver(() => {
+    const f = followed.get(menu);
+    if (!menu.isConnected || !f) { sizes.disconnect(); return; }
+    if (!f.anchor.isConnected) return;
+    const at = f.anchor.getBoundingClientRect(), now = menu.getBoundingClientRect();
+    if (now.right <= at.left || now.left >= at.right) return;
+    let over = now.top < at.top;
+    gap ??= Math.max(0, over ? at.top - now.bottom : now.top - at.bottom);
+    const high = menu.offsetHeight;
+    const above = at.top - gap - EDGE, below = window.innerHeight - EDGE - at.bottom - gap;
+    if (over ? high > above && below > above : high > below && above > below) over = !over;
+    menu.style.setProperty('--menu-top', `${over ? Math.max(EDGE, at.top - gap - high) : at.bottom + gap}px`);
+  });
+  sizes.observe(menu);
+  sizes.observe(followed.get(menu).anchor);
+}
+
 export function popMenu(anchor, html, cls = '') {
   closeMenus();
   const menu = document.createElement('div');
@@ -95,6 +155,7 @@ export function popMenu(anchor, html, cls = '') {
   const below = r.bottom + 4 + menu.offsetHeight < window.innerHeight;
   menu.style.setProperty('--menu-top', `${below ? r.bottom + 4 : r.top - menu.offsetHeight - 4}px`);
   menu.style.setProperty('--menu-left', `${Math.max(12, Math.min(r.left, window.innerWidth - menu.offsetWidth - 12))}px`);
+  keepAgainst(menu);
   return menu;
 }
 

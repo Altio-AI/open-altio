@@ -1,0 +1,129 @@
+/* An opened event's Compared tab (event-compared.js): the toolbar, one plain table that fills the
+   room left on the screen and scrolls inside, its heads staying; the event's drug on top in the
+   accent's faint tint; EB05 and PRR as two marks on one scale per column, in the warning color only
+   past a host's threshold; classes as grey headings with guide lines; and the menu that adds a row. Light and dark from the app's tokens.
+   SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .oa-cmp { --cmp-pad: var(--space-6); --cmp-ref: color-mix(in srgb, var(--accent) 6%, var(--panel)); --cmp-guide: color-mix(in srgb, var(--ink-faint) 45%, var(--panel)); container: oa-cmp / inline-size; padding-top: var(--space-2); }
+  .oa-cmp-main { display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+  .oa-cmp-main[hidden], .oa-cmp-view[hidden] { display: none; }
+  .oa-cmp-tools { display: flex; align-items: center; gap: var(--space-6); min-height: var(--hit-target); }
+  .oa-cmp .oa-cmp-search { flex: 0 0 260px; min-width: 0; margin: 0; }
+  .oa-cmp .oa-cmp-search .search-icon .icon, .oa-cmp .oa-cmp-search .search-icon svg { width: 13px; height: 13px; }
+  .oa-cmp-count { min-width: 0; margin: 0; overflow: hidden; color: var(--ink-soft); font-size: var(--text-md); text-overflow: ellipsis; white-space: nowrap; }
+  .oa-cmp-count strong { color: var(--ink); font-weight: var(--weight-strong); }
+
+  /* the frame: as tall as the room left (event-compared.js), the table scrolling inside it */
+  .oa-cmp .oa-cmp-frame { overflow: auto; overscroll-behavior: contain; }
+  .oa-cmp .oa-cmp-table { width: 100%; min-width: 760px; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-size: var(--text-md); }
+  /* each column as wide as its head or its widest value; the name takes the rest */
+  .oa-cmp-c-name { width: auto; } .oa-cmp-c-n { width: 72px; } .oa-cmp-c-mk { width: 84px; } .oa-cmp-c-v { width: 156px; } .oa-cmp-c-chg { width: 92px; } .oa-cmp-c-xv { width: 156px; }
+  .oa-cmp-c-pct { width: 92px; } .oa-cmp-c-pct + .oa-cmp-c-pct { width: 74px; } .oa-cmp-c-l { width: 112px; } .oa-cmp-c-x { width: 32px; }
+  .oa-cmp .oa-cmp-table :is(th, td) { padding: var(--space-5) var(--space-4); border-bottom: var(--hairline) solid var(--line); background: var(--panel); color: var(--ink-soft); vertical-align: middle; white-space: nowrap; }
+  .oa-cmp .oa-cmp-table :is(th, td):first-child { padding-left: var(--cmp-pad); }
+  /* the Drug column stays in place as the table scrolls sideways, as the events table holds Event */
+  .oa-cmp .oa-cmp-table :is(th, td):first-child { position: sticky; left: 0; z-index: 3; box-shadow: 1px 0 0 var(--line); }
+  .oa-cmp .oa-cmp-table thead th:first-child { z-index: 4; }
+  .oa-cmp .oa-cmp-table thead th { position: sticky; top: 0; z-index: 2; padding-block: var(--space-4); vertical-align: top; }
+  .oa-cmp .oa-cmp-table thead th.oa-num { text-align: right; }
+  .oa-cmp .oa-cmp-table thead th.oa-cmp-mkh { padding-left: calc(var(--space-4) + 6px); }
+
+  /* heads: each sorts from its menu, its chevron always shown */
+  .oa-cmp-head { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; white-space: nowrap; cursor: pointer; }
+  .oa-cmp-head .icon, .oa-cmp-head .icon svg { width: var(--icon-sm); height: var(--icon-sm); }
+  .oa-cmp .oa-cmp-table td { white-space: nowrap; }
+  .oa-cmp-arrow { display: inline-flex; width: var(--icon-sm); height: var(--icon-sm); flex: 0 0 auto; }
+  .oa-cmp-head:hover, .oa-cmp-head-on { color: var(--ink); }
+  .menu.oa-cmp-sortmenu:popover-open { width: 230px; }
+  .oa-cmp-sortmenu .menu-footnote { white-space: normal; }
+
+  /* the rows: the event's drug on the accent's faint tint */
+  .oa-cmp .oa-cmp-row:hover > * { background: var(--mist); }
+  .oa-cmp .oa-cmp-ref > *, .oa-cmp .oa-cmp-ref:hover > * { background: var(--cmp-ref); }
+  .oa-cmp .oa-cmp-ref :is(.oa-cmp-own, .oa-cmp-v strong) { font-weight: var(--weight-medium); }
+  .oa-cmp .oa-cmp-table tbody th { color: var(--ink); font-weight: var(--weight-regular); }
+  .oa-cmp .oa-cmp-name { overflow: hidden; text-overflow: ellipsis; }
+  .oa-cmp-namebox { display: inline-flex; align-items: baseline; gap: var(--space-2); max-width: 100%; }
+  .oa-cmp-drug { overflow: hidden; text-overflow: ellipsis; }
+  .oa-cmp button.oa-cmp-drug { padding: 0; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+  .oa-cmp-own { color: var(--ink); }
+  .oa-cmp-mark-host { flex: 0 0 auto; }
+  .oa-cmp-words { overflow: hidden; text-overflow: ellipsis; }
+  .oa-cmp-qual { color: var(--ink-faint); font-size: var(--text-sm); font-weight: var(--weight-regular); }
+
+  /* a class: a grey heading, its numbers its own cases', with thin guide lines down what it holds */
+  .oa-cmp-open { display: inline-flex; align-items: baseline; gap: var(--space-2); max-width: 100%; min-width: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .oa-cmp-chev { display: inline-flex; flex: 0 0 auto; align-self: center; width: 14px; color: var(--ink-faint); }
+  .oa-cmp-chev .icon, .oa-cmp-chev svg { width: 13px; height: 13px; }
+  .oa-cmp-open[aria-expanded="false"] .oa-cmp-chev { transform: rotate(-90deg); }
+  .oa-cmp-open:focus-visible { outline: var(--focus-ring-width) solid var(--accent); outline-offset: 2px; }
+  .oa-cmp .oa-cmp-class :is(th, td), .oa-cmp .oa-cmp-class .oa-cmp-v strong { color: var(--ink-soft); font-weight: var(--weight-regular); }
+  .oa-cmp .oa-cmp-class .oa-cmp-mark { opacity: .55; }
+  .oa-cmp .oa-cmp-combo th { color: var(--ink-soft); }
+  /* what a row showed, while it is asked again */
+  .oa-cmp .oa-cmp-stale > * { opacity: .55; }
+
+  .oa-cmp .oa-cmp-table td.oa-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* where a score stood at the window's start (hollow) and at its end (filled), on one scale */
+  .oa-cmp-mark { position: relative; display: block; height: 14px; margin: 0 6px; }
+  .oa-cmp-track, .oa-cmp-span { position: absolute; top: 6px; height: 2px; border-radius: 1px; }
+  .oa-cmp-track { left: 0; right: 0; background: var(--line); }
+  .oa-cmp-span { background: var(--ink); }
+  .oa-cmp-was, .oa-cmp-now { position: absolute; box-sizing: border-box; border-radius: 50%; }
+  .oa-cmp-was { top: 3px; width: 8px; height: 8px; margin-left: -4px; border: 1.5px solid var(--ink-faint); background: var(--panel); z-index: 1; }
+  .oa-cmp-now { top: 2.5px; width: 9px; height: 9px; margin-left: -4.5px; background: var(--ink); }
+  .oa-cmp-hot :is(.oa-cmp-span, .oa-cmp-now) { background: var(--warn); }
+  .oa-cmp .oa-cmp-v { font-variant-numeric: tabular-nums; }
+  .oa-cmp .oa-cmp-v strong { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-cmp .oa-cmp-v .oa-cmp-hotv, .oa-cmp-hotv { color: var(--warn); }
+  .oa-cmp-count .skeleton { display: inline-block; width: 1ch; height: 10px; vertical-align: middle; }
+  .oa-cmp .oa-cmp-chg { font-size: var(--text-sm); font-weight: var(--weight-strong); font-variant-numeric: tabular-nums; }
+  .oa-cmp-flat { color: var(--ink-faint); }
+  .oa-cmp-sk { display: inline-block; width: 3.4em; height: 10px; margin: 0; border-radius: var(--radius-mark); vertical-align: middle; }
+
+  .oa-cmp .oa-cmp-table .oa-cmp-x { padding-inline: 0; text-align: center; }
+  .oa-cmp-remove { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: var(--radius-sm); background: none; color: var(--ink-pale); cursor: pointer; }
+  .oa-cmp-remove:hover { background: var(--mist); color: var(--ink); }
+  .oa-cmp-remove .icon, .oa-cmp-remove .icon svg { width: 12px; height: 12px; }
+  .oa-cmp-foot { margin: 0; color: var(--ink-soft); font-size: var(--text-sm); line-height: 1.5; }
+
+  /* + Add a drug or class: right under the box */
+  .menu.oa-cmp-menu:popover-open { width: 360px; max-width: calc(100vw - 24px); padding: var(--space-5) var(--space-4); }
+  .oa-cmp-picker { display: flex; flex-direction: column; min-height: 0; }
+  .oa-cmp-find.field-input { display: block; width: calc(100% - 2 * var(--space-3)); }
+  .oa-cmp-results { flex: 0 0 auto; height: min(300px, 45vh); }
+  .oa-cmp-results .menu-choice-words { flex: 1 1 auto; min-width: 0; white-space: normal; }
+
+  /* another drug's view of the event, its Back at the right of its bar */
+  .oa-cmp-viewtitle { margin: 0 0 var(--space-3); color: var(--ink-soft); font-size: var(--text-md); }
+  .oa-cmp-viewtitle strong { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-ev-acts .oa-ev-back { white-space: nowrap; }
+}
+
+/* a little less room: the marks and values close up and a class's code goes to its tip, so the names
+   keep theirs */
+@container oa-cmp (max-width: 1130px) {
+  .oa-cmp-open .oa-cmp-qual { display: none; }
+  .oa-cmp-c-mk { width: 56px; } .oa-cmp-c-v { width: 140px; } .oa-cmp-c-chg { width: 84px; }
+}
+/* a narrower room: the marks give way to the values and the Change column, the values close up a
+   size, and the toolbar's box narrows; no word is split, no column cut */
+@container oa-cmp (max-width: 1000px) {
+  .oa-cmp-c-n { width: 76px; } .oa-cmp-c-mk { width: 0; } .oa-cmp-c-v { width: 134px; } .oa-cmp-c-chg { width: 80px; }
+  .oa-cmp-c-pct + .oa-cmp-c-pct { width: 64px; } .oa-cmp-c-l { width: 106px; } .oa-cmp-c-x { width: 28px; }
+  .oa-cmp .oa-cmp-table { min-width: 820px; }
+  .oa-cmp .oa-cmp-table :is(th, td) { padding-inline: var(--space-3); }
+  .oa-cmp .oa-cmp-table td.oa-cmp-mk { padding: 0; }
+  .oa-cmp .oa-cmp-mark { display: none; }
+  .oa-cmp .oa-cmp-table thead th.oa-cmp-mkh { padding-left: var(--space-5); }
+  .oa-cmp .oa-cmp-v { font-size: var(--text-sm); }
+  .oa-cmp .oa-cmp-search { flex-basis: 200px; }
+  .oa-cmp-count { white-space: normal; }
+}
+@container oa-cmp (max-width: 560px) {
+  .oa-cmp-tools { flex-wrap: wrap; row-gap: var(--space-3); }
+  .oa-cmp .oa-cmp-search { flex: 1 1 100%; }
+  .oa-cmp-count { white-space: normal; }
+}

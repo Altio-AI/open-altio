@@ -4,6 +4,10 @@
 export const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const num = (n) => (n == null ? '' : Number(n).toLocaleString('en-GB'));
 export const fix = (n, d = 2) => (n == null || !isFinite(n) ? '' : Number(n).toFixed(d));
+// a ratio as a person reads it: three figures or so, an empty value left empty
+export const fig = (v) => (v == null ? '' : Math.abs(v) >= 100 ? num(Math.round(v)) : fix(v, Math.abs(v) >= 10 ? 1 : 2));
+// a median in days with its unit: 1 day, 238 days, 12.5 days
+export const days = (v) => `${Number.isInteger(v) ? num(v) : fix(v, 1)} ${v === 1 ? 'day' : 'days'}`;
 export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 export const day = (iso) => {
   if (!iso) return '';

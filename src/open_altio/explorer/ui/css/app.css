@@ -140,6 +140,13 @@
     .oa-tabs-row .product-tabs { flex: 0 0 auto; }
     .oa-drugbar { align-self: center; height: 0; }
     .oa-drugline { flex: 0 0 auto; flex-wrap: nowrap; }
+    /* a product's four tabs and its line beside them, in the room a smaller window leaves */
+    @container scope (max-width: 960px) {
+      .oa-tabs-row { gap: var(--space-4); }
+      .oa-tabs-row .product-tab { padding-inline: var(--space-5); }
+      .oa-drugline { column-gap: var(--space-5); }
+      .oa-roles .field-label { display: none; }
+    }
   }
   .oa-unit { --view-switch-half: 164px; flex: 0 0 auto; }
   .oa-roles { display: inline-flex; align-items: center; gap: var(--space-1); }
@@ -155,6 +162,7 @@
   .oa-pin[aria-pressed="true"], .oa-pin[aria-pressed="true"]:hover { color: var(--accent); }
   .oa-pin[aria-pressed="true"] .pin-head { fill: currentColor; }
   .oa-title-end { white-space: nowrap; }
+  .oa-title-counted { margin: 0 var(--space-3) 0 var(--space-5); white-space: nowrap; font-family: var(--font-sans); font-size: var(--text-md); font-weight: var(--weight-regular); color: var(--ink-soft); }
   .product-title .oa-pin { margin: calc(-1 * var(--space-4)) 0 calc(-1 * var(--space-4)) var(--space-4); vertical-align: middle; }
   /* the spellings count sits on the middle of the title's small letters */
   .oa-title-spellings { margin-left: var(--space-7); font-family: var(--font-sans); font-size: var(--text-md); letter-spacing: normal; line-height: 1; vertical-align: middle; }
@@ -251,9 +259,10 @@
   /* every header that sorts carries the up and down chevrons; the lit one is the way it is sorted */
   .oa-sortable { display: inline-flex; align-items: center; gap: var(--space-2); }
   .oa-sort { width: 9px; height: 14px; flex: 0 0 auto; fill: none; stroke-width: 1.6; }
-  .oa-sort path { stroke: var(--ink-pale); }
-  .oa-sortable:hover .oa-sort path { stroke: var(--ink-faint); }
-  .oa-sort[data-sort="desc"] .oa-sort-down, .oa-sort[data-sort="asc"] .oa-sort-up { stroke: var(--accent); }
+  /* no mark at rest; a chosen sort alone shows: highest first an up arrow, lowest first a down arrow */
+  .oa-sort path { stroke: transparent; }
+  .oa-sort[data-sort="desc"] .oa-sort-up { stroke: var(--accent); translate: 0 3px; }
+  .oa-sort[data-sort="asc"] .oa-sort-down { stroke: var(--accent); translate: 0 -3px; }
   .oa-sortable:has(.oa-sort[data-sort="desc"]), .oa-sortable:has(.oa-sort[data-sort="asc"]) { color: var(--ink); }
 
   /* a word that explains itself on hover */
@@ -294,6 +303,12 @@
   .oa-choice:is([aria-checked="true"], [aria-checked="mixed"]) .menu-choice-words { color: var(--ink); }
   .oa-choice[data-state="empty"] { --menu-item-ink: var(--ink-pale); }
   .oa-choice[data-state="empty"] .oa-tick { border-color: var(--ink-pale); }
+  /* what cannot be used is drawn so: pale, the mouse lights nothing; what is always on stays lit */
+  .oa-choice[aria-disabled="true"]:not([data-locked]):is(*, :hover, :focus-visible) { --menu-item-bg: transparent; --menu-item-ink: var(--ink-pale); cursor: not-allowed; }
+  .oa-choice[aria-disabled="true"]:not([data-locked]) .menu-choice-words { color: var(--ink-pale); }
+  .oa-choice[aria-disabled="true"]:not([data-locked]) .oa-tick { border-color: var(--ink-pale); }
+  .oa-choice[aria-disabled="true"][aria-checked="true"]:not([data-locked]) .oa-tick { background: var(--ink-pale); }
+  .oa-choice[aria-disabled="true"][aria-checked="true"]:not([data-locked]) .oa-tick-radio { background: var(--panel); box-shadow: inset 0 0 0 3.5px var(--ink-pale); }
   .oa-pane-head { display: flex; align-items: center; gap: 0; }
   .oa-pane-head .menu-heading { padding-right: var(--space-2); }
   .oa-plus { min-width: 30px; min-height: 30px; padding: var(--space-2); }
@@ -595,4 +610,10 @@ html[data-note-pointing] * { cursor: crosshair !important; }
   .oa-plain-list { margin: var(--space-3) 0 0; padding-left: var(--space-8); display: flex; flex-direction: column; gap: var(--space-3); }
   .oa-download-list a { overflow-wrap: anywhere; }
   .oa-downloads-off { margin: var(--space-4) 0 0; }
+
+/* the term search a page mounts: its results hold one height, so opening them moves nothing */
+  .oa-term-search { display: flex; flex-direction: column; min-width: 0; }
+  .oa-term-search-results { height: 16rem; overflow-y: auto; scrollbar-width: thin; }
+  .oa-term-search-results .skeleton-row { margin: var(--space-4) var(--space-5); width: 70%; }
+  .oa-term-why { margin: 0 var(--space-3) var(--space-2); color: var(--ink-soft); font-size: var(--text-sm); }
 }

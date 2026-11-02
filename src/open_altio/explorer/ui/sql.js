@@ -7,6 +7,7 @@ import { actions } from './events.js';
 import { host, slot } from './host.js';
 import { icon } from './icons.js';
 import { closeMenus, popMenu, toast } from './overlays.js';
+import { putAddress } from './router.js';
 import { post } from './server.js';
 import { S, whoOn } from './state.js';
 import { esc, fix, focusBox, num, tip } from './util.js';
@@ -75,6 +76,19 @@ export function sqlBox() {
   return `<div class="oa-sql-head"><h2 class="oa-card-sub">Ask in SQL</h2><span class="oa-faint">Any table on the left, by its name. One read-only query${S.me?.sql_seconds ? `, up to ${S.me.sql_seconds} seconds` : ''}.</span></div>
     <textarea class="oa-sql-text" id="oa-sql-text" spellcheck="false" autocapitalize="off" aria-label="Query">${esc(sq.text)}</textarea>
     <div class="oa-sql-foot"><button type="button" class="btn" data-act="sql-examples" aria-haspopup="menu">${icon('document')}<span>Start from an example</span>${icon('chevronDown')}</button><button type="button" class="btn btn-primary" data-act="sql-run">Run</button></div>`;
+}
+
+// An address with ?query= fills the box once the page can run a query (its tables are listed and
+// the box is drawn), then drops query from the address so a reload or a shared link does not fill it
+// again. It fills the box and runs nothing.
+export function takeAddressQuery() {
+  const box = document.getElementById('oa-sql-text');
+  const p = new URLSearchParams(location.search);
+  if (!S.schema || !box || !p.has('query')) return;
+  box.value = S.sql.text = p.get('query');
+  p.delete('query');
+  const rest = p.toString();
+  putAddress(location.pathname + (rest ? `?${rest}` : ''));
 }
 
 export async function runSql(text, page) {

@@ -11,11 +11,16 @@ import { cardTables, host, slot } from './host.js';
 import { icon, markSvg } from './icons.js';
 import { popMenu } from './overlays.js';
 import { current, productPath } from './router.js';
-import { S, pinned, productLabel, releaseLast } from './state.js';
-import { esc, store, tip } from './util.js';
+import { S, keepView, pinned, productLabel, releaseQuarter } from './state.js';
+import { esc, tip } from './util.js';
 
-export const sidePlace = (href, ic, label, here, attrs = '', after = '') => `<a class="row oa-side-row${here ? ' row-current' : ''}" href="${href}" ${attrs}>${icon(ic)}<span class="row-label">${esc(label)}</span>${after}</a>`;
-export const railPlace = (href, ic, label, here, extra = '', after = '') => `<a class="oa-rail-item" href="${href}" aria-label="${esc(label)}" ${tip(label)} ${here ? 'aria-current="page"' : ''} ${extra}>${icon(ic)}${after}</a>`;
+// A place in the side panel and in its folded rail. Each says which place it is by its address
+// (data-place), so it keeps who it is when its label changes.
+export const sidePlace = (href, ic, label, here, attrs = '', after = '') => `<a class="row oa-side-row${here ? ' row-current' : ''}" href="${href}" data-place="${esc(href)}" ${attrs}>${icon(ic)}<span class="row-label">${esc(label)}</span>${after}</a>`;
+export const railPlace = (href, ic, label, here, extra = '', after = '') => `<a class="oa-rail-item" href="${href}" data-place="${esc(href)}" aria-label="${esc(label)}" ${tip(label)} ${here ? 'aria-current="page"' : ''} ${extra}>${icon(ic)}${after}</a>`;
+
+// the product's name and the way home, at the top of the side panel and of a phone's top bar
+const brandHome = () => `<a class="brand-home" href="/" aria-label="${esc(host.brand)}, home">${markSvg()}<span class="brand-name">${esc(host.brand)}</span></a>`;
 export const railButton = (act, ic, label, extra = '') => `<button type="button" class="oa-rail-item" data-act="${act}" aria-label="${esc(label)}" ${tip(label)} ${extra}>${icon(ic)}</button>`;
 
 const NO_PINS = 'Pin a product to keep it here.';
@@ -30,7 +35,7 @@ function productRows(here) {
 function sidePanel(here) {
   return `<aside class="side-panel panel" aria-label="Side panel">
     <div class="side-brand">
-      <a class="brand-home" href="/" aria-label="Open Altio, home">${markSvg()}<span class="brand-name">Open Altio</span></a>
+      ${brandHome()}
       <button type="button" class="icon-btn side-collapse" data-act="side-close" aria-label="Collapse the side panel">${icon('panelLeftClose')}</button>
     </div>
     ${sidePlace('/', 'home', 'Home', here === 'home')}
@@ -53,12 +58,20 @@ function sidePanel(here) {
 // Improve this: the same place, top right, on every page, where notes are taken
 export const improveBtn = () => (host.improve ? `<button type="button" class="btn oa-improve" data-act="improve">${icon('improve')}<span>Improve this</span></button>` : '');
 // how current the data is, the one place each page says it: in the top bar on a phone, else top right
-export const asOf = (quarter = S.release && releaseLast()) => (quarter ? `<p class="oa-asof">FDA data through ${esc(quarter)}</p>` : '');
+// a host's own buttons beside Improve this: drawn only where a host has said it fills the place, and
+// then holding the room `--corner-end-room` names, so filling it later moves nothing
+export const cornerEnd = (here) => (host.slots['corner-end'] ? `<span class="oa-corner-end">${slot('corner-end', here)}</span>` : '');
+
+const refreshed = (day) => new Date(`${day}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+export const asOf = () => (S.release ? `<p class="oa-asof"><span class="oa-asof-part">Data refreshed ${esc(refreshed(S.release.refreshed))}</span> <span class="oa-dot">·</span> <span class="oa-asof-part">newest quarter ${esc(releaseQuarter().words)}</span></p>` : '');
+
+// the same line, except where a host's hideAsOf says it is left out (it says the same itself)
+export const shownAsOf = (here) => (host.hideAsOf(here) ? '' : asOf());
 
 // With the side panel folded, its places stay one click away: each as an icon that names itself, at
 // the height the open panel gives it (sidePanel). Home is the way home; the mark is not repeated here.
 function railHtml(here) {
-  return `<nav class="side-rail oa-rail" aria-label="Open Altio">
+  return `<nav class="side-rail oa-rail" aria-label="${esc(host.brand)}">
     <button type="button" class="oa-rail-item" data-act="side-open" aria-label="Open the side panel" ${tip('Open the side panel')}>${icon('panelLeftOpen')}</button>
     <span class="oa-rail-line" aria-hidden="true"></span>
     ${railPlace('/', 'home', 'Home', here === 'home')}
@@ -98,12 +111,13 @@ export function framed(content, here) {
     <div class="frame-page">
       <header class="oa-topbar">
         <button type="button" class="icon-btn oa-menu-btn" data-act="side-open" aria-label="Open the menu">${icon('menu')}</button>
-        <a class="brand-home" href="/" aria-label="Open Altio, home">${markSvg()}<span class="brand-name">Open Altio</span></a>
+        ${brandHome()}
         <span class="oa-spacer"></span>
-        ${asOf()}
+        ${shownAsOf(here)}
         ${host.improve ? `<button type="button" class="btn oa-improve-top" data-act="improve" aria-label="Improve this">${icon('improve')}<span class="oa-improve-words">Improve this</span></button>` : ''}
+        ${cornerEnd(here)}
       </header>
-      <div class="oa-corner">${asOf()}${improveBtn()}</div>
+      <div class="oa-corner">${shownAsOf(here)}${improveBtn()}${cornerEnd(here)}</div>
       ${railHtml(here)}
       ${content}
     </div>
@@ -133,8 +147,8 @@ actions({
     const m = document.querySelector('.oa-rail-menu');
     if (m) { m.style.setProperty('--menu-left', `${r.right + 8}px`); m.style.setProperty('--menu-top', `${r.top}px`); }
   },
-  'side-close': () => { if (narrow()) S.drawer = false; else { S.side = 'closed'; store.set('side', S.side); } paintSide(); },
-  'side-open': () => { if (narrow()) S.drawer = true; else { S.side = 'open'; store.set('side', S.side); } paintSide(); },
+  'side-close': () => { if (narrow()) S.drawer = false; else { S.side = 'closed'; keepView('side', S.side); } paintSide(); },
+  'side-open': () => { if (narrow()) S.drawer = true; else { S.side = 'open'; keepView('side', S.side); } paintSide(); },
 });
 
 // Lists read row by row become cards on phones; each cell is labelled with its column's name.

@@ -1,0 +1,102 @@
+/* The opened event's Overview (event-overview.js, event-chart.js, event-tiles.js): the chart with its
+   threshold strips beside the four tiles, then the sections under them. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+
+  .oa-ov { display: flex; flex-direction: column; gap: var(--space-8); container: oa-ov / inline-size; }
+  .oa-ov [data-state="loading"] { opacity: 0.55; }
+  .oa-ov-sections { display: flex; flex-direction: column; gap: var(--space-8); }
+  .oa-ov-sections:empty { display: none; }
+
+  /* the chart beside its four tiles, both as tall as the taller */
+  .oa-ov-top { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: var(--space-7); align-items: stretch; }
+  .oa-ov-chart { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+  .oa-ov-head { display: flex; align-items: baseline; gap: var(--space-6); min-width: 0; }
+  .oa-ov-head .chart-sentence { display: block; margin: 0; min-width: 0; overflow: hidden; color: var(--ink); font-size: var(--text-md); white-space: nowrap; text-overflow: ellipsis; }
+  .oa-ov-sub { color: var(--ink-faint); font-weight: var(--weight-regular); }
+  .oa-ov-legend { display: flex; flex: none; gap: var(--space-6); margin-left: auto; color: var(--ink-soft); font-size: var(--text-note); white-space: nowrap; }
+  .oa-ov-key::before { content: ''; display: inline-block; width: 12px; height: 8px; margin-right: var(--space-2); }
+  .oa-ov-key[data-k="grey"]::before { background: linear-gradient(90deg, color-mix(in srgb, var(--ink) 8%, var(--panel)), color-mix(in srgb, var(--ink) 58%, var(--panel))); }
+  .oa-ov-key[data-k="past"]::before { background: linear-gradient(90deg, color-mix(in srgb, var(--warn) 30%, var(--panel)), var(--warn)); }
+  /* in dark the grey closest to its threshold is the lightest: the legend says so */
+  .oa-ov-dark { display: none; }
+  :root[data-theme="dark"] .oa-ov-light { display: none; }
+  :root[data-theme="dark"] .oa-ov-dark { display: inline; }
+
+  /* the plot: a column for the axis and the strips' names, then a column per quarter; rows: the
+     Window mark, the bars, one strip per threshold, the years */
+  .oa-ov-plot { --bars: 148px; position: relative; display: grid; grid-template-columns: var(--yw, 80px) repeat(var(--cols, 1), minmax(0, 1fr)); grid-template-rows: 14px var(--bars) repeat(var(--strips, 2), 12px) 14px; column-gap: 1px; row-gap: 4px; }
+  .oa-ov-skeleton { display: block; grid-column: 1 / -1; grid-row: 1 / -1; height: auto; }
+  .oa-ov-bars { position: relative; grid-row: 2; grid-column: 1 / -1; }
+  .oa-ov-gl { position: absolute; left: var(--yw); right: 0; bottom: calc(var(--at) * 100%); border-top: var(--hairline) solid var(--line); }
+  .oa-ov-yl { position: absolute; right: calc(100% + var(--space-3)); top: -7px; color: var(--ink-faint); font-size: var(--text-tag); line-height: 14px; font-variant-numeric: tabular-nums; }
+  /* the baseline's 0 sits just over its line, clear of the strips' names under it */
+  .oa-ov-gl:first-child .oa-ov-yl { top: -13px; }
+  .oa-ov-slot { position: relative; display: flex; align-items: flex-end; grid-row: 2; min-width: 0; }
+  .oa-ov-bar { width: 100%; height: calc(var(--h) * 100%); border-radius: 1px 1px 0 0; background: color-mix(in srgb, var(--accent) 38%, var(--panel)); }
+  .oa-ov-bar[data-in="window"] { background: var(--accent); }
+  .oa-ov-slot:hover .oa-ov-bar { background: var(--blue); }
+  /* the window's mark: a line over its bars, its name ending where the line ends */
+  .oa-ov-wmark { display: flex; grid-row: 1; justify-content: flex-end; align-items: flex-end; min-width: 0; border-bottom: 2px solid var(--accent); color: var(--accent); font-size: var(--text-tag); font-weight: var(--weight-strong); line-height: 1; white-space: nowrap; }
+  .oa-ov-wmark > span { padding: 0 0 var(--space-1); }
+  /* a strip per threshold: its name, then a cell per quarter, past it in the warning color, grey below */
+  .oa-ov-sname { grid-column: 1; padding-right: var(--space-3); color: var(--ink-soft); font-size: var(--text-tag); line-height: 12px; text-align: right; white-space: nowrap; cursor: default; }
+  /* a person's own beside a host's: lighter, so they read as theirs */
+  .oa-ov-own { color: var(--ink-faint); }
+  .oa-ov-cell[data-own="true"] { opacity: 0.55; }
+  .oa-ov-why { grid-column: 2 / -1; min-width: 0; overflow: hidden; color: var(--ink-faint); font-size: var(--text-tag); line-height: 12px; white-space: nowrap; text-overflow: ellipsis; }
+  .oa-ov-more { grid-column: 1; align-self: start; justify-self: end; appearance: none; margin: 0; padding: 0 var(--space-3) 0 0; border: 0; background: none; color: var(--ink-faint); font: inherit; font-size: var(--text-tag); line-height: 14px; text-decoration: underline dotted var(--ink-pale); text-underline-offset: var(--underline-offset); cursor: pointer; white-space: nowrap; }
+  .oa-ov-more:hover, .oa-ov-more[aria-expanded="true"] { color: var(--ink-soft); }
+  .oa-ov-cell { min-width: 0; background: color-mix(in srgb, var(--ink) var(--g, 6%), var(--panel)); }
+  /* past its threshold: deeper the further past (--r, set per quarter) */
+  .oa-ov-cell[data-past="true"] { background: color-mix(in srgb, var(--warn) var(--r, 100%), var(--panel)); }
+  .oa-ov-cell:hover { position: relative; z-index: 1; outline: var(--hairline) solid var(--ink); outline-offset: 0; }
+  .oa-ov-x { min-width: 0; overflow: visible; color: var(--ink-faint); font-size: var(--text-tag); line-height: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .oa-ov-absent { grid-column: 1 / -1; grid-row: 1 / -1; align-self: center; margin: 0; color: var(--ink-faint); font-size: var(--text-md); text-align: center; }
+
+  /* the four tiles, 2 x 2, each the window against before it; a row is as tall as its tallest
+     content at every width, so nothing in it moves its height as the numbers come */
+  .oa-ov-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(108px, 1fr)); border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--panel); }
+  .oa-ov-tile { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; padding: var(--space-5) var(--space-6); border-top: var(--hairline) solid var(--line); border-left: var(--hairline) solid var(--line); }
+  .oa-ov-tile:nth-child(odd) { border-left: 0; }
+  .oa-ov-tile:nth-child(-n+2) { border-top: 0; }
+  .oa-ov-k { margin: 0; overflow: hidden; color: var(--ink-faint); font-size: var(--text-tag); letter-spacing: var(--tracking-caps); line-height: 1.35; text-transform: uppercase; white-space: nowrap; text-overflow: ellipsis; }
+  .oa-ov-v { margin: 0; color: var(--ink); font-size: 22px; font-weight: var(--weight-strong); line-height: 1.15; white-space: nowrap; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  .oa-ov-v2 { font-size: 20px; }
+  .oa-ov-v [data-hot="true"] { color: var(--warn); }
+  .oa-ov-ch { margin-left: var(--space-1); color: var(--ink-soft); font-size: var(--text-xs); font-weight: var(--weight-medium); letter-spacing: 0; }
+  .oa-ov-still { color: var(--ink-faint); font-weight: var(--weight-regular); }
+  .oa-ov-dot { margin: 0 var(--space-3); color: var(--ink-faint); font-weight: var(--weight-regular); }
+  .oa-ov-none { color: var(--ink-faint); font-size: var(--text-row); font-weight: var(--weight-regular); }
+  .oa-ov-s { margin: 0; overflow: hidden; color: var(--ink-soft); font-size: var(--text-note); line-height: 1.35; white-space: nowrap; text-overflow: ellipsis; }
+  .oa-ov-mark { display: block; overflow: visible; max-width: 100%; height: auto; margin: var(--space-1) 0 0; }
+  .oa-ov-mtext { font-size: var(--text-tag); font-weight: var(--weight-regular); }
+  .oa-ov-marks { display: flex; gap: var(--space-7); }
+  .oa-ov-vsk { display: inline-block; width: 70px; height: 20px; vertical-align: middle; }
+  .oa-ov-ssk { display: inline-block; width: 120px; height: 11px; }
+  .oa-ov-msk { display: block; width: 150px; max-width: 100%; height: 28px; margin-top: var(--space-1); }
+
+  /* narrower: the claim keeps its one line over the legend, its subtitle giving way first */
+  @container oa-ov (max-width: 1180px) {
+    .oa-ov-head { flex-direction: column; align-items: stretch; row-gap: var(--space-1); }
+    .oa-ov-legend { margin-left: 0; }
+  }
+  /* the tiles under the chart */
+  @container oa-ov (max-width: 760px) {
+    .oa-ov-top { grid-template-columns: minmax(0, 1fr); }
+  }
+  /* a phone: the claim on two lines at most, the tiles' names on two, smaller numbers, so a tile's
+     number and its change keep to one line; each part keeps one height whatever it says */
+  @container oa-ov (max-width: 420px) {
+    .oa-ov-head .chart-sentence { display: -webkit-box; min-height: calc(2 * 1.45em); line-height: 1.45; white-space: normal; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .oa-ov-legend { flex-wrap: wrap; row-gap: 0; white-space: normal; }
+    .oa-ov-tiles { grid-template-rows: repeat(2, minmax(118px, 1fr)); }
+    .oa-ov-tile { padding: var(--space-4); }
+    .oa-ov-k { min-height: calc(2 * 1.35em); white-space: normal; }
+    .oa-ov-v { font-size: 18px; }
+    .oa-ov-v2 { font-size: 16px; }
+    .oa-ov-dot { margin: 0 var(--space-1); }
+    .oa-ov-marks { gap: var(--space-2); }
+    .oa-ov-marks .oa-ov-mark { flex: 1 1 0; min-width: 0; }
+  }
+}

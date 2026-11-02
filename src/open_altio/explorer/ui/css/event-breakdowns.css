@@ -1,0 +1,57 @@
+/* The opened event's breakdowns (event-breakdowns.js, event-breakdowns-menu.js): three groups side
+   by side, one line per field, the Change and Given in columns straight down each group; a line's
+   values when it is pressed. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+
+  .oa-bd { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4) var(--space-7); }
+  .oa-bd[data-state="loading"] { opacity: 0.55; }
+  .oa-bd-group { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content max-content; align-content: start; column-gap: var(--space-4); min-width: 0; }
+  .oa-bd-gt, .oa-bd-gh { margin: 0 0 var(--space-1); padding-bottom: var(--space-2); border-bottom: var(--hairline) solid var(--line); }
+  .oa-bd-gt { display: flex; flex-direction: column; grid-column: 1 / 3; min-width: 0; font-size: var(--text-md); line-height: 1.35; }
+  .oa-bd-gtitle { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-bd-gsub { overflow: hidden; color: var(--ink-faint); font-size: var(--text-note); white-space: nowrap; text-overflow: ellipsis; }
+  .oa-bd-gh { align-self: end; color: var(--ink-faint); font-size: 10px; letter-spacing: var(--tracking-caps); line-height: 1.6; text-align: right; text-transform: uppercase; white-space: nowrap; }
+
+  /* a line: the whole of it pressed, the hand across name, gaps, words and numbers */
+  .oa-bd-line { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; align-items: baseline; padding: 3px 0; font-size: var(--text-md); line-height: 1.35; }
+  .oa-bd-line[data-act] { cursor: pointer; }
+  .oa-bd-line[data-act] * { cursor: pointer; }
+  .oa-bd-line[data-act]:hover .oa-bd-name, .oa-bd-line[aria-expanded="true"] .oa-bd-name { color: var(--ink); text-decoration: underline dotted var(--ink-pale); text-underline-offset: var(--underline-offset); }
+  .oa-bd-name { color: var(--ink-soft); white-space: nowrap; }
+  .oa-bd-val { display: flex; gap: var(--space-2); min-width: 0; color: var(--ink); white-space: nowrap; }
+  .oa-bd-quiet { color: var(--ink-faint); }
+  .oa-bd-vname { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .oa-bd-nums { flex: none; font-variant-numeric: tabular-nums; }
+  .oa-bd-was { color: var(--ink-faint); }
+  .oa-bd-nums strong { color: var(--ink); font-weight: var(--weight-strong); }
+  .oa-bd-nums strong[data-hot="true"], .oa-bd-chg[data-hot="true"] { color: var(--warn); }
+  .oa-bd-chg { color: var(--ink-faint); font-size: var(--text-sm); font-weight: var(--weight-strong); text-align: right; font-variant-numeric: tabular-nums; }
+  .oa-bd-given { color: var(--ink-faint); font-size: var(--text-note); text-align: right; font-variant-numeric: tabular-nums; }
+  .oa-bd-dwords { grid-column: 2 / -1; min-width: 0; color: var(--ink-faint); font-size: var(--text-note); font-style: italic; }
+  .oa-bd-tocases { font-style: italic; }
+  .oa-bd-sk { flex: 1; height: auto; }
+  .oa-bd-dsk { display: inline; height: auto; color: transparent; font-style: inherit; }
+
+  /* a line's values, pressed open: each value's shares before -> in the window beside its words */
+  .menu.oa-bd-menu:popover-open { width: 340px; max-width: calc(100vw - 2 * var(--space-5)); }
+  .oa-bd-key { margin: 0 var(--space-5) var(--space-3); color: var(--ink-faint); font-size: var(--text-note); }
+  .oa-bd-values .oa-choice-note { display: block; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .oa-bd-values .oa-choice[aria-disabled="true"] { cursor: default; }
+
+  /* narrower: the groups two by two, then one under the other; on a phone a line's value has the
+     row under its name to itself, waiting or not, so its words are read and nothing moves. Three
+     side by side only where a line's value has room for its words */
+  @container oa-ov (max-width: 1120px) {
+    .oa-bd { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-8); }
+  }
+  @container oa-ov (max-width: 600px) {
+    .oa-bd { grid-template-columns: minmax(0, 1fr); }
+    .oa-bd-group { grid-template-columns: minmax(0, 1fr) 0 max-content max-content; }
+    .oa-bd-line > .oa-bd-name { grid-area: 1 / 1; }
+    .oa-bd-line > .oa-bd-val, .oa-bd-line > .oa-bd-dwords { grid-area: 2 / 1 / 2 / -1; }
+    .oa-bd-line > .oa-bd-chg { grid-area: 1 / 3; }
+    .oa-bd-line > .oa-bd-given { grid-area: 1 / 4; }
+    .oa-bd-line { padding: var(--space-1) 0 var(--space-2); }
+  }
+}

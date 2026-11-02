@@ -1,7 +1,28 @@
 /* What the page knows: the state `S` every part reads, this browser's kept choices, and each
    scope's own (a product's page, or every case). Page modules add their own fields to `S`. */
 
+import { host } from './host.js';
 import { quarterEnd, quarterStart, sinceWords, store } from './util.js';
+
+// A person's view choices, such as whether the side panel is folded: kept in this browser, or by a
+// host on its own server for the person signed in (host.kept), read once the host has started.
+let held = null; // what host.kept gave, once read
+export const viewChoice = (key, fallback) => {
+  if (!host.kept) return store.get(key, fallback);
+  return held && key in held ? held[key] : fallback;
+};
+export function keepView(key, value) {
+  if (!host.kept) { store.set(key, value); return; }
+  held = { ...held, [key]: value };
+  Promise.resolve().then(() => host.kept.save(key, value)).catch(() => { /* it holds on this page */ });
+}
+// the host's kept choices in place of this browser's, before the first page is drawn; a host that
+// cannot give them leaves each at its default
+export async function readKept() {
+  if (!host.kept) return;
+  try { held = { ...(await host.kept.load()) }; } catch { held = {}; }
+  rereadStored();
+}
 
 function browserTheme() {
   try { return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } catch { return 'light'; }
@@ -10,7 +31,7 @@ function browserTheme() {
 // What this browser keeps for its person, read again when a page module has moved older keys into place.
 function stored() {
   return {
-    side: store.get('side', ''),
+    side: viewChoice('side', ''), // the side panel open or folded on a wide screen, '' until chosen
     theme: store.get('theme', null) || browserTheme(),
     showTables: store.get('showTables', true),
     // the products this person opened or pinned: [{ name (the drug, as the release names it), title
@@ -62,6 +83,13 @@ export const ptLine = () => S.release?.reactions?.line || '';
 // how current the data is, said in one place on every page (frame.js); elsewhere a release names
 // only where its quarters start
 export const releaseLast = () => S.release.quarters[1].toUpperCase();
+// the release's newest quarter, or that many calendar quarters before it, in its parts and as a page writes it
+export function releaseQuarter(back = 0) {
+  const at = String(S.release.quarters[1]);
+  const n = +at.slice(0, 4) * 4 + +at.slice(-1) - 1 - back;
+  const year = Math.floor(n / 4), q = (n % 4) + 1;
+  return { year, q, words: `${year} Q${q}` };
+}
 export const releaseSince = () => sinceWords(S.release.quarters);
 export const releaseEnd = () => quarterEnd(S.release.quarters[1]);
 export const releaseEndYear = () => +releaseEnd().slice(0, 4);
@@ -120,7 +148,7 @@ export function scopeFor(product) {
   const key = product ? `p:${product}` : 'all';
   if (!S.scopes[key]) {
     S.scopes[key] = {
-      key, product, tab: 'overview', roles: defaultRoles(), unit: drugWords().default_unit, exclude: [], include: [],
+      key, product, tab: product ? 'events' : 'overview', roles: defaultRoles(), unit: drugWords().default_unit, exclude: [], include: [],
       page: 1, sortCol: null, sortDir: 0,
       f: { pts: [], smqs: [], cmqs: [], ptsOut: [], dprods: [], droles: defaultRoles(), atc: [], atcOut: [], soc: [], aroles: defaultRoles(), could: false, from: '', to: '', efrom: '', eto: '', sex: [], age: [], outcome: [], reporter: [], country: [], sender: '', era: null, dedup: S.release.dedup, label: null },
       summary: null, cases: null, info: null,

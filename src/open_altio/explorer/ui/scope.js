@@ -6,6 +6,8 @@ import { casesTable, caseSort } from './cases.js';
 import { overview, scrollChartsToEnd } from './charts.js';
 import { drugBar, unitSwitch } from './drugs.js';
 import { actions } from './events.js';
+import { openOptions } from './eventopen.js';
+import { eventsTable } from './eventstable.js';
 import { FILTERS, ROLES, clearFilter, filterWords, filtersFor, query, rolesChanged } from './filters.js';
 import { refreshMenu } from './filtermenu.js';
 import { framed, repaintSide } from './frame.js';
@@ -16,7 +18,7 @@ import { pinButton } from './products.js';
 import { TABS, current, drawn, productPath, putAddress, render } from './router.js';
 import { rulesNotice } from './rules/page.js';
 import { api } from './server.js';
-import { loadStatistics, loadStrata, paintStatistics, statisticsLead, statisticsToolbar } from './statistics.js';
+import { findStatistics, loadStatistics, loadStrata, paintStatistics, statisticsLead, statisticsToolbar } from './statistics.js';
 import { S, keepProducts, learnTitles, listLength, productLabel, releaseSince, whoOn } from './state.js';
 import { esc, num, skeletonRows, tip } from './util.js';
 
@@ -29,14 +31,14 @@ function scopePage(sc) {
     <p class="oa-subtitle" id="oa-subtitle">${subtitle(sc)}</p>
     <div class="oa-tabs-row">
       <div class="product-tabs" role="tablist" aria-label="Sections">
-        ${TABS.filter(([id]) => id !== 'statistics' || S.me?.statistics !== false).map(([id, label]) => `<a class="product-tab" role="tab" href="${base}/${id}" aria-selected="${sc.tab === id}">${label}</a>`).join('')}
+        ${TABS.filter(([id]) => (id !== 'statistics' || S.me?.statistics !== false) && (id !== 'events' || sc.product)).map(([id, label]) => `<a class="product-tab" role="tab" href="${base}/${id}" aria-selected="${sc.tab === id}">${label}</a>`).join('')}
       </div>
       ${sc.product ? `<div class="oa-drugbar" id="oa-drugbar">${drugBar(sc)}</div>` : ''}
     </div>
     <section class="product-panel oa-panel" role="tabpanel">
-      <div class="oa-toolbar" id="oa-toolbar">${sc.tab === 'statistics' ? statisticsToolbar(sc) : toolbar(sc)}</div>
-      <div class="oa-strip" id="oa-strip">${sc.tab === 'statistics' ? statisticsLead() : filterStrip(sc)}</div>
-      <div id="oa-body">${bodySkeleton(sc)}</div>
+      ${sc.tab === 'events' ? '' : `<div class="oa-toolbar" id="oa-toolbar">${sc.tab === 'statistics' ? statisticsToolbar(sc) : toolbar(sc)}</div>
+      <div class="oa-strip" id="oa-strip">${sc.tab === 'statistics' ? statisticsLead() : filterStrip(sc)}</div>`}
+      <div id="oa-body">${sc.tab === 'events' ? '' : bodySkeleton(sc)}</div>
     </section>
   </main>`, sc.product ? `p:${sc.product}` : 'all');
 }
@@ -46,7 +48,8 @@ function title(sc) {
   if (!sc.product) return 'All cases';
   const n = sc.summary?.spellings ?? sc.info?.spellings?.[sc.info.kind === 'spelling' ? 'exact' : sc.unit];
   const spellings = n == null ? '' : `<button type="button" class="oa-link oa-title-spellings" data-act="spellings" data-row="spellings" ${tip("FDA's spellings this page counts: open them to leave one out or add one")}>${num(n)} ${n === 1 ? 'spelling' : 'spellings'}</button>`;
-  return `${esc(productLabel(sc.product))}<span class="oa-title-end">${spellings}${pinButton(sc.product)}</span>`;
+  const counted = sc.tab === 'events' ? ` <span class="oa-title-counted"><span class="oa-has-tip" ${tip('Primary suspect')}>PS</span> or <span class="oa-has-tip" ${tip('Secondary suspect')}>SS</span></span> ` : '';
+  return `${esc(productLabel(sc.product))}${counted}<span class="oa-title-end">${spellings}${pinButton(sc.product)}</span>`;
 }
 
 function subtitle(sc) {
@@ -125,11 +128,11 @@ async function loadScope(sc) {
   // a name the release does not hold is no page (noSuchProduct); any other of FDA's names opens its drug
   if (sc.product && !sc.info) jobs.push(api(`/api/product?product=${encodeURIComponent(sc.product)}`).then((p) => { sc.info = p; learnTitles([p]); }).catch((err) => { if (err.message === 'not found') sc.missing = true; else throw err; }));
   if (sc.tab === 'statistics') jobs.push(loadStatistics(sc));
-  else jobs.push(api(`/api/summary?${q}`).then((s) => { sc.summary = s; sc.summaryKey = q; learnTitles((s.drugs || []).map(([name, , named]) => ({ name, title: named }))); }));
+  else if (sc.tab !== 'events') jobs.push(api(`/api/summary?${q}`).then((s) => { sc.summary = s; sc.summaryKey = q; learnTitles((s.drugs || []).map(([name, , named]) => ({ name, title: named }))); }));
   if (sc.tab === 'overview') jobs.push(api(`/api/timeline?grain=${sc.grain || 'year'}&${q}`).then((t) => { sc.timeline = t; }));
   if (sc.tab === 'cases') jobs.push(api(`/api/cases?${query(sc, { page: sc.page, sort: caseSort(sc) })}`).then((c) => { sc.cases = c; }));
   if (sc.tab === 'cases') jobs.push(loadStrata(sc));
-  if (sc.product && labelsOn()) loadLabelCounts(sc, q);
+  if (sc.product && labelsOn() && sc.tab !== 'events') loadLabelCounts(sc, q);
   const settled = await Promise.allSettled(jobs);
   if (seq !== loadSeq) return;
   if (sc.missing) { if (current()?.scope === sc) noSuchProduct(sc); return; }
@@ -165,7 +168,7 @@ function openItsDrug(sc) {
     keepProducts();
   }
   delete S.scopes[sc.key];
-  putAddress(productPath(name, sc.tab));
+  putAddress(productPath(name, sc.tab) + (sc.reaction ? `?reaction=${encodeURIComponent(sc.reaction)}` : ''));
   render();
 }
 
@@ -177,6 +180,7 @@ function paintScope(sc) {
   const unit = document.querySelector('#oa-drugbar .oa-unit');
   if (unit) unit.outerHTML = unitSwitch(sc);
   if (sc.tab === 'statistics') { paintStatistics(sc); return; }
+  if (sc.tab === 'events') return;
   paintCountLine(sc);
   const strip = document.getElementById('oa-strip');
   if (strip) strip.innerHTML = filterStrip(sc);
@@ -219,12 +223,49 @@ function keepTitle(sc) {
   if (found && sc.info && found.title !== sc.info.title) { found.title = sc.info.title; keepProducts(); repaintSide(); }
 }
 
+// A product's address may name one reaction by its preferred term (?reaction=): the page opens with
+// its Reactions filter set to that term, and Statistics, which no filter changes, finds it as if
+// typed in Find. The address then shows the page without it, so the filter is the person's to
+// change, and an older address carries it to the drug's own page.
+function askedReaction(sc) {
+  const p = new URLSearchParams(location.search);
+  if (!sc.product || !p.has('reaction')) return;
+  const pt = p.get('reaction').trim();
+  p.delete('reaction');
+  putAddress(`${location.pathname}${p.size ? `?${p}` : ''}`);
+  if (!pt) return;
+  Object.assign(sc.f, { pts: [pt], smqs: [], cmqs: [], ptsOut: [] });
+  sc.page = 1;
+  sc.reaction = pt;
+  if (sc.tab === 'statistics') findStatistics(sc, pt);
+}
+
+// the thresholds: N's and EBGM's own (rule explorer-event-thresholds), then each statistic's standard
+// screen, as its rule gives it, those with a head to hold it
+const SCREENED = ['EBGM', 'PRR', 'ROR', 'IC'];
+const standard = (about) => (about?.present ? [
+  ...S.release.event_thresholds.column_starts.map((start) => [start]),
+  ...about.statistics.filter((s) => SCREENED.includes(s.id)).map((s) => s.start),
+] : []);
+
+// A product's events, counted as the words beside its name say, whatever its other tabs have ticked:
+// drawn anew on each visit, so its thresholds start at each statistic's standard screen. A press on a
+// row opens the event under it (eventopen.js).
+async function drawEvents(sc) {
+  const body = document.getElementById('oa-body');
+  const about = S.me?.statistics === false ? null : await api('/api/statistics/about').catch(() => null);
+  if (!body.isConnected) return;
+  const table = eventsTable(body, { drug: sc.product, thresholds: standard(about), screensOfColumns: true, ...openOptions(sc.product, () => table) });
+}
+
 drawn('scope', (r, app) => {
   const sc = r.scope;
   if (TABS.some(([id]) => id === r.tab)) sc.tab = r.tab;
+  askedReaction(sc);
   if (sc.product) { sc.added ??= !S.products.some((p) => p.name === sc.product); keepOpened(sc); } // added: whether this visit put it on the list
   app.innerHTML = scopePage(sc);
-  if (sc.tab === 'statistics' ? sc.stat?.rows : sc.summary && sc.summaryKey === query(sc) && (sc.tab !== 'cases' || sc.cases)) paintScope(sc);
+  if (sc.tab === 'events') drawEvents(sc);
+  else if (sc.tab === 'statistics' ? sc.stat?.rows : sc.summary && sc.summaryKey === query(sc) && (sc.tab !== 'cases' || sc.cases)) paintScope(sc);
   loadScope(sc);
 });
 

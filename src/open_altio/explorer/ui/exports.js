@@ -18,25 +18,35 @@ function productWords(sc) {
   return `${productLabel(sc.product)}${unit}, as ${rolesWords(sc.roles)}`;
 }
 
-// rule export-csv-row-cap: CSV is offered only while the largest of the files fits
-async function openExport(sc) {
+// the page's export: its cases under its product and filters
+function openExport(sc) {
   const s = sc.summary;
   if (!s) return;
   const lines = filtersFor(sc).map((d) => [d.label, filterWords(sc, d)]).filter(([, w]) => w);
-  const dlg = dialog(`Export ${num(s.cases)} cases`, `
+  exportDialog({
+    cases: s.cases,
+    query: query(sc),
+    lines: [...(sc.product ? [['Product', productWords(sc)]] : []), ...lines, ['Duplicates', sc.f.dedup === 'all' ? 'Included, flagged' : 'Left out']],
+  });
+}
+
+// A question's export: `cases` it holds, `lines` saying the question in words ([label, words], after
+// the release), and its `query` string, which the zip is written for. Rule export-csv-row-cap: CSV
+// is offered only while the largest of the files fits.
+export async function exportDialog({ cases, lines, query: asked }) {
+  const dlg = dialog(`Export ${num(cases)} cases`, `
     <p>Three files, holding only these cases: the cases, their drugs and their reactions, and a note naming the release and the filters.</p>
     <div id="oa-export-files">${skeletonRows(3)}</div>
     <dl class="field-list oa-fields">
       <dt>Release</dt><dd>${esc(S.release?.release)}</dd>
-      ${sc.product ? `<dt>Product</dt><dd>${esc(productWords(sc))}</dd>` : ''}
       ${lines.map(([k, w]) => `<dt>${k}</dt><dd>${esc(w)}</dd>`).join('')}
-      <dt>Duplicates</dt><dd>${sc.f.dedup === 'all' ? 'Included, flagged' : 'Left out'}</dd>
     </dl>
     <div class="oa-export-format" id="oa-export-format"></div>
     ${slot('export-note')}`,
   `<button type="button" class="btn" data-act="close-dialog">Cancel</button><button type="button" class="btn btn-primary" data-act="export-go">${icon('download')}<span>Download</span></button>`);
+  dlg.dataset.query = asked;
   let size;
-  try { [size] = await Promise.all([api(`/api/exportsize?${query(sc)}`), loadDownloads()]); } catch (err) { showProblem(err); return; }
+  try { [size] = await Promise.all([api(`/api/exportsize?${asked}`), loadDownloads()]); } catch (err) { showProblem(err); return; }
   if (!dlg.isConnected) return;
   const CSV_CAP = csvCap();
   const files = [['Cases', 'cases.csv', size.cases], ['Drugs', 'drugs.csv', size.drugs], ['Reactions', 'reactions.csv', size.reactions]];
@@ -58,11 +68,12 @@ async function openExport(sc) {
 
 // the filtered export: the browser saves the zip the server writes for the page's filters
 function exportNow(el) {
-  const sc = scopeNow();
   const dlg = el.closest('dialog');
-  if (!sc || !dlg) return;
+  if (dlg?.dataset.query == null) return;
   const fmt = dlg.querySelector('[data-act="format"][aria-checked="true"]')?.dataset.v || 'parquet';
-  saveFile(`/api/export?${query(sc, { format: fmt })}`);
+  const asked = new URLSearchParams(dlg.dataset.query);
+  asked.set('format', fmt);
+  saveFile(`/api/export?${asked}`);
   dlg.close();
   toast(`Writing the ${fmt === 'csv' ? 'CSV' : 'Parquet'} files; your browser saves the zip when it is ready.`);
 }

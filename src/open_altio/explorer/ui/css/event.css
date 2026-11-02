@@ -1,0 +1,120 @@
+/* An event opened under its row (event.js, event-dates.js, event-filters.js, event-stick.js): the
+   row's copy, the line, the bar of tabs and the panes, on the open row's ground, light and dark
+   from the app's tokens. Nothing here reaches a page that opens no event. SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  /* the open row and its cell on the mist ground, or a host's tint with its left edge */
+  .oa-et-table tr[aria-expanded="true"]:not(.oa-tinted):has(+ tr.oa-et-opened .oa-ev),
+  .oa-et-table tr[aria-expanded="true"]:not(.oa-tinted) + tr.oa-et-opened:has(.oa-ev) { --row-ground: var(--mist); }
+  .oa-et-table tr.oa-tinted[aria-expanded="true"] + tr.oa-et-opened:has(.oa-ev) { --row-ground: var(--warn-soft); }
+  .oa-et-table tr.oa-tinted[aria-expanded="true"] + tr.oa-et-opened:has(.oa-ev) > td { box-shadow: inset 3px 0 var(--caution); }
+  .oa-et-opened-box:has(> .oa-ev) { z-index: 2; padding-top: var(--space-3); }
+
+  /* the layers that stay at the top while the event is in view, where the table fits its frame */
+  .oa-ev-copy { display: none; }
+  .oa-et-frame[data-ev-fits="true"]:has(.oa-ev) { overflow: visible; }
+  .oa-et-frame[data-ev-fits="true"]:has(.oa-ev) > table > thead { position: sticky; top: var(--ev-st0, 0px); z-index: 5; }
+  .oa-et-frame[data-ev-fits="true"]:has(.oa-ev) > table > thead th { background: var(--panel); }
+  .oa-et-frame[data-ev-fits="true"] .oa-ev-copy { display: block; position: sticky; top: var(--ev-st1, 0px); z-index: 4; box-sizing: border-box; overflow: hidden; contain: inline-size; }
+  .oa-ev-copy > table { table-layout: fixed; }
+  /* the copy on the open row's own ground, tinted or not */
+  .oa-et-table .oa-ev-copy tr { --row-ground: inherit; }
+  .oa-ev-copy > table > tbody > tr > * { overflow: hidden; }
+  .oa-et-frame[data-ev-fits="true"] .oa-ev-linewrap { position: sticky; top: var(--ev-st2, 0px); z-index: 3; }
+  .oa-et-frame[data-ev-fits="true"] .oa-ev-bar { position: sticky; top: var(--ev-st3, 0px); z-index: 3; }
+  /* an event opened inside another's pane sticks nothing: the layers of the one around it stay */
+  .oa-et-frame[data-ev-fits="true"] .oa-ev .oa-ev-copy { display: none; }
+  .oa-et-frame[data-ev-fits="true"] .oa-ev .oa-ev :is(.oa-ev-linewrap, .oa-ev-bar) { position: static; }
+  /* another drug's read-only view takes the place of the event's line, bar and host's line; its own
+     bar, with Back, stays under the row */
+  .oa-ev[data-viewing] > :is(.oa-ev-linewrap, .oa-ev-bar, .oa-ev-under) { display: none; }
+  .oa-et-frame[data-ev-fits="true"] .oa-ev[data-viewing] .oa-et-frame { overflow: visible; }
+  .oa-et-frame[data-ev-fits="true"] .oa-ev[data-viewing] .oa-ev .oa-ev-bar { position: sticky; top: var(--ev-st2, 0px); z-index: 2; }
+
+  /* one column of parts: the line right under the row, the tabs right under the line, a pane under them */
+  .oa-ev { container: oa-ev / inline-size; display: flex; flex-direction: column; gap: var(--space-5); padding: 0 0 var(--space-4); color: var(--ink); white-space: normal; }
+  .oa-ev-linewrap { padding: 0 0 var(--space-3); background: var(--row-ground); }
+  /* the line is the app's strip, its height its words' (app.css comes after this file: hence .oa-ev) */
+  .oa-ev .oa-ev-line { height: auto; min-height: 0; padding: 7px var(--space-5); gap: var(--space-4); }
+  .oa-ev-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-6); margin-top: calc(-1 * var(--space-5)); border-bottom: var(--hairline) solid var(--line); background: var(--row-ground); }
+  .oa-ev .oa-ev-tabs { flex: 0 0 auto; border-bottom: 0; }
+  .oa-ev .oa-ev-tab { padding-top: var(--space-3); padding-bottom: 7px; }
+  .oa-ev-acts { display: flex; align-items: center; gap: var(--space-5); margin-left: auto; flex: 0 0 auto; padding-bottom: var(--space-2); }
+  .oa-ev-acts:empty, .oa-ev-under:empty { display: none; }
+  .oa-ev-count .oa-ev-count-skeleton { display: inline-block; width: 2.5em; height: 0.8em; vertical-align: middle; }
+  .oa-ev-pane { min-width: 0; }
+  /* An opened event is no taller than the window: under the heads and its row that stick above it,
+     over what stands at the window's foot; the tab showing scrolls inside it, so its heads stick at
+     the pane's own top. In a window too short for that, the page scrolls (event.js, capped). */
+  @media (min-height: 480px) {
+    .oa-et-opened-box > .oa-ev:not(.oa-ev .oa-ev) { max-height: calc(100dvh - var(--ev-st2, 0px) - 80px); }
+    .oa-et-opened-box > .oa-ev:not(.oa-ev .oa-ev) > .oa-ev-pane:not([hidden]) { --ev-st0: 0px; --ev-st1: 0px; --ev-st2: 0px; --ev-st3: 0px; --ev-st4: 0px; flex: 1 1 auto; min-height: 0; overflow: auto; }
+  }
+  .oa-ev-placeholder { margin: 0; padding: var(--space-6) 0; }
+
+  /* the line: the dates, then each filter with its x and + Add a filter; the line never wraps on a
+     wide screen, what does not fit fading out */
+  .oa-ev-others { display: flex; align-items: center; gap: var(--space-4); flex: 1 1 auto; min-width: 0; color: var(--ink-soft); white-space: nowrap; }
+  .oa-ev-others .oa-dot { margin: 0; }
+  .oa-ev .oa-ev-items { flex: 0 1 auto; gap: var(--space-6); }
+  .oa-ev-addfilter { flex: 0 0 auto; white-space: nowrap; font-weight: var(--weight-strong); }
+  .oa-ev .oa-ev-clear { flex: 0 0 auto; margin-left: auto; }
+  /* the dates: one press opens the Dates menu; each day plain text dotted as a thing that changes */
+  .oa-ev-dates { appearance: none; display: inline-block; flex: 0 0 auto; margin: 0; padding: 0; border: 0; background: none; font: inherit; line-height: inherit; color: var(--ink-soft); white-space: nowrap; text-align: left; cursor: pointer; border-radius: 2px; }
+  .oa-ev-dates > .icon { display: inline-block; margin-left: var(--space-3); vertical-align: -2px; color: var(--ink-soft); }
+  .oa-ev-dates > .icon, .oa-ev-dates > .icon svg { width: 14px; height: 14px; }
+  .oa-ev-dates:hover > .icon, .oa-ev-dates[aria-expanded="true"] > .icon { color: var(--ink); }
+  .oa-ev-dates:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
+  .oa-ev-day { color: var(--ink); text-decoration: underline dotted var(--ink-pale); text-underline-offset: var(--underline-offset); border-radius: 2px; }
+  .oa-ev-dates:hover .oa-ev-day { text-decoration-color: var(--ink-soft); }
+  .oa-ev-day[aria-expanded="true"] { outline: var(--hairline) solid var(--accent-line); outline-offset: 3px; }
+  .oa-ev .oa-ev-dates-skeleton { display: inline; height: auto; color: transparent; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+  /* the Dates menu: three headed lists of choices, closer than a list's, so it fits above or below
+     the line on a laptop; the onset choice's note under it, its room kept while it is counted */
+  .menu.oa-ev-dates-menu:popover-open { width: 340px; }
+  .menu.oa-ev-dates-menu .oa-choice { min-height: 0; padding-block: var(--space-2); }
+  .menu.oa-ev-dates-menu .menu-heading { margin-block: var(--space-3) var(--space-1); }
+  .oa-ev-countby .oa-choice { align-items: flex-start; }
+  .oa-ev-countby .oa-choice-note { display: block; min-height: 2lh; margin-top: var(--space-1); color: var(--ink-faint); font-size: var(--text-note); line-height: 1.35; white-space: normal; }
+
+  /* the calendar under a day of the window */
+  .oa-ev-cal { width: 268px; padding: var(--space-4) var(--space-5) var(--space-5); }
+  .oa-ev-cal-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin: var(--space-2) 0 var(--space-3); }
+  .oa-ev-cal-title { appearance: none; border: 0; background: none; font: inherit; font-weight: var(--weight-strong); color: var(--ink); padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm); cursor: pointer; }
+  .oa-ev-cal-title:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .oa-ev-cal-title:disabled { cursor: default; }
+  .oa-ev-cal-step:disabled { visibility: hidden; }
+  .oa-ev-cal-back { display: inline-flex; transform: scaleX(-1); }
+  .oa-ev-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .oa-ev-cal-grid.oa-ev-cal-wide { grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+  .oa-ev-cal-grid.oa-ev-cal-years { grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
+  .oa-ev-cal-wd { padding: var(--space-2) 0; color: var(--ink-faint); font-size: var(--text-note); text-align: center; }
+  .oa-ev-cal-cell { appearance: none; height: 32px; margin: 0; padding: 0; border: 0; border-radius: var(--radius-sm); background: none; color: var(--ink); font: inherit; font-size: var(--text-md); font-variant-numeric: tabular-nums; cursor: pointer; }
+  .oa-ev-cal-cell:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .oa-ev-cal-cell[data-span="true"] { background: var(--accent-soft); }
+  .oa-ev-cal-cell[aria-pressed="true"], .oa-ev-cal-cell[aria-pressed="true"]:hover { background: var(--accent); color: var(--on-accent); }
+  .oa-ev-cal-cell:disabled { color: var(--ink-faint); opacity: 0.45; cursor: default; }
+  .oa-ev-cal-blank { pointer-events: none; }
+
+  /* + Add a filter: the Filters menu's layout; Find a field stays on top while the fields scroll
+     under it; the values scroll above their foot, which keeps its line, so nothing moves */
+  .oa-ev-af-menu .oa-filter-rows { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .oa-ev-af-menu .oa-ev-af-find { flex: 0 0 auto; margin: 0 0 var(--space-3); }
+  .oa-ev-af-menu .oa-ev-af-fields { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  .oa-ev-af-menu .oa-filter-row { flex: 0 0 auto; white-space: nowrap; }
+  .oa-ev-af-menu .oa-filter-options { display: flex; flex-direction: column; overflow: hidden; }
+  .oa-ev-af-menu .oa-filter-options .menu-heading { flex: 0 0 auto; white-space: nowrap; }
+  .oa-ev-af-menu .oa-ev-af-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  .oa-ev-af-menu .oa-choice .menu-choice-words { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .oa-ev-af-menu .oa-ev-af-foot { flex: 0 0 auto; white-space: nowrap; }
+}
+
+/* an event too narrow for its line on one row: the dates and the filters wrap between words, so
+   nothing in the line is cut */
+@container oa-ev (max-width: 720px) {
+  .oa-ev .oa-ev-line { flex-wrap: wrap; row-gap: var(--space-2); }
+  .oa-ev .oa-ev-dates { flex: 1 1 100%; min-width: 0; white-space: normal; }
+  .oa-ev .oa-ev-others { white-space: normal; flex-wrap: wrap; }
+  .oa-ev .oa-ev-items { flex-wrap: wrap; white-space: normal; mask-image: none; row-gap: var(--space-2); }
+}

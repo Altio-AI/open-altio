@@ -16,14 +16,10 @@ import { addressParts, current, go, pageAt, productPath } from './router.js';
 import { listWords, passParam, passes, screenOf, useScreens } from './screens.js';
 import { api } from './server.js';
 import { S, ages, defaultRoles, learnClasses, scopeFor } from './state.js';
-import { esc, fix, num, ruleTag, skeletonRows, sortMark, tip } from './util.js';
+import { days, esc, fig, fix, num, ruleTag, skeletonRows, sortMark, tip } from './util.js';
 
 const scopeHere = () => current()?.scope;
-// a ratio as a person reads it: three figures or so, an empty value left empty
-const fig = (v) => (v == null ? '' : Math.abs(v) >= 100 ? num(Math.round(v)) : fix(v, Math.abs(v) >= 10 ? 1 : 2));
 const faint = (text, words) => `<span class="oa-faint oa-has-tip" ${tip(words)}>${text}</span>`;
-// a median in days with its unit: 1 day, 238 days, 12.5 days
-const days = (v) => `${Number.isInteger(v) ? num(v) : fix(v, 1)} ${v === 1 ? 'day' : 'days'}`;
 const ror = (r) => (r.ror == null ? '' : `${fig(r.ror)} ${faint(`${fig(r.ror_lower)} to ${fig(r.ror_upper)}`, '95% interval of the ROR')}`);
 
 // a pair's time to onset: the median days, and in grey the drugs it is based on of the pair's
@@ -98,6 +94,9 @@ function askFor(sc, offset = 0) {
   classParams(sc, p);
   return `/api/statistics?${p}`;
 }
+
+// the tab narrowed by words, as if typed in its Find box, its rows asked again
+export function findStatistics(sc, words) { Object.assign(state(sc), { find: words, rows: null }); }
 
 // the tab's data: the release's statistics, then the first page of pairs (or the next one)
 export async function loadStatistics(sc, { more = false } = {}) {

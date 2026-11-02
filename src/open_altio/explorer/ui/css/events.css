@@ -1,0 +1,96 @@
+/* The events table (eventstable.js) and its menus (eventmenus.js). SPDX-License-Identifier: Apache-2.0 */
+
+@layer components {
+  .oa-et { display: flex; flex-direction: column; gap: var(--space-6); min-width: 0; }
+  .oa-et-headline { display: inline-flex; align-items: center; gap: var(--space-1); }
+  th.oa-num .oa-et-headline { justify-content: flex-end; }
+  .oa-et-up { color: var(--warn); font-size: 0.75em; }
+  .oa-et-due { display: inline-block; width: 32px; height: 12px; }
+  .oa-et-limit-words { color: var(--ink-soft); }
+  .oa-et-tools { display: flex; align-items: center; gap: var(--space-6); min-height: var(--hit-target); }
+  .oa-et-find { flex: 0 1 300px; min-width: 0; margin: 0; }
+  .oa-et-count { margin: 0; color: var(--ink-soft); font-size: var(--text-md); white-space: nowrap; }
+  .oa-et-count strong { color: var(--ink); font-weight: var(--weight-strong); }
+  /* the count's place while the rows load: about as wide as the words that come */
+  .oa-et-count .oa-count-skeleton { width: 72px; }
+  .oa-et-columns { margin-left: auto; flex: 0 0 auto; }
+
+  /* One line per cell: a column takes its content's width, and the frame, never the page, scrolls
+     sideways. The heads and the columns held at the left keep their ground as rows scroll under. */
+  .oa-et-table { font-size: var(--text-md); }
+  .oa-et-table :is(th, td) { padding: var(--space-5) var(--space-4); white-space: nowrap; vertical-align: baseline; }
+  /* the event's name fits its column up to a cap; a longer one is cut, its whole in its tip (hold) */
+  .oa-et-table .oa-et-name { max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
+  .oa-et-table tbody th { min-width: 0; color: var(--ink); font-weight: var(--weight-regular); }
+  .oa-et-table td { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .oa-et-table thead th { padding-block: var(--space-4); overflow-wrap: normal; word-break: keep-all; hyphens: none; }
+  .oa-et-head { display: inline-flex; align-items: center; gap: var(--space-2); color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; white-space: nowrap; }
+  .oa-et-head .icon, .oa-et-head .icon svg { width: var(--icon-sm); height: var(--icon-sm); }
+  button.oa-et-head:hover, .oa-et-head[aria-pressed="true"] { color: var(--ink); }
+  th.oa-num .oa-et-head { justify-content: flex-end; }
+
+  .oa-et-table tr { --row-ground: var(--panel); }
+  .oa-et-table tbody tr[data-act] { cursor: pointer; }
+  .oa-et-table tbody tr[data-act]:hover { --row-ground: var(--mist); }
+  .oa-et-table tbody tr > * { background: var(--row-ground); }
+  .oa-et-held { position: sticky; left: 0; z-index: 1; background: var(--row-ground); }
+  .oa-et-table thead .oa-et-held { z-index: 2; background: var(--panel); }
+  .oa-et-frame { container-type: scroll-state; }
+  @container scroll-state(scrollable: x) {
+    .oa-et-table .oa-et-name { box-shadow: inset calc(-1 * var(--hairline)) 0 var(--line); }
+  }
+
+  /* a row a host tints, its left edge marked */
+  .oa-et-table tr.oa-tinted { --row-ground: var(--warn-soft); }
+  .oa-et-table tr.oa-tinted > :first-child { box-shadow: inset 3px 0 var(--caution); }
+  .oa-et-table tr.oa-tinted[data-act]:hover { --row-ground: color-mix(in srgb, var(--warn) 14%, var(--panel)); }
+
+  /* the cell under a row a host opens: the host's box in it as wide as the frame shows, held at
+     the left as a wide table scrolls sideways, its words wrapping as a page's do */
+  .oa-et-table tr.oa-et-opened > td { padding: 0; white-space: normal; color: var(--ink); font-variant-numeric: normal; }
+  .oa-et-opened-box { position: sticky; left: 0; box-sizing: border-box; padding: var(--space-5) var(--space-6); }
+
+  /* a cell a host marks, its words in its tip */
+  .oa-et-table td.oa-et-marked { color: var(--warn); }
+  .oa-et-tag { color: var(--ink-faint); font-size: var(--text-tag); letter-spacing: var(--tracking-caps); }
+  .oa-et-tag[data-tag="dme"] { color: var(--warn); }
+  .oa-et-label { color: inherit; text-decoration: underline dotted var(--ink-pale); text-underline-offset: var(--underline-offset); }
+  .oa-et-label:hover { color: var(--link); }
+  .oa-et-forms { font-size: inherit; }
+  .oa-et-trend { display: inline-block; vertical-align: middle; line-height: 0; }
+  .oa-et-trend svg { width: 96px; height: 24px; overflow: visible; }
+  .oa-et-trend circle { fill: var(--accent); }
+  .oa-et-trend polyline { fill: none; stroke: var(--accent); stroke-width: 1.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .oa-et-loading td { padding-block: var(--space-6); }
+  .oa-et-loading .skeleton-row { display: block; margin-block: var(--space-4); }
+
+  .oa-et-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-8); min-height: var(--hit-target); color: var(--ink-soft); font-size: var(--text-md); }
+
+  /* the menus: a bound's box, the line under the boxes, a column always shown */
+  .oa-et-menu { max-width: 360px; }
+  .oa-et-bound { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-2) var(--space-5); font-size: var(--text-menu); white-space: nowrap; }
+  /* the app's in-place value: typed where it stands, no box; only the caret and a faint outline show */
+  .oa-et-typeover { appearance: textfield; width: 3.4em; padding: 0; border: 0; border-radius: 0; background: none; color: inherit; font: inherit; font-variant-numeric: tabular-nums; text-align: right; text-decoration: underline dotted var(--ink-pale); text-underline-offset: var(--underline-offset); outline: none; }
+  .oa-et-typeover::-webkit-inner-spin-button, .oa-et-typeover::-webkit-outer-spin-button { appearance: none; margin: 0; }
+  .oa-et-menu .oa-et-typeover, .oa-et-menu .oa-et-typeover:focus, .oa-et-menu .oa-et-typeover:focus-visible { outline: none; border: 0; box-shadow: none; background: none; }
+  .oa-et-typeover[data-changed="true"] { color: var(--accent-deep); font-weight: var(--weight-strong); }
+  .oa-et-typeover[aria-invalid="true"] { color: var(--warn); }
+  .oa-et-bound > span:first-child { flex: 1 1 auto; }
+  .oa-et-reset { width: 22px; height: 22px; flex: 0 0 auto; color: var(--ink-faint); }
+  .oa-et-reset[data-state="off"] { visibility: hidden; }
+  .oa-et-sorter { display: inline-flex; padding: 0; border: 0; background: none; cursor: pointer; }
+  .oa-et-menu-line { margin: 0; padding: var(--space-2) var(--space-5); font-size: var(--text-sm); }
+  .oa-et-menu-line [data-state="off"] { visibility: hidden; }
+  .oa-et-always { cursor: default; }
+  .oa-et-always:hover { --menu-item-bg: transparent; }
+  .oa-et-no-tick { flex: 0 0 auto; width: 16px; }
+  .oa-et-form { margin: 0; padding: var(--space-3) var(--space-5); font-size: var(--text-menu); white-space: normal; }
+}
+
+/* a phone: the held name is at most about half the frame, a longer one cut short with its whole
+   name in its tip, so the columns beside it can be seen */
+@media (max-width: 767px) {
+  .oa-et-tools { flex-wrap: wrap; }
+  .oa-et-find { flex: 1 1 100%; }
+  .oa-et-table .oa-et-name { max-width: 45vw; overflow: hidden; text-overflow: ellipsis; }
+}

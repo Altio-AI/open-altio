@@ -9,7 +9,7 @@ import { icon } from './icons.js';
 import { dialog, showProblem, toast } from './overlays.js';
 import { current, drawn } from './router.js';
 import { api } from './server.js';
-import { runSql, sqlBox, sqlResult } from './sql.js';
+import { runSql, sqlBox, sqlResult, takeAddressQuery } from './sql.js';
 import { S, whoOn } from './state.js';
 import { GROUP_WORDS, TABLE_WORDS, citeText, columnWords, isClassTable, isFdaColumn, tableFrom } from './tablewords.js';
 import { day, esc, foundFirst, foundOrder, num, sinceWords, size, skeletonRows, tip } from './util.js';
@@ -115,7 +115,8 @@ drawn('release', (r, app) => {
   if (!S.schema) need.push(api('/api/schema').then((x) => { S.schema = x; }));
   if (!S.manifest) need.push(api('/api/manifest').then((x) => { S.manifest = x; }));
   if (!S.downloads) need.push(loadDownloads());
-  if (need.length) Promise.all(need).then(() => { if (current()?.page === 'release') { const keep = document.getElementById('oa-sql-text')?.value; app.innerHTML = releasePage(); fitCatalogue(); if (keep != null && S.sql) document.getElementById('oa-sql-text').value = keep; } }).catch(showProblem);
+  if (!need.length) takeAddressQuery();
+  else Promise.all(need).then(() => { if (current()?.page === 'release') { const keep = document.getElementById('oa-sql-text')?.value; app.innerHTML = releasePage(); fitCatalogue(); if (keep != null && S.sql) document.getElementById('oa-sql-text').value = keep; takeAddressQuery(); } }).catch(showProblem);
 });
 
 actions({

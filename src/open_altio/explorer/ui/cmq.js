@@ -8,7 +8,7 @@
 import { actions } from './events.js';
 import { icon } from './icons.js';
 import { choice, closeMenus, dialog, toast } from './overlays.js';
-import { dropQuery, fromQuery, inAccount, isMine, keepQuery, notesOf, queryGroups, queryNote, shareGroup } from './queries.js';
+import { dropQuery, fromQuery, inAccount, isMine, keepQuery, notesOf, queryGroups, queryNote, queryWords, shareGroup } from './queries.js';
 import { refresh, scopeNow } from './scope.js';
 import { api } from './server.js';
 import { S, meddraOn } from './state.js';
@@ -29,7 +29,7 @@ function openCmq(id, { copyOf = null } = {}) {
   const from = q || (copyOf ? byId(copyOf) : null);
   draft = { id: q?.id || null, name: q ? q.name : from ? `${from.name} (my copy)` : '', terms: [...(from?.terms || [])], src: from ? notesOf(from) : {}, shared: !!q?.shared, by: q && !isMine(q) ? q.by : null, q: '', kind: 'all', result: null, open: new Set(), details: {} };
   const dlg = dialog(q ? 'Custom MedDRA query (CMQ)' : 'New custom MedDRA query (CMQ)', `
-    <p class="oa-dialog-lead">Your own named group of preferred terms, kept ${inAccount() ? 'in your account' : 'for you'} and used like an SMQ. Build it from preferred terms${meddraOn() ? ', lower-level terms, SMQs' : ''} and your other queries; a case counts when it has any of its terms.</p>
+    <p class="oa-dialog-lead">${esc(queryWords().intro) || `Your own named group of preferred terms, kept ${inAccount() ? 'in your account' : 'for you'} and used like an SMQ. Build it from preferred terms${meddraOn() ? ', lower-level terms, SMQs' : ''} and your other queries; a case counts when it has any of its terms.`}</p>
     <label class="field"><span class="field-label">Its name, as your filters will show it</span><input class="field-input" id="oa-cmq-name" value="${esc(draft.name)}" placeholder="For example: Gastrointestinal upset" autocomplete="off"></label>
     <div class="oa-cmq-cols">
       <div class="oa-cmq-col">
@@ -45,7 +45,7 @@ function openCmq(id, { copyOf = null } = {}) {
     </div>
     <p class="note-faint">Counts are cases in the whole release.${inAccount() ? '' : ' Kept in this browser.'}</p>
     ${shareGroup() ? shareSwitch() : ''}`,
-  `${q ? '<button type="button" class="btn oa-danger-btn" data-act="cmq-delete">Delete</button>' : ''}<button type="button" class="btn" data-act="close-dialog">Cancel</button><button type="button" class="btn btn-primary" data-act="cmq-save">Save and run</button>`);
+  `${q ? '<button type="button" class="btn oa-danger-btn" data-act="cmq-delete">Delete</button>' : ''}<button type="button" class="btn" data-act="close-dialog">Cancel</button><button type="button" class="btn btn-primary" data-act="cmq-save">${esc(queryWords().save)}</button>`);
   dlg.classList.add('oa-cmq-dialog');
   dlg.addEventListener('close', () => { draft = null; });
   paintDraft();
@@ -215,7 +215,7 @@ actions({
     Object.values(S.scopes).forEach((one) => { if (one.f.cmqs.includes(q.id)) { one.summaryKey = null; settleTerms(one.f); } });
     el.closest('dialog').close();
     choose(q);
-    toast(`CMQ ${q.name}: ${q.terms.length} terms, chosen under Reactions.${q.shared && !was?.shared && shareGroup() ? ` Shared with ${shareGroup()}.` : ''}`);
+    toast(`${queryWords().saved(q)}${q.shared && !was?.shared && shareGroup() ? ` Shared with ${shareGroup()}.` : ''}`);
   },
   'cmq-delete': async (el) => {
     const q = byId(draft.id);
@@ -232,7 +232,7 @@ actions({
     const q = byId(el.dataset.id);
     el.closest('dialog').close();
     choose(q);
-    toast(`CMQ ${q.name}: ${q.terms.length} terms, chosen under Reactions.`);
+    toast(queryWords().saved(q));
   },
   'cmq-copy': (el) => { el.closest('dialog').close(); openCmq(null, { copyOf: el.dataset.id }); },
 });
