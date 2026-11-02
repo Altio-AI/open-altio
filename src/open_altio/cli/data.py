@@ -9,8 +9,8 @@ from pathlib import Path
 
 from open_altio import paths, rulebook
 from open_altio.explorer.rebuild import settle
-from open_altio.faers import EXPLORER_FILE, MANIFEST_FILE, fda, read_manifest
-from open_altio.faers.build import build_release, user_rules_beside
+from open_altio.faers import EXPLORER_FILE, NotARelease, fda, read_manifest
+from open_altio.faers.build import Inputs, build_release, user_rules_beside
 from open_altio.faers.drugnames import DictionaryRefused, dictionary
 from open_altio.faers.sources import QUARTER, discover, release_name
 
@@ -76,6 +76,12 @@ def add(commands: argparse._SubParsersAction) -> None:
         epilog="Example:\n  mkdir faers && cd faers\n  open-altio build\n  open-altio serve",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    build.add_argument(
+        "--dme", type=Path, metavar="FILE", help="EMA's Designated Medical Events file"
+    )
+    build.add_argument(
+        "--ime", type=Path, metavar="FILE", help="EMA's Important Medical Events file"
+    )
     build.set_defaults(run=run_build)
 
 
@@ -123,9 +129,12 @@ def _latest(folder: Path) -> str:
 
 def _is_current(release: Path, quarters: list[str]) -> bool:
     """A whole release of exactly these quarters, built by the open-altio installed now."""
-    if not (release / MANIFEST_FILE).is_file() or not (release / EXPLORER_FILE).is_file():
+    if not (release / EXPLORER_FILE).is_file():
         return False
-    manifest = read_manifest(release)
+    try:
+        manifest = read_manifest(release)
+    except NotARelease:  # none there, or one this version does not read: built again
+        return False
     return manifest["quarters"] == quarters and manifest["code_version"] == metadata.version(
         "open-altio"
     )
@@ -178,7 +187,16 @@ def run_build(args: argparse.Namespace) -> int:
         f"Building {release_name(quarters[-1])} from {len(quarters)} quarters of FDA's files "
         f"in {folder}, with {following}, into {out}"
     )
-    release = build_release(folder, out, user_rules=rules, progress=console.build_steps())
+    for given in (args.dme, args.ime):
+        if given is not None and not given.is_file():
+            raise Refusal(f"{given} is not there. Check the path and run the build again.")
+    release = build_release(
+        folder,
+        out,
+        user_rules=rules,
+        progress=console.build_steps(),
+        inputs=Inputs(dme=args.dme, ime=args.ime),
+    )
     console.built(release)
     say("Explore it with: open-altio serve")
     return 0

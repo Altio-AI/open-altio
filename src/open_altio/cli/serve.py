@@ -54,8 +54,8 @@ Rebuild with your rules, on the methods page, builds the release again from FDA'
 other files it was built with, so the new release holds everything the first one did. Start
 the explorer with each of them the release holds: --meddra for MedDRA, --rxnorm for RxNorm's
 drug codes (by default $OPEN_ALTIO_RXNORM_DIR, else the data folder's rxnorm/), --labels for
-FDA's labels and, when the release flags its reactions against them with EMA's Important
-Medical Events, --ime for that file. The groups file and reviewed codings of the label flags
+FDA's labels, --dme and --ime for EMA's designated and important medical event files (the
+label flags read --ime too). The groups file and reviewed codings of the label flags
 stay in the release. Without a file it needs, the rebuild says which and does not start.
 """
 
@@ -89,6 +89,12 @@ def add(commands: argparse._SubParsersAction) -> None:
         help="the labels folder labels-fetch filled, for a rebuild",
     )
     serve.add_argument(
+        "--dme",
+        type=Path,
+        metavar="FILE",
+        help="EMA's Designated Medical Events file, for a rebuild",
+    )
+    serve.add_argument(
         "--ime",
         type=Path,
         metavar="FILE",
@@ -113,8 +119,10 @@ def run_serve(args: argparse.Namespace) -> int:
     release = args.release or newest_release(Path.cwd())
     _check(release)
     settle(release.parent, read_manifest(release)["release"])
-    inputs = Inputs(meddra=args.meddra, rxnorm=args.rxnorm, labels=args.labels, ime=args.ime)
-    for given in (inputs.meddra, inputs.rxnorm, inputs.labels, inputs.ime):
+    inputs = Inputs(
+        meddra=args.meddra, rxnorm=args.rxnorm, labels=args.labels, dme=args.dme, ime=args.ime
+    )
+    for given in (inputs.meddra, inputs.rxnorm, inputs.labels, inputs.dme, inputs.ime):
         if given is not None and not given.exists():
             raise Refusal(f"{given} is not there. Check the path and start the explorer again.")
     if inputs.meddra:

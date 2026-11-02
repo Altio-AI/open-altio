@@ -92,7 +92,9 @@ CARDS: list[CardFn] = [
 ]
 
 # The rules each card is a chart for: a rule finds its cards here, and a card can serve several.
-# Every rule of rules/steps.yaml has at least one (tests/faers/insights/test_rule_charts.py).
+# Every rule the methods page shows has at least one, but the few the release holds nothing of
+# their own to chart for, which the page shows by their words (tests/faers/insights/
+# test_rule_charts.py).
 RULES_OF: dict[str, list[str]] = {
     "carried_cases_counted_twice": ["latest-version"],
     "deleted_lists_unpublished": ["deleted-cases"],
@@ -109,13 +111,17 @@ RULES_OF: dict[str, list[str]] = {
     "padding_puts_reactions_before_drug": ["time-to-onset"],
     "occupation_code_changes": ["reporter-type"],
     "one_medicine_many_spellings": ["drug-names"],
-    "background_drugs_counted_every_role": ["drug-names"],
+    "background_drugs_counted_every_role": ["drug-names", "explorer-drug-counts"],
     "brand_changes_ingredient": ["drug-names"],
     "unknown_written_two_ways": ["not-given"],
     "to_mfr_filler_on_company_reports": ["not-given"],
-    "who_reported_lost_on_company_reports": ["not-given", "explorer-field-notes"],
+    "who_reported_lost_on_company_reports": [
+        "not-given",
+        "explorer-field-notes",
+        "breakdown-lines",
+    ],
     "completeness_depends_on_sender": ["not-given"],
-    "rechal_filler": ["not-given"],
+    "rechal_filler": ["not-given", "rechallenge-correction"],
     "older_meddra_terms_missed": ["meddra-terms"],
     "quarterly_files_keep_their_meddra_version": ["meddra-version", "meddra-terms"],
     "sender_names_unstable": ["company-names"],
@@ -133,6 +139,7 @@ RULES_OF: dict[str, list[str]] = {
     "country_not_specified": ["country-not-given"],
     "dates_without_a_clean_date": ["date-limits"],
     "therapy_durations": ["therapy-duration"],
+    "dated_by_first_copy": ["received-day"],
     "route_found": ["drug-route"],
     "drug_records_classed": ["atc-index", "atc-spelling-bridges"],
     "classes_chosen": ["atc-group-classes", "atc-class-choice"],
@@ -145,14 +152,18 @@ RULES_OF: dict[str, list[str]] = {
     "rrr_spread": ["rrr"],
     "ic_spread": ["ic"],
     "ror_by_stratum": ["ror-strata"],
+    "cases_by_outcome": ["serious-outcomes"],
+    "cases_by_age_group": ["age-groups"],
+    "medical_event_terms": ["medical-event-lists"],
+    "reports_citing_an_article": ["literature-reference"],
     "labels_by_application": ["label-source"],
     "label_choice_reasons": ["label-choice"],
     "label_sections_read": ["label-sections"],
     "labels_keyed_by_ingredients": ["label-own-ingredients"],
     "label_flags_given": ["label-flags", "label-negation", "label-population"],
-    "label_treated_disease": ["label-treated-disease"],
-    "label_not_a_medical_event": ["label-not-a-medical-event"],
-    "label_procedure": ["label-procedure"],
+    "label_treated_disease": ["label-treated-disease", "treated-condition"],
+    "label_not_a_medical_event": ["label-not-a-medical-event", "label-groups"],
+    "label_procedure": ["label-procedure", "label-groups"],
     "label_umbrella": ["label-umbrella"],
     "label_dictionary": ["label-dictionary"],
     "label_table_rows": ["label-table-rows"],

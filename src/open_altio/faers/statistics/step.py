@@ -60,11 +60,14 @@ MEDDRA_NEEDS = ("reac_meddra_T", "meddra_pt")
 
 def by_current_pt(manifest: dict[str, Any]) -> tuple[str, ...]:
     """The release's statistics tables counted by current PT, which a viewer shown reactions as
-    FDA wrote them is not given: they are given the AS_PUBLISHED ones instead. The class
-    statistics have no second set, so such a viewer is given none of them."""
+    FDA wrote them is not given: they are given the AS_PUBLISHED ones instead, and the quarter
+    counts' reactions by FDA's text (quarterly.py). The class statistics have no second set, so
+    such a viewer is given none of them."""
     entry = manifest.get("statistics") or {}
     by_class = manifest.get("class_statistics") or {}
+    quarters = manifest.get("quarter_statistics") or {}
     own = (entry["table"], entry["ror_strata"]["table"]) if _by_pt(entry) else ()
+    own += (quarters["reaction_table"],) if _by_pt(quarters) else ()
     return own + (tuple(by_class["tables"]) if _by_pt(by_class) else ())
 
 
@@ -259,7 +262,8 @@ def recount(release_dir: str | Path) -> dict[str, Any] | None:
     """Count a built release's statistics again by the MedDRA version its licensed part holds
     now, as a build given that version does: `statistics_T`, `statistics_strata_T`, the
     manifest's `statistics` entry and the explorer database's copies, each replaced whole, and
-    the class statistics too where the release has them (add_classes). Held
+    the class statistics and quarter counts too where the release has them (add_classes,
+    quarterly.add_quarters). Held
     to the explorer build's memory (rules/explorer-build-memory.md), since a host runs it beside
     the explorer. Returns the new entry; None, with nothing changed, for a release that has no
     statistics."""
@@ -279,6 +283,10 @@ def recount(release_dir: str | Path) -> dict[str, Any] | None:
     _finish(release_dir, manifest, STATISTICS_TABLES)
     if (manifest.get("class_statistics") or {}).get("present"):
         add_classes(release_dir)  # counted by the same reactions as the ingredients
+    if (manifest.get("quarter_statistics") or {}).get("present"):
+        from .quarterly import add_quarters  # here, not above: quarterly builds on this module
+
+        add_quarters(release_dir)
     return entry
 
 

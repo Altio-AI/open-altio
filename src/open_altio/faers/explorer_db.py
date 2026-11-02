@@ -12,7 +12,8 @@ The release build calls it last (src/open_altio/faers/release.py). Its tables:
 - `explorer_case_T`: one row per case in `case_latest_T` (every case; the
   duplicate flags are columns), numbered `case_id_T` in (era_T, case_key_T)
   order and stored in that order, with the typed columns the filters use; sex,
-  age, weight and country are the release's own, read by their rules.
+  age, weight and country are the release's own, read by their rules, and
+  FDA's literature reference (`lit_ref`) is there for the breakdowns.
   Received-date filters and sorting use `group_first_dt_T`, the earliest
   receipt of the case's duplicate group (rules/dup-shown-copy.md).
 - `explorer_sender_T`: each sender spelling and company name, in capitals and trimmed, with the
@@ -125,7 +126,7 @@ SELECT k.case_id_T,
   c.first_fda_dt_T, c.init_fda_dt, c.fda_dt, c.event_dt, c.event_dt_T, c.event_dt_prec_T,
   c.age, c.age_cod, c.age_years_T, c.age_band_T, c.sex, c.sex_T, c.wt, c.wt_cod, c.wt_kg_T,
   c.occr_country, c.reporter_country, c.country_T, c.country_source_T,
-  c.occp_cod, c.reporter_type_T, c.mfr_sndr, c.company_T,
+  c.occp_cod, c.reporter_type_T, c.lit_ref, c.mfr_sndr, c.company_T,
   c.dup_kept_T, c.probable_duplicate_T, c.dup_group_T, c.group_first_dt_T, c.dup_rule_T,
   c.dup_shown_case_T, c.dup_other_cases_T, c.no_drug_or_reaction_T,
   c.serious_no_drug_or_reaction_T,

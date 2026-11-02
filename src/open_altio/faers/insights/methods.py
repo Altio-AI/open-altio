@@ -27,6 +27,7 @@ import yaml
 
 from open_altio import rulebook
 from open_altio.faers import formats
+from open_altio.faers.reader import read_manifest
 
 from .cards import LICENSED, TAG_LABELS, compute_cards
 
@@ -62,11 +63,17 @@ def limits() -> list[dict]:
     return yaml.safe_load(LIMITS_FILE.read_text(encoding="utf-8")) or []
 
 
-def card_lines(card: dict) -> dict[str, str] | None:
+def card_words() -> dict:
+    """Every card's opened words, as `lines.yaml` holds them now."""
+    return yaml.safe_load(LINES_FILE.read_text(encoding="utf-8")) or {}
+
+
+def card_lines(card: dict, read: dict | None = None) -> dict[str, str] | None:
     """An opened card's Shows / Why it matters / What we did, read from `lines.yaml` now, not
     from the release, and filled with the card's own numbers; None for a card with no lines
-    there, or whose numbers the release lacks (a card computed before it had them)."""
-    words = (yaml.safe_load(LINES_FILE.read_text(encoding="utf-8")) or {}).get(card.get("id"))
+    there, or whose numbers the release lacks (a card computed before it had them). A page of
+    many cards passes `read`, the words `card_words()` read once for all of them."""
+    words = (card_words() if read is None else read).get(card.get("id"))
     if not words:
         return None
     try:
@@ -373,7 +380,7 @@ def refresh_cards(
     from open_altio.faers.meddra.licensed import read_licensed_manifest, write_licensed_manifest
 
     release = Path(release_dir)
-    manifest = json.loads((release / "manifest.json").read_text(encoding="utf-8"))
+    manifest = read_manifest(release)
     path = release / manifest["methods"]
     doc = json.loads(path.read_text(encoding="utf-8"))
     spill = Path(temp_directory) if temp_directory else release / ".cards.spill"
@@ -485,6 +492,7 @@ __all__ = [
     "MethodsError",
     "build_methods",
     "card_lines",
+    "card_words",
     "code_ref",
     "fill",
     "fill_limits",

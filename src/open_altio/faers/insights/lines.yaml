@@ -38,6 +38,11 @@ therapy_durations:
   matters: "A duration from a date known only to its month or year can be weeks wrong."
   did: "Count days from start and end dates known to the day, else use FDA's duration; leave it empty when it cannot be true."
 
+dated_by_first_copy:
+  shows: "{earlier_copy:,} of {cases:,} cases are dated by an earlier copy's receipt; {no_day:,} have no day and count in the quarter of their file."
+  matters: "Dated by a later copy, an old event would count as new in the quarter that copy arrived."
+  did: "Date every count by quarter, year or window by the first time FDA received any copy of the case."
+
 route_found:
   shows: "{with_a_route:,} of {drug_records:,} drug records get the ways the drug could have been given."
   matters: "A drug is read against the label for the way it was taken: tablets and eye drops of one drug have different labels."
@@ -97,6 +102,26 @@ ror_by_stratum:
   shows: "Of {pair_strata:,} odds ratios worked out within an age band or a sex, {lower_above_1:,} have a lower bound above 1."
   matters: "A link that comes only from who takes the drug shows up when it disappears within each band or sex."
   did: "Work out each pair's ROR again within each age band and each sex."
+
+cases_by_outcome:
+  shows: "Of {cases:,} cases, {serious:,} are serious, {death:,} ended in death and {life_threatening:,} were life-threatening; {no_outcome:,} give no outcome."
+  matters: "Each of FDA's outcome codes is one criterion that makes a report serious, so a count from them can be checked against FDA's files."
+  did: "Count a case as serious, fatal or life-threatening by FDA's own codes; a case with no outcome counts in none."
+
+cases_by_age_group:
+  shows: "Of {aged:,} cases that give an age, {children:,} are children and {older:,} older people."
+  matters: "An event far more common in children or in older people than the drug's own cases are is a fact to weigh."
+  did: "Give each event the share of its cases in the children's bands and in the older bands, of those that give an age."
+
+medical_event_terms:
+  shows: "The release holds {lists_held:,} of EMA's lists, naming {terms:,} reaction terms."
+  matters: "EMA names these terms as the ones to look at closely whenever they are reported."
+  did: "Mark each event that is on a list; where the build was given no list, the mark is Not available, never no."
+
+reports_citing_an_article:
+  shows: "Cases citing an article: {cites:,} of the {given:,} that say whether they do. {before_field:,} come from FDA's files before the field and read Not given."
+  matters: "Read as citing no article, the reports from before the field would make literature reports seem to rise where FDA's files only gained a field."
+  did: "Read a report from FDA's files before the field as Not given, and a blank from then on as no article cited."
 
 labels_by_application:
   shows: "{labels:,} current FDA prescription labels are read."

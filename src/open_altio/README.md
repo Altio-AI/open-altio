@@ -8,6 +8,7 @@
 | `stats/` | Statistics over counts of cases from any source: EBGM, PRR, ROR, RRR and IC, and the screens a pair may meet. The build's statistics step (`faers/statistics/`) counts a release for them |
 | `labelreview/` | The label review: any agent codes each label phrase the label rules leave uncertain into MedDRA preferred terms, file in and file out; one reviewer checks on a page on their own machine, gates decide when batches grow, and decided codings are frozen so a build runs no agent. Also the hand check of a random sample of rule-made flags |
 | `rulebook/` | Reads rule values from `rules/`, and from any folder a host adds; the only way code reads a policy value |
+| `scratch.py` | Scratch folders named by process id; making one clears those of processes now gone |
 | `paths.py`, `machine.py` | Where the data folder is on each platform, and memory facts read the same way on Windows |
 | `testing/` | The fake FDA files and MedDRA release tests build from, the release reader tests check with, and the rules helpers |
 
@@ -22,5 +23,7 @@ faers, explorer, stats  ──use──>  rulebook
 labelreview  ──uses──>  rulebook; the label step reads its frozen file
 nothing here imports a host
 ```
+
+`open_altio.CONTRACT_VERSION` is the version of the written contract, the names a product built on Open Altio may build on (`docs/reference/contract.md`); `tests/contract/` checks them.
 
 A host (the hosted service is one) imports `open_altio.explorer`, hands `create_app` its own access hook and adds its own rules folder with `rulebook.add_rules_dir`; `tests/test_open_package_alone.py` checks that nothing here imports it back.

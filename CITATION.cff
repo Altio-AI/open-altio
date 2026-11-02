@@ -9,8 +9,8 @@ authors:
 repository-code: "https://github.com/Altio-AI/open-altio"
 url: "https://open.altioai.com"
 license: Apache-2.0
-version: "1.0.0"
-date-released: 2026-10-19
+version: "1.0.1"
+date-released: 2026-10-22
 keywords:
   - FAERS
   - AERS

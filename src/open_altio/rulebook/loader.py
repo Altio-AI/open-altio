@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import contextlib
 import copy
+import functools
 import os
-from collections.abc import Iterator, Mapping
+import time
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -22,8 +24,10 @@ REQUIRED_KEYS = ("rule", "values", "enforced_in")
 ENV_VAR = "OPEN_ALTIO_RULES_DIR"
 
 _override: Path | None = None  # in place of rules/, while use_rules_dir is in force
-_extra: list[Path] = []  # folders added by packages with rules of their own
-_replaced: list[Path] | None = None  # in place of every folder, while use_rules_dirs is in force
+# folders added by packages with rules of their own, each with the prefix its rule names carry
+_extra: list[tuple[Path, str | None]] = []
+# in place of every folder, while use_rules_dirs is in force
+_replaced: list[tuple[Path, str | None]] | None = None
 # A context variable, not a global: the explorer rebuilds in a background thread while it keeps
 # answering requests under Altio's standard, and each thread starts with its own context.
 _in_force: ContextVar[UserRules | None] = ContextVar("user_rules", default=None)
@@ -55,6 +59,11 @@ class Rule:
     def enforced(self) -> bool:
         return bool(self.enforced_in)
 
+    @property
+    def placeholder(self) -> bool:
+        """A rule whose values wait on its evidence notebook (`placeholder: true`)."""
+        return self.extra.get("placeholder") is True
+
     def value(self, key: str) -> Any:
         try:
             return self.values[key]
@@ -64,6 +73,7 @@ class Rule:
             ) from None
 
 
+@functools.cache
 def data_root() -> Path:
     """The folder holding rules/ and mappings/. An installed package carries them inside
     itself; a checkout keeps them at the top of the repository, where people read them."""
@@ -81,18 +91,25 @@ def rules_dir() -> Path:
     return data_root() / "rules"
 
 
-def rules_dirs() -> list[Path]:
-    """Every folder rules are read from, in the order a name is looked up."""
+def rules_folders() -> list[tuple[Path, str | None]]:
+    """Every folder rules are read from, in the order a name is looked up, each with the prefix
+    every rule name in it must start with (None: any name)."""
     if _replaced is not None:
         return list(_replaced)
-    return [rules_dir(), *_extra]
+    return [(rules_dir(), None), *_extra]
 
 
-def add_rules_dir(path: str | os.PathLike[str]) -> None:
-    """Read rules from `path` too, after rules/."""
+def rules_dirs() -> list[Path]:
+    """Every folder rules are read from, in the order a name is looked up."""
+    return [folder for folder, _ in rules_folders()]
+
+
+def add_rules_dir(path: str | os.PathLike[str], prefix: str | None = None) -> None:
+    """Read rules from `path` too, after rules/. With a `prefix`, every rule name in the folder
+    must start with it, so a product's rule never takes a name Open Altio may use later."""
     folder = Path(path)
-    if folder not in _extra:
-        _extra.append(folder)
+    if folder not in [added for added, _ in _extra]:
+        _extra.append((folder, prefix))
 
 
 @contextlib.contextmanager
@@ -107,14 +124,18 @@ def use_rules_dir(path: str | os.PathLike[str]) -> Iterator[Path]:
         _override = previous
 
 
+Folder = str | os.PathLike[str] | tuple[str | os.PathLike[str], str | None]
+
+
 @contextlib.contextmanager
-def use_rules_dirs(paths: list[Path]) -> Iterator[list[Path]]:
-    """Read only these folders, in this order, for the duration of a block."""
+def use_rules_dirs(paths: Sequence[Folder]) -> Iterator[list[Path]]:
+    """Read only these folders, in this order, for the duration of a block. A folder given as
+    (path, prefix) holds only rule names that start with the prefix, as `add_rules_dir` says."""
     global _replaced
     previous = _replaced
-    _replaced = [Path(p) for p in paths]
+    _replaced = [(Path(p[0]), p[1]) if isinstance(p, tuple) else (Path(p), None) for p in paths]
     try:
-        yield list(_replaced)
+        yield [folder for folder, _ in _replaced]
     finally:
         _replaced = previous
 
@@ -167,7 +188,11 @@ def _heading_and_text(body: list[str]) -> tuple[str, str]:
 def parse_rule_file(path: str | os.PathLike[str]) -> Rule:
     """Parse one rule file. Raises RuleError if the front-matter is malformed."""
     path = Path(path)
-    lines = path.read_text(encoding="utf-8").splitlines()
+    return _rule_of(path, path.read_text(encoding="utf-8"))
+
+
+def _rule_of(path: Path, text: str) -> Rule:
+    lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         raise RuleError(f"{path.name}: does not start with front-matter '---'")
     try:
@@ -207,58 +232,101 @@ def _rule_files() -> list[Path]:
     )
 
 
+def _prefixed(path: Path) -> Path:
+    """The rule file at `path`, or RuleError when its folder's prefix does not start its name."""
+    prefix = dict(rules_folders()).get(path.parent)
+    if prefix and not path.stem.startswith(prefix):
+        raise RuleError(
+            f"{path.name} in {path.parent}: every rule there must be named {prefix}..., "
+            f"as the folder was added with prefix {prefix!r}"
+        )
+    return path
+
+
 def rule_names() -> list[str]:
     return [p.stem for p in _rule_files()]
 
 
-# each rule file as last parsed, with the size and time it had then
-_PARSED: dict[Path, tuple[tuple[int, int, int], Rule]] = {}
+# A file system may keep a file's time as coarsely as two seconds, so a file changed that recently
+# can change again keeping its time and size. Until it is older, its text is compared as well.
+SETTLE_NS = 2_000_000_000
 
 
-def _parsed(path: Path) -> Rule:
-    """parse_rule_file, parsed again only when the file has changed: a page reads its rules
-    thousands of times, and each parse reads the YAML afresh. The caller gets a copy of its own."""
-    stat = path.stat()
-    stamp = (stat.st_mtime_ns, stat.st_size, stat.st_ino)
-    kept = _PARSED.get(path)
-    if kept is None or kept[0] != stamp:
-        kept = _PARSED[path] = (stamp, parse_rule_file(path))
-    return copy.deepcopy(kept[1])
+@dataclass(frozen=True)
+class _Kept:
+    stamp: tuple[int, int, int]  # the file's time, size and inode when it was read
+    settled: bool  # whether it was older than SETTLE_NS then
+    text: str
+    parsed: Any
 
 
-def rule(name: str) -> Rule:
-    """The rule called `name` (its file is `<name>.md` in one of the rules folders)."""
-    found = [d / f"{name}.md" for d in rules_dirs() if (d / f"{name}.md").is_file()]
+_KEPT: dict[tuple[Path, Callable[[Path, str], Any]], _Kept] = {}
+
+
+def kept[T](path: Path, parse: Callable[[Path, str], T]) -> T:
+    """`parse(path, text)` of the file at `path`, read once and kept, and read again only when
+    the file changes on disk: a page reads its rules thousands of times, and a parse reads the
+    YAML afresh. What it gives is shared, so the caller never changes it."""
+    seen = path.stat()
+    stamp = (seen.st_mtime_ns, seen.st_size, seen.st_ino)
+    was = _KEPT.get((path, parse))
+    if was is not None and was.stamp == stamp and was.settled:
+        return was.parsed
+    text = path.read_text(encoding="utf-8")
+    parsed = was.parsed if was is not None and was.text == text else parse(path, text)
+    settled = stamp[0] < time.time_ns() - SETTLE_NS
+    _KEPT[(path, parse)] = _Kept(stamp, settled, text, parsed)
+    return parsed
+
+
+def _found(name: str) -> Rule:
+    """The rule called `name` as kept (its file is `<name>.md` in one of the rules folders)."""
+    found = [path for path in (d / f"{name}.md" for d in rules_dirs()) if path.is_file()]
     if name == "README" or not found:
+        for folder, prefix in rules_folders():
+            bare = folder / f"{name.removeprefix(prefix or '')}.md"
+            if prefix and name.startswith(prefix) and bare.is_file():
+                _prefixed(bare)  # the product's file lacks its prefix: say so, not "no rule"
         folders = [str(d) for d in rules_dirs()]
         raise UnknownRule(f"no rule {name!r} in {folders} (have: {rule_names()})")
     if len(found) > 1:
         raise RuleError(
             f"rule {name!r} is in more than one rules folder: {[str(p) for p in found]}"
         )
-    path = found[0]
-    parsed = _parsed(path)
+    path = _prefixed(found[0])
+    parsed = kept(path, _rule_of)
     if parsed.name != name:
         raise RuleError(f"{path.name}: front-matter says rule {parsed.name!r}, file is {name!r}")
     return parsed
 
 
+def rule(name: str) -> Rule:
+    """The rule called `name` (its file is `<name>.md` in one of the rules folders), a copy of
+    its own to change."""
+    return copy.deepcopy(_found(name))
+
+
 def value(rule_name: str, key: str) -> Any:
     """One value from a rule's front-matter, e.g. value("sql-limits", "timeout_seconds"), or the
     person's own when a build runs under their choices."""
-    standard = rule(rule_name).value(key)
+    standard = _found(rule_name).value(key)
     chosen = _in_force.get()
     if chosen is not None and key in chosen.values.get(rule_name, {}):
         return chosen.values[rule_name][key]
-    return standard
+    return copy.deepcopy(standard)  # the caller's own: a list it changes stays changed for it
 
 
 def is_on(rule_name: str) -> bool:
     """Whether a rule acts: every rule does, unless the person switched it off."""
-    rule(rule_name)  # an unknown name fails loudly, as value() does
+    _found(rule_name)  # an unknown name fails loudly, as value() does
     chosen = _in_force.get()
     return chosen is None or rule_name not in chosen.off
 
 
+def is_placeholder(rule_name: str) -> bool:
+    """Whether a rule's values still wait on its evidence notebook."""
+    return _found(rule_name).placeholder
+
+
 def all_rules() -> list[Rule]:
-    return [parse_rule_file(p) for p in _rule_files()]
+    return [copy.deepcopy(kept(_prefixed(p), _rule_of)) for p in _rule_files()]

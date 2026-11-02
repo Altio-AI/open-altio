@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "open-altio"
-version = "1.0.0"
+version = "1.1.0.dev21"
 description = "FDA's adverse event reports (FAERS), cleaned and deduplicated in the open: the pipeline that builds a release and the explorer that reads it"
 readme = "README.md"
 license = "Apache-2.0"
@@ -56,7 +56,9 @@ browser = ["playwright"]
 # everything the test suite and scripts/check.py --all need; httpx is FastAPI's test client
 dev = [
     "open-altio[notebooks,browser,docs]",
-    "pytest",
+    # 9.1 gives a folder's conftest fixtures to only one of the folder's nodes when another
+    # folder's test file is named between two of its files, so those tests lose them
+    "pytest>=8,<9.1",
     "httpx",
     "ruff",
     "mypy",

@@ -15,7 +15,7 @@ from urllib.error import HTTPError
 from urllib.request import urlopen
 
 from open_altio import paths, rulebook
-from open_altio.faers import EXPLORER_FILE, fda, read_manifest
+from open_altio.faers import EXPLORER_FILE, NotARelease, fda, read_manifest
 from open_altio.faers.drugnames import dictionary
 from open_altio.faers.meddra import newest, older_part, older_words, read_licensed_manifest
 from open_altio.machine import total_memory_bytes
@@ -239,7 +239,7 @@ def _dictionary() -> Finding:
 def _release(release: Path) -> Finding:
     try:
         manifest = read_manifest(release)
-    except (OSError, ValueError) as e:
+    except (OSError, ValueError, NotARelease) as e:
         return Finding(
             FIX,
             f"Release {release}: its manifest cannot be read ({e}). Build it "

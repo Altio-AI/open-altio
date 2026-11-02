@@ -15,6 +15,13 @@ reviewed or endorsed Open Altio. Reports in FAERS do not establish that a
 product caused an event.
 
 
+Inter
+-----
+The explorer ships the Inter typeface, Copyright 2016 The Inter Project Authors
+(https://github.com/rsms/inter), licensed under the SIL Open Font License,
+Version 1.1. The licence is in src/open_altio/explorer/ui/fonts/LICENSE-Inter.txt.
+
+
 DiAna (University of Bologna)
 -----------------------------
 Open Altio's drug-name step uses the DiAna dictionary, and its cleaning steps

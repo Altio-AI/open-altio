@@ -28,7 +28,7 @@ from open_altio.faers.insights.methods import MethodsError, build_methods, refre
 from open_altio.machine import peak_rss_bytes
 from open_altio.rulebook import UserRules
 
-from . import derive, drugnames, formats, meddra, statistics
+from . import derive, drugnames, formats, meddra, medical_events, statistics
 from .atc import layer as classes
 from .explorer_db import build_explorer_db
 from .funnel import funnel
@@ -42,7 +42,7 @@ from .rxnorm.rrf import RxNormRefused
 from .schema import RAW_COLUMNS, derived_suffix, misnamed, table_columns
 from .sources import Quarter, SourceError, discover, quarter_key, release_name
 
-FORMAT_VERSION = 1
+FORMAT_VERSION = 2
 PARQUET_DIR = "parquet"
 FUNNEL_FILE = "funnel.json"
 VIEWS_FILE = "views.sql"
@@ -160,6 +160,8 @@ def build_release(
     meddra_dir: str | Path | None = None,
     rxnorm_dir: str | Path | None = None,
     labels: str | Path | None = None,
+    dme: str | Path | None = None,
+    ime: str | Path | None = None,
     say: Callable[[str], None] | None = None,
     checks: Sequence[Check] = (),
     progress: Progress | None = None,
@@ -174,7 +176,9 @@ def build_release(
     `drug_substance_T` and `drug_ingredient_T`. `meddra_dir` is a MedDRA English
     ASCII release (the folder holding MedAscii/); with it the release has a
     licensed part, FDA's MedDRA terms read to that version (rule meddra-terms).
-    With a `labels` folder (from labels-fetch) it adds the label tables.
+    With a `labels` folder (from labels-fetch) it adds the label tables. `dme` and `ime` are
+    EMA's designated and important medical event list files (rule medical-event-lists); each
+    list that is not given is recorded as not held.
 
     `rxnorm_dir` is the folder NLM's RxNorm Current Prescribable Content
     unpacks to, of the release rule rxnorm-ingredients pins; with it the
@@ -204,6 +208,8 @@ def build_release(
             meddra_dir=meddra_dir,
             rxnorm_dir=rxnorm_dir,
             labels=labels,
+            dme=dme,
+            ime=ime,
             say=say or (lambda _line: None),
             progress=progress or (lambda _title, _done, _total: None),
             checks=checks,
@@ -225,6 +231,8 @@ def _build(
     meddra_dir: str | Path | None,
     rxnorm_dir: str | Path | None,
     labels: str | Path | None,
+    dme: str | Path | None,
+    ime: str | Path | None,
     say: Callable[[str], None],
     progress: Progress,
     checks: Sequence[Check],
@@ -384,12 +392,35 @@ def _build(
             else class_entry["reason"]
         )
     )
+    by_quarter, quarter_entry = statistics.build_quarters(
+        staging, tables, memory_limit=memory_limit, threads=threads
+    )
+    tables |= by_quarter
+    say(
+        "quarter statistics: "
+        + (
+            f"{quarter_entry['counted']['cases']} cases over "
+            f"{quarter_entry['counted']['quarters']} quarters"
+            if by_quarter
+            else quarter_entry["reason"]
+        )
+    )
+    by_list, events_entry = medical_events.build(staging, dme, ime)
+    tables |= by_list
+    say(
+        "medical events: "
+        + ", ".join(
+            f"{name} {v['terms']} terms" if v["present"] else f"{name} not held"
+            for name, v in events_entry["lists"].items()
+        )
+    )
     progress("Building the explorer's database", len(chosen) + 3, steps)
     explorer = build_explorer_db(staging, tables=tables, release=release)  # explorer.duckdb
     say(f"explorer database: {explorer['bytes']} bytes")
     manifest = {
         "format": formats.RELEASE,
         "format_version": FORMAT_VERSION,
+        "source": formats.FAERS,
         "release": release,
         "quarters": [q.name for q in chosen],
         "built_at": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -407,6 +438,8 @@ def _build(
         "drug_names": names_entry,
         "classes": classes_entry,
         "statistics": statistics_entry,
+        "quarter_statistics": quarter_entry,
+        "medical_events": events_entry,
         "rxnorm": rxnorm_entry,
         "labels": labels_entry,
         "explorer": explorer,

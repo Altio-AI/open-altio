@@ -12,6 +12,8 @@ from __future__ import annotations
 import duckdb
 
 from open_altio import rulebook
+from open_altio.faers import literature
+from open_altio.faers.dates import received_day
 
 from . import common
 from .drug_classes import NB09
@@ -344,6 +346,42 @@ def therapy_durations(con: duckdb.DuckDBPyConnection) -> dict:
     )
 
 
+def dated_by_first_copy(con: duckdb.DuckDBPyConnection) -> dict:
+    day = received_day()
+    rows = common.query(
+        con,
+        f"""SELECT year({day}), coalesce({day} < first_fda_dt_T, false), count(*)
+            FROM case_latest_T WHERE dup_kept_T GROUP BY ALL""",
+    )
+    own, earlier = "Its own first receipt", "An earlier copy's receipt"
+    cells = [(y, earlier if before else own, n) for y, before, n in rows if y is not None]
+    xs = _years(cells)
+    total = sum(n for *_, n in rows)
+    moved = sum(n for _, s, n in cells if s == earlier)
+    return _card(
+        "dated_by_first_copy",
+        f"{moved:,} cases are dated by an earlier copy of them that FDA received first",
+        f"Every count by quarter or year dates a case by the first time FDA received any copy of "
+        f"it. For {moved:,} of {total:,} cases that was a copy set aside as a probable duplicate.",
+        common.chart(
+            "stacked_bar",
+            "Year the case is dated by",
+            "year",
+            xs,
+            "Cases",
+            "count",
+            common.zeros(common.series(cells, xs, [own, earlier])),
+            "Each year, how many cases are dated by an earlier copy's receipt?",
+        ),
+        common.DOCUMENTED,
+        {
+            "cases": total,
+            "earlier_copy": moved,
+            "no_day": sum(n for y, _, n in rows if y is None),
+        },
+    )
+
+
 # ---- drug_classes and drug_codes: layers, not funnel steps ----
 
 
@@ -593,6 +631,168 @@ def ror_by_stratum(con: duckdb.DuckDBPyConnection) -> dict:
         ),
         common.DOCUMENTED,
         {"pair_strata": total, "lower_above_1": high},
+    )
+
+
+# ---- an event's facts: read over a drug's events when they are asked for ----
+
+
+def cases_by_outcome(con: duckdb.DuckDBPyConnection) -> dict:
+    rule = "serious-outcomes"
+    [(total, serious, death, threat, none)] = common.query(
+        con,
+        f"""WITH o AS (
+              SELECT {KEY}, bool_or(list_contains(?::VARCHAR[], outc_cod)) AS serious_T,
+                     bool_or(outc_cod = ?) AS death_T, bool_or(outc_cod = ?) AS threat_T
+              FROM outc_latest_T WHERE outc_cod IS NOT NULL GROUP BY ALL)
+            SELECT count(*), count(*) FILTER (WHERE o.serious_T),
+                   count(*) FILTER (WHERE o.death_T), count(*) FILTER (WHERE o.threat_T),
+                   count(*) FILTER (WHERE o.primaryid IS NULL)
+            FROM case_latest_T c LEFT JOIN o USING ({KEY}) WHERE c.dup_kept_T""",
+        [
+            list(rulebook.value(rule, "serious")),
+            rulebook.value(rule, "death"),
+            rulebook.value(rule, "life_threatening"),
+        ],
+    ) or [(0, 0, 0, 0, 0)]
+    name = "Cases"
+    xs = ["Serious", "Ended in death", "Life-threatening", "No outcome"]
+    return _card(
+        "cases_by_outcome",
+        f"{common.pct(serious, total)} of cases are serious by FDA's own outcome codes",
+        f"Of {total:,} cases, {serious:,} have an outcome code that makes them serious, {death:,} "
+        f"ended in death and {threat:,} were life-threatening. {none:,} give no outcome.",
+        _bars(
+            list(zip(xs, [name] * len(xs), [serious, death, threat, none], strict=True)),
+            xs,
+            [name],
+            "What FDA's outcome codes say",
+            "Cases",
+            "How many cases do FDA's outcome codes make serious, fatal or life-threatening?",
+        ),
+        common.DOCUMENTED,
+        {
+            "cases": total,
+            "serious": serious,
+            "death": death,
+            "life_threatening": threat,
+            "no_outcome": none,
+        },
+    )
+
+
+def cases_by_age_group(con: duckdb.DuckDBPyConnection) -> dict:
+    groups = {"children": "Children", "other": "Other ages", "older": "Older people"}
+    rows = common.query(
+        con,
+        f"""SELECT CASE WHEN age_band_T IS NULL THEN '{NOT_GIVEN}'
+                       WHEN list_contains(?::VARCHAR[], age_band_T) THEN 'children'
+                       WHEN list_contains(?::VARCHAR[], age_band_T) THEN 'older'
+                       ELSE 'other' END, count(*)
+            FROM case_latest_T WHERE dup_kept_T GROUP BY ALL""",
+        [
+            list(rulebook.value("age-groups", "children")),
+            list(rulebook.value("age-groups", "older")),
+        ],
+    )
+    name = "Cases"
+    cell = dict(rows)
+    total = sum(cell.values())
+    aged = total - cell.get(NOT_GIVEN, 0)
+    children, older = cell.get("children", 0), cell.get("older", 0)
+    return _card(
+        "cases_by_age_group",
+        f"Of the cases that give an age, {common.pct(children, aged)} are children and "
+        f"{common.pct(older, aged)} older people",
+        f"An event's facts give the share of its cases in the children's and in the older age "
+        f"bands, of those that give an age. Over every case, that is {aged:,} of {total:,}.",
+        _bars(
+            [(groups.get(k, k), name, n) for k, n in rows],
+            [*groups.values(), NOT_GIVEN],
+            [name],
+            "Age group",
+            "Cases",
+            "How many cases are children, and how many older people?",
+        ),
+        common.DOCUMENTED,
+        {"cases": total, "aged": aged, "children": children, "older": older},
+    )
+
+
+def medical_event_terms(con: duckdb.DuckDBPyConnection) -> dict:
+    lists = list(rulebook.value("medical-event-lists", "lists"))
+    rows = _rows(
+        con, "medical_events_T", "SELECT list_T, count(*) FROM medical_events_T GROUP BY ALL"
+    )
+    name = "Reaction terms"
+    total = sum(n for _, n in rows)
+    held = len([n for _, n in rows if n])
+    return _card(
+        "medical_event_terms",
+        f"{total:,} reaction terms are on EMA's medical event lists this release holds",
+        f"The release holds {held} of EMA's {len(lists)} lists, as the build was given them, and "
+        "marks every event on one. Where the build was given no list, an event's mark for it is "
+        "Not available, never no.",
+        _bars(
+            [(k.upper(), name, n) for k, n in rows],
+            [k.upper() for k in lists],
+            [name],
+            "EMA's list",
+            "Reaction terms",
+            "How many reaction terms are on each of EMA's lists?",
+        ),
+        common.DOCUMENTED,
+        {"terms": total, "lists_held": held},
+    )
+
+
+def reports_citing_an_article(con: duckdb.DuckDBPyConnection) -> dict:
+    first = literature.first_quarter()
+    rows = common.query(
+        con,
+        f"""SELECT CAST(left(quarter_T, 4) AS INTEGER), {literature.cited("quarter_T", "lit_ref")},
+                   quarter_T < ?, count(*)
+            FROM case_latest_T WHERE dup_kept_T GROUP BY ALL""",
+        [first],
+    )
+    cites, none = "Cites an article", "No article cited"
+    words = {literature.CITES: cites, literature.NO_ARTICLE: none}
+    cells: dict[tuple, int] = {}
+    for year, value, _, n in rows:
+        key = (year, words.get(value, NOT_GIVEN))
+        cells[key] = cells.get(key, 0) + n
+    count = {s: sum(n for (_, name), n in cells.items() if name == s) for s in words.values()}
+    total = sum(n for *_, n in rows)
+    early = sum(n for *_, before, n in rows if before)
+    given = count[cites] + count[none]
+    bars = [(y, s, n) for (y, s), n in cells.items()]
+    xs = _years(bars)
+    return _card(
+        "reports_citing_an_article",
+        f"{early:,} cases come from FDA's files before the literature reference field, so cannot "
+        "say whether they cite an article",
+        f"FDA's files hold a literature reference from {common.quarter_label(first)} on, so the "
+        f"{early:,} cases from earlier files read Not given, never as citing none. Cases citing "
+        f"an article: {count[cites]:,} of the {given:,} that say whether they do.",
+        common.chart(
+            "stacked_bar",
+            "Year of FDA's file holding the case's latest version",
+            "year",
+            xs,
+            "Cases",
+            "count",
+            common.zeros(common.series(bars, xs, [cites, none, NOT_GIVEN])),
+            "Each year of FDA's files, how many cases cite an article, cite none, or cannot say?",
+        ),
+        common.DOCUMENTED,
+        {
+            "cases": total,
+            "given": given,
+            "cites": count[cites],
+            "no_article": count[none],
+            "not_given": total - given,
+            "before_field": early,
+        },
     )
 
 
@@ -1032,6 +1232,7 @@ CARDS = [
     country_not_specified,
     dates_without_a_clean_date,
     therapy_durations,
+    dated_by_first_copy,
     route_found,
     drug_records_classed,
     classes_chosen,
@@ -1043,6 +1244,10 @@ CARDS = [
     rrr_spread,
     ic_spread,
     ror_by_stratum,
+    cases_by_outcome,
+    cases_by_age_group,
+    medical_event_terms,
+    reports_citing_an_article,
     labels_by_application,
     label_choice_reasons,
     label_sections_read,

@@ -5,7 +5,8 @@
     ex = open_explorer("releases/2026Q2")  # the explorer's database file, read only
 
 Both read only what the release folder holds (src/open_altio/faers/README.md), so they
-work on any copy of a release.
+work on any copy of a release. Both go through `read_manifest`, which refuses a folder that is
+not a finished release this version reads (`NotARelease`).
 """
 
 from __future__ import annotations
@@ -23,10 +24,35 @@ MANIFEST_FILE = "manifest.json"
 EXPLORER_FILE = "explorer.duckdb"
 
 
+class NotARelease(Exception):
+    """A folder that is not a finished release this version of Open Altio reads, said in one
+    plain line naming the folder."""
+
+    def __init__(self, folder: Path, why: str) -> None:
+        super().__init__(f"{folder.name} is not a release this Open Altio can read: {why}.")
+        self.folder = folder
+
+
 def read_manifest(release_dir: str | Path) -> dict:
-    return formats.with_current_name(
-        json.loads((Path(release_dir) / MANIFEST_FILE).read_text(encoding="utf-8"))
-    )
+    """The release's manifest, its format under today's name, or NotARelease. Every reader
+    opens a release through this, so nothing is counted over an unfinished or unknown folder."""
+    folder = Path(release_dir).resolve()
+    path = folder / MANIFEST_FILE
+    if not path.is_file():
+        raise NotARelease(folder, f"it has no {MANIFEST_FILE}")
+    manifest = formats.with_current_name(json.loads(path.read_text(encoding="utf-8")))
+    if manifest.get("format") != formats.RELEASE:
+        raise NotARelease(folder, f"its {MANIFEST_FILE} is not a release's")
+    version = manifest.get("format_version")
+    if version not in formats.READABLE_VERSIONS:
+        raise NotARelease(
+            folder, f"it is format version {version}, which this Open Altio does not read"
+        )
+    if version == 1:
+        manifest.setdefault("source", formats.FAERS)
+    if manifest.get("source") not in formats.SOURCES:
+        raise NotARelease(folder, f"its source is {manifest.get('source')}, which it does not read")
+    return manifest
 
 
 def write_manifest(release_dir: str | Path, manifest: dict) -> None:
@@ -39,8 +65,10 @@ def write_manifest(release_dir: str | Path, manifest: dict) -> None:
 
 
 def quoted(value: str) -> str:
-    """`value` as an SQL string literal, for the places SQL takes no parameter (a file to read)."""
-    return "'" + value.replace("'", "''") + "'"
+    """`value` as an SQL string literal, for the places SQL takes no parameter (a file to read):
+    each quote doubled, so nothing in it can end the string, and a NUL character, which would
+    end the statement's text there, written as chr(0)."""
+    return "'" + value.replace("'", "''").replace("\0", "' || chr(0) || '") + "'"
 
 
 def sql_in(expr: str, values: Iterable[str]) -> str:

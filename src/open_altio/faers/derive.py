@@ -109,7 +109,7 @@ def company_table() -> str:
     )
 
 
-_QNUM = "CAST(substr(quarter_T, 1, 4) AS INTEGER) * 10 + CAST(substr(quarter_T, 6, 1) AS INTEGER)"
+_QNUM = dates.quarter_number("quarter_T")
 
 
 def direct_report(rept_cod: str) -> str:
@@ -226,8 +226,7 @@ SELECT d.*,
   {typed},
   {known},
   coalesce({full_date("init_fda_dt")}, {full_date("fda_dt")}) AS first_fda_dt_T,
-  CASE WHEN regexp_full_match(substr(coalesce(init_fda_dt, fda_dt), 1, 4), '[0-9]{{4}}')
-       THEN CAST(substr(coalesce(init_fda_dt, fda_dt), 1, 4) AS INTEGER) END AS init_year_T,
+  {dates.first_received_year()} AS init_year_T,
   CASE WHEN regexp_full_match(substr(fda_dt, 1, 4), '[0-9]{{4}}')
        THEN CAST(substr(fda_dt, 1, 4) AS INTEGER) END AS fda_year_T,
   {_sex()} AS sex_T,

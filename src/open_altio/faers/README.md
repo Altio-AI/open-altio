@@ -33,6 +33,8 @@ path = build_release(input_dir, out_dir, quarter=None, overwrite=False, user_rul
 | `funnel.py` | The funnel numbers, `funnel.json` |
 | `release.py` | The build: staging folder, checks before writing, Parquet, manifest |
 | `explorer_db.py` | The explorer's database, `explorer.duckdb` |
+| `medical_events.py` | EMA's DME and IME lists read from the files a builder gives, into `medical_events_T` |
+| `literature.py` | Whether a report cites an article, from FDA's literature reference, read one way for the breakdowns and the methods page |
 | `reader.py` | Open a release folder in DuckDB, and quote values for SQL |
 | `build.py` | The build `open-altio build`, `demo` and the explorer's rebuild share |
 | `fda.py` | Which quarters FDA has published, and downloading them |
@@ -98,6 +100,8 @@ releases/2026Q2/                  named by the latest FDA quarter in the input
     atc_index_T.parquet ...       the drug classes layer, when the release carries it (below)
     statistics_T.parquet          EBGM, PRR, ROR, RRR, IC and time to onset per suspect ingredient and reaction
     statistics_strata_T.parquet   each pair's ROR within each age band and each sex (below)
+    quarter_strata_T.parquet      the statistics' cases by the quarter received and stratum, and by reaction (below)
+    reaction_quarter_strata_T.parquet
     atc_statistics_T.parquet      the same statistics per WHO class and reaction, with the classes (below)
     atc_statistics_ingredients_T.parquet   each ingredient's classes, for the class statistics
     drug_rxnorm_T.parquet         each drug record's RxNorm code, when built with --rxnorm (below)
@@ -132,6 +136,7 @@ The steps, in order (`src/open_altio/faers/derive.py`):
 | `drug_onset_T` | One row per drug record of `drug_latest_T` (`era_T`, `primaryid`, `quarter_T`, `drug_seq`): `time_to_onset_T`, and `time_to_onset_reason_T` where it has none, by `dates.py` (`rules/time-to-onset.md`). |
 | `drug_substance_T`, `drug_ingredient_T` | The ingredients of each drug record, built after the derive steps by `src/open_altio/faers/drugnames/` when the build is given the DiAna dictionary (below). |
 | `statistics_T`, `statistics_strata_T` | One row per suspect ingredient and reaction named together: EBGM, EB05, EB95, PRR, ROR, RRR, IC and the time to onset; and one per pair and value of an age band or a sex where the pair has a case, with its ROR there. Built after the Parquet is written by `src/open_altio/faers/statistics/` (below). |
+| `quarter_strata_T`, `reaction_quarter_strata_T` | The statistics' cases by the quarter each was received in (rule received-day) and stratum, and by reaction too, with the reactions by FDA's text beside them in a release with MedDRA (`reaction_quarter_strata_as_published_T`). Written after the statistics by `statistics/quarterly.py` (below). |
 | `atc_statistics_T`, `atc_statistics_ingredients_T` | The statistics of each WHO class and reaction at each class level, and each ingredient's classes, written by `statistics/` after the ingredient statistics when the release carries the classes layer, as part of that layer (below). |
 
 Typed columns on `demo_T` (and carried into `demo_latest_T` and `case_latest_T`):
@@ -272,7 +277,8 @@ The build holds DuckDB to the memory and threads in `rules/explorer-build-memory
 
 | Key | What |
 |---|---|
-| `format`, `format_version` | `open-altio-release`, 1 (a release built under the project's earlier format names reads the same: `src/open_altio/faers/formats.py`) |
+| `format`, `format_version` | `open-altio-release`, 2 (a release built under the project's earlier format names reads the same; version 1 names no `source` and reads as `faers`: `src/open_altio/faers/formats.py`) |
+| `source` | The public database the release is built from, one of `formats.SOURCES`: `faers` |
 | `release`, `quarters` | The release name and every quarter in it |
 | `built_at`, `build_seconds` | UTC build time (ISO 8601) and wall time |
 | `release_bytes` | Size of the release on disk: every file in it but `manifest.json` |
@@ -289,6 +295,7 @@ The build holds DuckDB to the memory and threads in `rules/explorer-build-memory
 | `explorer` | `file` (`explorer.duckdb`), `bytes`, and per table its `rows` |
 | `user_rules` | How the rules the release was built with differ from Altio's standard: `off` (data rules switched off) and `changed` (`rule`, `key`, `standard`, `value`); both empty for a release built without a `rules.toml`. `methods.json` carries the same |
 | `statistics` | The statistics step: what it counted and by which reaction key, EBGM's fit (the prior, every start) and its seconds, or the `reason` there are none (see [The statistics](#the-statistics-statistics_t)) |
+| `quarter_statistics` | The quarter-end counts: the received day's column, what they counted and by which reaction key, each table's rows and bytes and the seconds, with the second set's under `as_published`, or the `reason` there are none (see [The statistics](#the-statistics-statistics_t-statistics_strata_t)) |
 | `class_statistics` | The class statistics: what they counted, each level's classes, pairs and EBGM fit, the reaction key and its seconds, or the `reason` there are none (see [The statistics](#the-statistics-statistics_t-statistics_strata_t)) |
 | `drug_names` | The drug-name step: `present`, the dictionary read, its corrections, records by source and the unmapped share, or the `reason` it is absent (see [The drug ingredients](#the-drug-ingredients-drug_substance_t-drug_ingredient_t)) |
 | `labels` | What the labels step read and chose (`src/open_altio/faers/labels/README.md`), or `{"skipped": "no labels folder given"}` |
@@ -332,6 +339,12 @@ Then, where the release carries the drug classes layer, it counts the same cases
 python -m open_altio.faers class-statistics --release releases/2026Q2
 ```
 
+Last, the build counts the same cases by quarter (`statistics/quarterly.py`): each placed in the quarter of its received day, the column rule `received-day` names and `dates.received_day()` reads, else of its own `quarter_T`, then counted by quarter and stratum into `quarter_strata_T`, and by reaction, quarter and stratum into `reaction_quarter_strata_T` (with MedDRA, again by FDA's text into `reaction_quarter_strata_as_published_T`). Summed over every quarter they equal the statistics' own margins; running sums over `qnum_T` give each quarter end's. They are Parquet only, with no copy in the explorer's database, and the manifest's `quarter_statistics` entry records them. The same function adds them to a release already built, under rule `explorer-build-memory`, changing nothing else in the folder; MedDRA added to a release counts them again with the statistics:
+
+```sh
+python -m open_altio.faers quarter-statistics releases/2026Q2
+```
+
 ### Drug labels (`label_candidates_T`, `label_sections_T`)
 
 ```sh
@@ -355,7 +368,8 @@ releases/2026Q2/licensed/
                                   language, released, built_at, source file sha256s,
                                   tables, and terms: per column, the texts, those placed through
                                   the history file and those matching nothing; the quarters
-                                  fitting no single MedDRA version
+                                  fitting no single MedDRA version; rule_names_missing: each
+                                  rule's names this version does not hold, said at the build
   meddra/29.1/
     meddra_soc.parquet ... meddra_history.parquet   MedDRA's ASCII files verbatim as text
     meddra_term_T.parquet         every PT, lower level term and former name, normalised, with

@@ -6,6 +6,9 @@ numbered first, so the counting joins integers and FAERS counts in a few GB.
                            # per reaction and stratum, and per stratum
     counts = count(con, "meddra_pt")   # reactions by current preferred term: con also holds
                                        # the licensed reac_meddra_T and meddra_pt
+    parts = prepare(con)   # the counted cases alone, as temporary tables, for a count of its own
+    stratum_parts("c")     # each stratum part over the explorer's case table, alias c
+    explorer_counted("c")  # the counted cases there, for a count on the explorer's database
 """
 
 from __future__ import annotations
@@ -17,6 +20,7 @@ import numpy as np
 
 from open_altio import rulebook
 
+from ..dates import first_received_year
 from ..drugnames.substances import INGREDIENTS
 from ..explorer_db import reaction_key
 from ..meddra.terms import key_sql
@@ -118,15 +122,34 @@ def _q(text: str) -> str:
     return "'" + str(text).replace("'", "''") + "'"
 
 
-def stratum_parts() -> dict[str, str]:
+def stratum_parts(case: str | None = None) -> dict[str, str]:
     """The SQL of each part a stratum may be made of, over case_latest_T: the age band and the sex
-    the release gives each case (rules/age-bands.md, rules/sex-codes.md), and the receipt year."""
+    the release gives each case (rules/age-bands.md, rules/sex-codes.md), and the receipt year.
+    Given `case`, the alias of the explorer's case table (explorer_case_T), the same parts over
+    it: it keeps the age band and the sex as the release gives them and FDA's two receipt dates,
+    so a count on the explorer's database places each case in the stratum the statistics did."""
     unknown = _q(rulebook.value(RULE, "unknown"))
-    return {
-        "age_band": f"coalesce(age_band_T, {unknown})",
-        "sex": f"coalesce(sex_T, {unknown})",
-        "receipt_year": f"coalesce(CAST(init_year_T AS VARCHAR), {unknown})",
-    }
+    columns = {"age_band": "age_band_T", "sex": "sex_T", "receipt_year": "init_year_T"}
+    if case is not None:
+        columns = {
+            "age_band": f"{case}.age_band_T",
+            "sex": f"{case}.sex_T",
+            "receipt_year": first_received_year(f"{case}."),
+        }
+    columns["receipt_year"] = f"CAST({columns['receipt_year']} AS VARCHAR)"
+    return {part: f"coalesce({sql}, {unknown})" for part, sql in columns.items()}
+
+
+def explorer_counted(case: str) -> str:
+    """SQL: whether a case of the explorer's case table (`case` its alias) is one the statistics
+    count: kept, naming an ingredient of a drug in one of the rule's suspect roles, and naming a
+    reaction (every text FDA wrote reads to a PT where the release holds MedDRA, rule
+    meddra-terms, so the cases naming one are the same by PT and by FDA's text)."""
+    return (
+        f"{case}.dup_kept_T AND {case}.case_id_T IN (SELECT case_id_T FROM explorer_ingredient_T "
+        f"WHERE role_T IN ({roles_sql()})) "
+        f"AND {case}.case_id_T IN (SELECT case_id_T FROM explorer_reac_term_T)"
+    )
 
 
 def roles_sql() -> str:
@@ -142,15 +165,25 @@ def ints(con: duckdb.DuckDBPyConnection, sql: str, names: tuple[str, ...]) -> di
     }
 
 
-def count(con: duckdb.DuckDBPyConnection, by: str = "fda_text") -> Counts:
-    """Count the release's cases on `con`, which holds case_latest_T, drug_latest_T,
-    drug_ingredient_T and reac_latest_T, each reaction named as `by` says (REACTION_NAMES)."""
+def prepare(con: duckdb.DuckDBPyConnection, by: str = "fda_text") -> list[str]:
+    """The counted cases on `con`, which holds case_latest_T, drug_latest_T, drug_ingredient_T
+    and reac_latest_T, each reaction named as `by` says (REACTION_NAMES), as temporary tables:
+    kept_case (each kept case's number, cid, and key), counted_case (with its stratum, sid, and
+    the stratum's parts), counted_ingredient, counted_reaction, and the names by number,
+    ingredient_id and reaction_id. Returns the stratum's parts, in the rule's order."""
     known = stratum_parts()
     parts = list(rulebook.value(RULE, "strata"))
     con.execute(KEPT.format(parts=", ".join(f"{known[p]} AS {p}" for p in parts)))
     con.execute(DRUGS.format(roles=roles_sql()))
     con.execute(EVENTS.format(named=REACTION_NAMES[by]))
     con.execute(COUNTED.format(parts=", ".join(parts)))
+    return parts
+
+
+def count(con: duckdb.DuckDBPyConnection, by: str = "fda_text") -> Counts:
+    """Count the release's cases on `con`, which holds case_latest_T, drug_latest_T,
+    drug_ingredient_T and reac_latest_T, each reaction named as `by` says (REACTION_NAMES)."""
+    parts = prepare(con, by)
     strata = con.execute(
         f"SELECT sid, {', '.join(parts)}, count(*) AS n FROM counted_case GROUP BY ALL ORDER BY sid"
     ).fetchnumpy()

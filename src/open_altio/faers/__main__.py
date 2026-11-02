@@ -15,6 +15,8 @@
     python -m open_altio.faers labels-refresh --release RELEASE_DIR --labels LABELS_DIR [--ime FILE]
     python -m open_altio.faers statistics --release RELEASE_DIR --reactions as-published
     python -m open_altio.faers class-statistics --release RELEASE_DIR
+    python -m open_altio.faers quarter-statistics RELEASE_DIR
+    python -m open_altio.faers medical-events RELEASE_DIR [--dme FILE] [--ime FILE]
 
 A person builds with `open-altio build`, from the FDA files in the data folder. `build` here takes
 any input and output folders and DuckDB's limits, and a host that publishes releases runs its own
@@ -47,6 +49,14 @@ counted them so, the statistics counted by FDA's text, by the build's own step
 (statistics.add_as_published): safe to run again, and needing no rebuild.
 `class-statistics` adds the statistics of each WHO class to a built release (rule
 statistics-classes), as a full build writes them, under the rules.toml in the folder it runs in.
+`quarter-statistics` adds to a built release the counts of its statistics' cases by the quarter
+each is received in (rule received-day), as a full build writes them after the statistics
+(statistics.add_quarters), under the explorer build's memory: only those tables and their
+manifest entries change, and running it again writes the same.
+`medical-events` writes EMA's designated and important medical event lists into a built release
+from the files `--dme` and `--ime` name (rule medical-event-lists), as a build given them does:
+only `medical_events_T` and the manifest's `medical_events` entry change, and a list not named
+is recorded as not held. A build takes the same two files as `--dme` and `--ime`.
 """
 
 from __future__ import annotations
@@ -72,9 +82,10 @@ from .insights import numbers
 from .insights.methods import refresh_cards
 from .labels.folder import LabelsFolderError
 from .meddra import MeddraRefused, add_held, build_licensed, report_lines
+from .medical_events import add_medical_events
 from .release import Check, ReleaseError, build_release
 from .sources import SourceError
-from .statistics import add_as_published, add_classes
+from .statistics import add_as_published, add_classes, add_quarters
 
 WHO_DIR_ENV = "OPEN_ALTIO_WHO_DIR"
 
@@ -120,6 +131,8 @@ def _parser() -> argparse.ArgumentParser:
         help=f"the folder NLM's RxNorm zip unpacks to (default ${RXNORM_DIR_ENV})",
     )
     b.add_argument("--labels", default=None, help="folder from labels-fetch; adds the label tables")
+    b.add_argument("--dme", default=None, help="EMA's Designated Medical Events file")
+    b.add_argument("--ime", default=None, help="EMA's Important Medical Events file")
     e = sub.add_parser(
         "explorer", help="(re)build the explorer database of an existing release folder"
     )
@@ -170,6 +183,11 @@ def _parser() -> argparse.ArgumentParser:
     lab.add_argument(
         "--groups", default=None, help="your MedDRA groups file (rule label-groups), checked first"
     )
+    lab.add_argument(
+        "--groups-only",
+        action="store_true",
+        help="install the --groups file and stop, without coding labels or flagging",
+    )
     r = sub.add_parser("labels-refresh", help="bring a release's labels up to date with DailyMed")
     r.add_argument("--release", required=True, help="the release folder, e.g. releases/2026Q2")
     r.add_argument("--labels", required=True, help="the folder labels-fetch filled")
@@ -188,6 +206,18 @@ def _parser() -> argparse.ArgumentParser:
         "class-statistics", help="add the statistics of each WHO class to a built release"
     )
     cs.add_argument("--release", required=True, help="the release folder, e.g. releases/2026Q2")
+    qs = sub.add_parser(
+        "quarter-statistics",
+        help="add to a built release its statistics' cases counted by the quarter received",
+    )
+    qs.add_argument("release", help="the release folder, e.g. releases/2026Q2")
+    me = sub.add_parser(
+        "medical-events",
+        help="add EMA's designated and important medical event lists to a built release",
+    )
+    me.add_argument("release", help="the release folder, e.g. releases/2026Q2")
+    me.add_argument("--dme", default=None, help="EMA's Designated Medical Events file")
+    me.add_argument("--ime", default=None, help="EMA's Important Medical Events file")
     return ap
 
 
@@ -242,6 +272,29 @@ def _class_statistics(args: argparse.Namespace) -> int:
     return 0
 
 
+def _quarter_statistics(args: argparse.Namespace) -> int:
+    entry = add_quarters(args.release)
+    if not entry["present"]:
+        print(f"no quarter statistics: {entry['reason']}")
+        return 0
+    counted = entry["counted"]
+    names = [*entry["tables"], *(entry.get("as_published") or {}).get("tables", ())]
+    print(
+        f"{args.release}: {', '.join(names)} written, {counted['cases']} cases over "
+        f"{counted['quarters']} quarters, in {entry['seconds']['total']} s"
+    )
+    return 0
+
+
+def _medical_events(args: argparse.Namespace) -> int:
+    entry = add_medical_events(args.release, args.dme, args.ime)
+    for name, held in entry["lists"].items():
+        said = f"{held['terms']} terms" if held["present"] else held["reason"]
+        print(f"{name}: {said}")
+    print(f"{args.release}: {entry['table']} written")
+    return 0
+
+
 def _labels_fetch(args: argparse.Namespace) -> int:
     import httpx
 
@@ -282,6 +335,11 @@ def _labels(args: argparse.Namespace) -> int:
         rules = user_rules_beside(Path.cwd()) or UserRules()  # as the build reads them
         with use_user_rules(rules):
             groups = install_groups(args.release, args.groups) if args.groups else None
+            if args.groups_only:
+                if groups is None:
+                    raise LabelRefused("--groups-only needs --groups")
+                print(json.dumps({"groups": groups}, indent=2))
+                return 0
             ranks = []
             if args.ranks:
                 sql = "SELECT rxcui, pt, rank FROM read_parquet(?)"
@@ -340,6 +398,8 @@ def _build(args: argparse.Namespace, checks: tuple[Check, ...]) -> int:
             meddra_dir=args.meddra,
             rxnorm_dir=args.rxnorm,
             labels=args.labels,
+            dme=args.dme,
+            ime=args.ime,
             say=lambda line: print(line, flush=True),
             checks=checks,
             user_rules=rules,
@@ -381,8 +441,12 @@ def main(argv: list[str] | None = None, checks: tuple[Check, ...] = ()) -> int:
             f"{args.release}/methods.json: its cards, the story's numbers and every rule's version"
         )
         return 0
+    if args.command == "medical-events":
+        return _medical_events(args)
     if args.command == "class-statistics":
         return _class_statistics(args)
+    if args.command == "quarter-statistics":
+        return _quarter_statistics(args)
     if args.command == "companies":
         done = apply_company_table(args.release)
         rows = ", ".join(f"{n} rows of {t}" for t, n in done["changed"].items())

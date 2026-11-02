@@ -8,11 +8,16 @@ pair a release's cases name, with each pair's time to onset, written into the re
     strata.py   every pair's ROR within each age band and each sex (rule ror-strata)
     classes.py  the same cases counted by WHO class in place of ingredient, at each level of
                 rule statistics-classes, written as `atc_statistics_T`
+    quarterly.py  the same cases counted by the quarter each is received in, by stratum and by
+                reaction, so the statistics can be read at each quarter's end
     step.py     the build's steps: counted, scored and written, with their manifest entries;
                 and the class statistics added to a release already built
 """
 
 from .classes import TABLES as CLASS_TABLES
+from .quarterly import TABLES as QUARTER_TABLES
+from .quarterly import add_quarters
+from .quarterly import build as build_quarters
 from .step import (
     AS_PUBLISHED,
     CLASS_COLUMNS,
@@ -33,12 +38,15 @@ __all__ = [
     "CLASS_COLUMNS",
     "CLASS_TABLES",
     "COLUMNS",
+    "QUARTER_TABLES",
     "STRATA_TABLE",
     "TABLE",
     "add_as_published",
     "add_classes",
+    "add_quarters",
     "build",
     "build_classes",
+    "build_quarters",
     "by_current_pt",
     "recount",
     "record_classes",

@@ -6,6 +6,9 @@
                           (rules date-limits, therapy-duration)
     onset()               drug_onset_T: time_to_onset_T for each drug record, and why it has none
                           (rule time-to-onset)
+    received_day()        the case table's column a case is dated by (rule received-day)
+    received_quarter()    the quarter, yyyyq, a case is counted in: its received day's, else its
+                          own file's
 
 A `_prec_T` says how much of a date is known: 8 the day, 6 the month, 4 the year. A date outside
 the limits keeps FDA's text and gets no clean value: its `_T` and its `_prec_T` are empty. Each
@@ -17,6 +20,7 @@ from __future__ import annotations
 from open_altio import rulebook
 
 from .reader import quoted
+from .schema import derived_suffix
 
 ONSET_TABLE = "drug_onset_T"
 # Why a drug record has no time to onset (time_to_onset_reason_T), each checked in this order:
@@ -30,6 +34,34 @@ ONSET_REASONS = (
     "event_before_first_dose",
 )
 THERAPY_DATES = ("start_dt", "end_dt")
+
+
+def received_day() -> str:
+    """The column of the case table (case_latest_T, and explorer_case_T) a case is dated by, as
+    rule received-day names it: every quarter, year and window reads it here, so one change of
+    the rule dates them all again. It must be a column the release derives; FDA's own dates are
+    never read as it."""
+    column = str(rulebook.value("received-day", "column"))
+    if not column.endswith(derived_suffix()):
+        raise rulebook.RuleError(
+            f"rule received-day names {column}, which is not a column the release derives: "
+            f"its name must end in {derived_suffix()}"
+        )
+    return column
+
+
+def quarter_number(quarter: str) -> str:
+    """SQL: a quarter as FDA's files name it (2026q2) as the number qnum_T holds (20262)."""
+    return (
+        f"CAST(substr({quarter}, 1, 4) AS INTEGER) * 10 + CAST(substr({quarter}, 6, 1) AS INTEGER)"
+    )
+
+
+def received_quarter(case: str) -> str:
+    """SQL: the quarter, yyyyq, a case of the case table `case` (its alias) is counted in: the
+    quarter of its received day, else, where that day is empty, the quarter of its own file."""
+    day = f"{case}.{received_day()}"
+    return f"coalesce(year({day}) * 10 + quarter({day}), {quarter_number(f'{case}.quarter_T')})"
 
 
 # A raw FAERS date is yyyymmdd text; anything else, a partial date or an
@@ -56,6 +88,18 @@ def number(col: str) -> str:
     return (
         f"CASE WHEN regexp_full_match(trim({col}), '[0-9]+\\.?[0-9]*|\\.[0-9]+') "
         f"THEN CAST(trim({col}) AS DOUBLE) END"
+    )
+
+
+def first_received_year(case: str = "") -> str:
+    """SQL: the year FDA first received a case (init_year_T), from FDA's two dates of a case
+    table (`case` its alias and a dot, or nothing): the first four digits of init_fda_dt, else
+    of fda_dt (legacy has no init_fda_dt), when they are a year. A count over the explorer's
+    case table, which keeps both dates as FDA gave them, reads the year the release reads."""
+    given = f"coalesce({case}init_fda_dt, {case}fda_dt)"
+    return (
+        f"CASE WHEN regexp_full_match(substr({given}, 1, 4), '[0-9]{{4}}') "
+        f"THEN CAST(substr({given}, 1, 4) AS INTEGER) END"
     )
 
 

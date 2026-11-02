@@ -15,11 +15,12 @@ front-matter adds to the values:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import yaml
 
-from .loader import Rule, RuleError, rule, rules_dirs
+from .loader import Rule, RuleError, kept, rule, rules_dirs
 
 STEPS_FILE = "steps.yaml"
 
@@ -59,11 +60,17 @@ class RuleInfo:
     file: str  # the rule file, relative to the repository
 
 
+def _yaml(path: Path, text: str) -> Any:
+    return yaml.safe_load(text)
+
+
 def _steps_file() -> list[dict]:
+    """The steps as `rules/steps.yaml` lists them, read once and kept until it changes: read
+    only, never changed."""
     for folder in rules_dirs():
         path = folder / STEPS_FILE
         if path.is_file():
-            return yaml.safe_load(path.read_text(encoding="utf-8"))
+            return kept(path, _yaml)
     raise RuleError(f"no {STEPS_FILE} in {[str(d) for d in rules_dirs()]}")
 
 

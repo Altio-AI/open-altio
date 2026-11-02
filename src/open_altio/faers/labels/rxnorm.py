@@ -9,12 +9,13 @@ to RxNorm's code for that set (MIN).
 from __future__ import annotations
 
 import shutil
-import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
 import duckdb
+
+from open_altio import scratch
 
 _FILES = ("RXNCONSO.RRF", "RXNREL.RRF")
 _READ = "read_csv('{path}', delim='|', header=false, all_varchar=true, quote='', escape='')"
@@ -109,7 +110,7 @@ class RxNorm:
 
 def read_rxnorm(zip_path: Path) -> RxNorm:
     """Read RxNorm's prescribable release zip as NLM ships it."""
-    work = Path(tempfile.mkdtemp(prefix="open-altio-rxnorm-"))
+    work = scratch.make("open-altio-rxnorm-")
     try:
         paths = {}
         with zipfile.ZipFile(zip_path) as z:

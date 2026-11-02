@@ -34,12 +34,15 @@ class Inputs:
     rxnorm  NLM's RxNorm files, unzipped: the drug codes. By default the folder
             OPEN_ALTIO_RXNORM_DIR names, else the data folder's rxnorm/, when it is there
     labels  the folder `python -m open_altio.faers labels-fetch` filled: FDA's labels
-    ime     EMA's Important Medical Events file, which the labels step reads after the build
+    dme     EMA's Designated Medical Events file (rule medical-event-lists)
+    ime     EMA's Important Medical Events file: the build reads it into the release's lists, and
+            the labels step reads it after the build
     """
 
     meddra: Path | None = None
     rxnorm: Path | None = None
     labels: Path | None = None
+    dme: Path | None = None
     ime: Path | None = None
 
     def rxnorm_folder(self) -> Path | None:
@@ -78,6 +81,8 @@ def build_release(
         meddra_dir=inputs.meddra,
         rxnorm_dir=inputs.rxnorm_folder(),
         labels=inputs.labels,
+        dme=inputs.dme,
+        ime=inputs.ime,
     )
 
 

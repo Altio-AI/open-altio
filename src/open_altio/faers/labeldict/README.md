@@ -24,7 +24,7 @@ build_label_flags("releases/2026Q2", [("1234", "by_mouth", "Nausea")])  # or fro
 | `label_terms_T`: one row per term, label section, sentence and verdict | `licensed/meddra/<version>/` | staff |
 | `label_uncertain.jsonl`: one item per thing the rules cannot settle | `licensed/meddra/<version>/` | staff |
 | `label_codings_frozen.jsonl`: reviewed codings of uncertain items, if any, written by the label review (`src/open_altio/labelreview/`) | `licensed/meddra/<version>/`, kept when the version is rebuilt, with the review's own files | staff |
-| `label_groups.json`: the MedDRA groups `not_a_medical_event` and `procedure` read, and the catch-all groups that never make a pair related; written by the step from `--groups` after checking it (`groups.py`, rule label-groups) | `licensed/meddra/<version>/`, kept when the version is rebuilt | staff |
+| `label_groups.json`: the MedDRA groups `not_a_medical_event`, `procedure` and an event's facts (`event_facts_not_medical`) read, the catch-all groups that never make a pair related, and the SMQ that finds pregnancy cases (`pregnancy_smq`); written by the step from `--groups` after checking it (`groups.py`, rule label-groups) | `licensed/meddra/<version>/`, kept when the version is rebuilt | staff |
 | EMA's Important Medical Events file for the version | a folder you name, like MedDRA's files (`build_label_flags(ime=...)`) | you |
 | `label_flags_T` | `parquet/`, listed in `manifest.json` | everyone |
 

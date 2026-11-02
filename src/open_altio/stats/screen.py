@@ -11,11 +11,19 @@ Each condition names a column of the statistics and exactly one comparison: `at_
 screens are presets kept on each statistic's rule (`presets` in its values); a person's own
 screen has the same form, so a preset is only a starting point.
 
+    conditions = check(when, columns)    # a screen read and refused in plain words
+    where(conditions, name)              # the screen as SQL over a table's columns
+    meets(conditions, row)               # whether one row of values meets the whole screen
+
+A screen is judged whole: a pair that meets some of its conditions does not meet it.
+
 Meeting a screen is not a signal and not evidence of cause; people judge what a pair means.
 """
 
 from __future__ import annotations
 
+import math
+import operator
 from collections.abc import Callable, Collection, Mapping, Sequence
 from typing import Any
 
@@ -24,6 +32,12 @@ from open_altio import rulebook
 # Each statistic, by the name people know it by, and the rule that holds its presets.
 RULES = {"EBGM": "ebgm", "PRR": "prr", "ROR": "ror", "RRR": "rrr", "IC": "ic"}
 COMPARISONS = {"at_least": ">=", "above": ">", "at_most": "<=", "below": "<"}
+HOLDS = {
+    "at_least": operator.ge,
+    "above": operator.gt,
+    "at_most": operator.le,
+    "below": operator.lt,
+}
 
 
 class ScreenError(ValueError):
@@ -74,3 +88,13 @@ def where(
         return "TRUE", []
     clause = " AND ".join(f"{name(col)} {COMPARISONS[op]} ?" for col, op, _ in conditions)
     return clause, [threshold for _, _, threshold in conditions]
+
+
+def meets(conditions: Sequence[tuple[str, str, float]], row: Mapping[str, Any]) -> bool:
+    """Whether `row`, a statistic's values by column, meets the checked conditions (`check`):
+    only when every one of them holds. An empty value, None or NaN, meets no condition."""
+    for column, comparison, threshold in conditions:
+        found = row[column]
+        if found is None or math.isnan(found) or not HOLDS[comparison](found, threshold):
+            return False
+    return True

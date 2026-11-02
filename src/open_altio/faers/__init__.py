@@ -7,7 +7,14 @@ See src/open_altio/faers/README.md for its modules and the release folder's layo
 """
 
 from .explorer_db import EXPLORER_TABLES, build_explorer_db
-from .reader import EXPLORER_FILE, open_explorer, open_release, read_manifest, register_release
+from .reader import (
+    EXPLORER_FILE,
+    NotARelease,
+    open_explorer,
+    open_release,
+    read_manifest,
+    register_release,
+)
 from .release import (
     DERIVED_TABLES,
     DERIVED_VIEWS,
@@ -32,6 +39,7 @@ __all__ = [
     "FORMAT_VERSION",
     "FUNNEL_FILE",
     "MANIFEST_FILE",
+    "NotARelease",
     "PARQUET_DIR",
     "RAW_COLUMNS",
     "RAW_TABLES",

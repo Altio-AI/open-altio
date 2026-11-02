@@ -1,8 +1,9 @@
-"""The licensed file of MedDRA groups the label rules read (rule label-groups): which groups hold
-terms that are not medical events, which body-system class holds procedures, and which groups
-are catch-alls that never make a pair related. A person supplies it from their own MedDRA files;
-it is never in the repository. The labels step checks it against the release's MedDRA version
-and writes it beside that version's tables.
+"""The licensed file of MedDRA groups the rules read (rule label-groups): which groups hold terms
+that are not medical events, for the label flags and for an event's facts, which body-system
+class holds procedures, which groups are catch-alls that never make a pair related, and which SMQ
+finds an event's pregnancy cases. A person
+supplies it from their own MedDRA files; it is never in the repository. The labels step checks
+it against the release's MedDRA version and writes it beside that version's tables.
 
     from open_altio.faers.labeldict.groups import install_groups
     install_groups("releases/2026Q2", "~/meddra/label_groups.json")
@@ -13,22 +14,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from open_altio import rulebook
-
 from ..meddra import LABEL_GROUPS_FILE, MEDDRA_DIR, licensed_dir
+from ..meddra.rulenames import file_keys, group_keys, smq_key
 from .release_io import LabelRefused, held_version, licensed, rows
 
 RULE = "label-groups"
-
-
-def group_keys() -> dict[str, bool]:
-    """The file's keys, as the rules that read them name them, and whether each may name high
-    level terms only."""
-    return {
-        rulebook.value("label-not-a-medical-event", "groups_key"): False,
-        rulebook.value("label-procedure", "groups_key"): False,
-        rulebook.value("label-flags", "catch_all_key"): rulebook.value(RULE, "catch_all_hlt_only"),
-    }
 
 
 def _levels(release_dir: Path, entry: dict) -> tuple[dict[str, str], dict[str, str]]:
@@ -47,6 +37,15 @@ def _levels(release_dir: Path, entry: dict) -> tuple[dict[str, str], dict[str, s
     return every, hlt
 
 
+def _smqs(release_dir: Path, entry: dict) -> dict[str, str]:
+    """Every active SMQ's name, lower case, and code to its name as MedDRA writes it."""
+    held = rows(
+        "SELECT smq_code, smq_name FROM "
+        f"{licensed(release_dir, entry, 'meddra_smq_list')} WHERE status = 'A'"
+    )
+    return {k: name for code, name in held for k in (code, name.lower())}
+
+
 def install_groups(release_dir: str | Path, path: str | Path) -> dict:
     """Check the groups file at `path` against the release's MedDRA version and write it, each
     group as MedDRA names it, into the version's licensed folder. Raises LabelRefused, saying
@@ -59,20 +58,23 @@ def install_groups(release_dir: str | Path, path: str | Path) -> dict:
         given = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise LabelRefused(f"{path}: not a readable JSON file ({exc})") from exc
-    keys = group_keys()
+    keys = file_keys()
     if not isinstance(given, dict) or set(given) != set(keys):
         found = sorted(given) if isinstance(given, dict) else type(given).__name__
         raise LabelRefused(f"{path}: needs exactly the keys {sorted(keys)}, not {found}")
     every, hlts = _levels(release_dir, entry)
+    levels = {
+        k: (hlts, "high level terms") if only else (every, "groups")
+        for k, only in group_keys().items()
+    }
+    levels[smq_key()] = (_smqs(release_dir, entry), "SMQs")
     out: dict[str, list[str]] = {}
-    for key, hlt_only in keys.items():
+    for key, (known, where) in levels.items():
         names = given[key]
         if not isinstance(names, list) or not all(isinstance(n, str) for n in names):
-            raise LabelRefused(f"{path}: {key} must be a list of group names or codes")
-        known = hlts if hlt_only else every
+            raise LabelRefused(f"{path}: {key} must be a list of names or codes")
         missing = [n for n in names if n.strip().lower() not in known]
         if missing:
-            where = "high level terms" if hlt_only else "groups"
             raise LabelRefused(
                 f"{path}: {key} names {len(missing)} {where} MedDRA {version} does not hold,"
                 f" such as {missing[:3]}"

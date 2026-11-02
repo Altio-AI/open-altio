@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import sys
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import NamedTuple
@@ -38,6 +39,7 @@ from .files import (
     read_release_file,
     read_table,
 )
+from .rulenames import Held, missing_names, warning_lines
 from .terms import MAPPING_TABLES, map_terms, stopping
 from .versions import newest, release_date
 
@@ -82,6 +84,14 @@ def read_licensed_manifest(release_dir: str | Path) -> dict | None:
     if not path.is_file():
         return None
     return formats.with_current_name(json.loads(path.read_text(encoding="utf-8")))
+
+
+def version_tables(release_dir: str | Path, version: str | None) -> dict[str, Path]:
+    """Each table of MedDRA version `version` in the release's licensed part, by its Parquet
+    file; none for no version, or one the part does not hold."""
+    part = (read_licensed_manifest(release_dir) or {}) if version else {}
+    entry = part.get("meddra", {}).get("versions", {}).get(version) or {}
+    return {n: licensed_dir(release_dir) / t["path"] for n, t in entry.get("tables", {}).items()}
 
 
 def older_part(entry: dict) -> bool:
@@ -209,10 +219,35 @@ def write_licensed(
         "source_files": {n: sha256(meddra.folder / n) for n in FILES},
         "tables": tables,
         "terms": report,
+        "rule_names_missing": _check_rule_names(con, target / LABEL_GROUPS_FILE, meddra.version),
     }
     manifest["meddra"]["versions"] = {meddra.version: entry}
     write_licensed_manifest(release_dir, manifest)
     return entry
+
+
+def _check_rule_names(con: duckdb.DuckDBPyConnection, groups: Path, version: str) -> dict:
+    """Every rule that names MedDRA's terms against the version `con` holds, said loudly here, for
+    the manifest (rule meddra-version)."""
+
+    def lowered(sql: str) -> frozenset[str]:
+        return frozenset(str(name).lower() for (name,) in con.execute(sql).fetchall())
+
+    held = Held(
+        groups=lowered(
+            "SELECT soc_name FROM meddra_mdhier WHERE primary_soc_fg = 'Y' UNION "
+            "SELECT hlgt_name FROM meddra_mdhier WHERE primary_soc_fg = 'Y' UNION "
+            "SELECT hlt_name FROM meddra_mdhier WHERE primary_soc_fg = 'Y'"
+        ),
+        hlts=lowered("SELECT hlt_name FROM meddra_hlt"),
+        pts=lowered("SELECT pt_name FROM meddra_pt"),
+        smqs=lowered("SELECT smq_name FROM meddra_smq_list WHERE status = 'A'"),
+    )
+    given = json.loads(groups.read_text(encoding="utf-8")) if groups.is_file() else None
+    missing = missing_names(held, given)
+    for line in warning_lines(version, missing):
+        print(line, file=sys.stderr)
+    return missing
 
 
 def write_licensed_manifest(release_dir: str | Path, manifest: dict) -> None:

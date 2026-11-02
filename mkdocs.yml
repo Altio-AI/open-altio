@@ -54,6 +54,10 @@ nav:
       - The open-altio command: reference/cli.md
       - Rule files: reference/rules.md
       - Data dictionary: reference/data-dictionary.md
+      - The written contract: reference/contract.md
+      - The questions and their answers: reference/api.md
+      - The access hook: reference/access-hook.md
+      - The page's extension points: reference/page-extension.md
   - Methods:
       - How we clean FAERS: methods/index.md
       - Case versions across AERS and FAERS: methods/case-versions.md

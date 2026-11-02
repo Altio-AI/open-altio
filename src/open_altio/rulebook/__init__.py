@@ -7,11 +7,11 @@ drift apart:
     timeout = value("sql-limits", "timeout_seconds")
 
 The rules folder is `rules/`, inside the installed package or at the top of a checkout. A
-package that brings rules of its own adds its folder with `add_rules_dir(path)`; rules are then
-looked up in `rules/` first and in each added folder after it, and a name may be in only one of
-them. Tests point the loader elsewhere with `use_rules_dir(path)` (in place of `rules/`),
-`use_rules_dirs(paths)` (in place of every folder) or the `OPEN_ALTIO_RULES_DIR` environment
-variable.
+package that brings rules of its own adds its folder with `add_rules_dir(path, prefix)`; rules
+are then looked up in `rules/` first and in each added folder after it, a name may be in only one
+of them, and every name in a folder added with a prefix starts with it. Tests point the loader
+elsewhere with `use_rules_dir(path)` (in place of `rules/`), `use_rules_dirs(paths)` (in place of
+every folder) or the `OPEN_ALTIO_RULES_DIR` environment variable.
 
 A build runs under a person's choices (`load_user_rules`, `use_user_rules`): `value` then gives
 their value where they changed one, and `is_on` says whether a data rule acts.
@@ -41,11 +41,13 @@ from .loader import (
     all_rules,
     data_root,
     is_on,
+    is_placeholder,
     parse_rule_file,
     rule,
     rule_names,
     rules_dir,
     rules_dirs,
+    rules_folders,
     use_rules_dir,
     use_rules_dirs,
     use_user_rules,
@@ -76,12 +78,14 @@ __all__ = [
     "differences",
     "from_differences",
     "is_on",
+    "is_placeholder",
     "load_user_rules",
     "parse_rule_file",
     "rule",
     "rule_names",
     "rules_dir",
     "rules_dirs",
+    "rules_folders",
     "rules_toml",
     "save_user_rules",
     "steps",

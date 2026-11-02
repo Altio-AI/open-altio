@@ -12,7 +12,7 @@ import sys
 import traceback
 from importlib import metadata
 
-from open_altio.faers import ReleaseError, SourceError
+from open_altio.faers import NotARelease, ReleaseError, SourceError
 from open_altio.faers.drugnames import DictionaryRefused
 from open_altio.faers.fda import FetchError
 from open_altio.faers.meddra import MeddraRefused
@@ -41,6 +41,7 @@ REFUSALS = (
     Refusal,
     SourceError,
     ReleaseError,
+    NotARelease,
     UserRulesError,
     FetchError,
     DictionaryRefused,

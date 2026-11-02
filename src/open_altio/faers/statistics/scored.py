@@ -1,9 +1,19 @@
 """Every pair of the counted cases scored: EBGM under a prior fitted on the release's own
 cases, and PRR, ROR, RRR and IC from each pair's table of cases. The maths is
-open_altio.stats; this joins it to the counts and names the columns the release keeps."""
+open_altio.stats; this joins it to the counts and names the columns the release keeps.
+
+    columns, about = score(counts)       # every pair, the prior fitted (the build's step)
+    prior = release_prior(entry)         # the prior a built release was scored under
+    scores = score_with(prior, cells)    # other tables of the same cases, under that prior
+
+`score_with` scores tables the build did not, such as a group of reactions counted as one or the
+cases received since a day, with the same maths and the release's own prior, never fitted again,
+so its numbers stand beside the release's: a table it is given that the build scored too gets
+that pair's own numbers."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
@@ -83,15 +93,12 @@ def score(counts: Counts) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
         counts.pairs, counts.ingredient_strata, counts.reaction_strata, strata
     )
     fitted, about = fit(counts, ne)
-    if fitted is None:
-        scores = {k: np.full(len(ne["N"]), np.nan) for k in ("EBGM", "EB05", "EB95")}
-    else:
-        scores = ebgm.score(fitted.prior, ne["N"], ne["E"])
     product, event = counts.pairs["product"], counts.pairs["event"]
     n_product = _margin(counts.ingredient_strata, "product", len(counts.ingredients))[product]
     n_event = _margin(counts.reaction_strata, "event", len(counts.reactions))[event]
-    cells = dp.table(counts.pairs["n"], n_product, n_event, counts.cases)
-    maths: dict[str, np.ndarray] = {**dp.measures(**cells), **scores, "E": ne["E"]}
+    maths = _maths(
+        fitted.prior if fitted else None, counts.pairs["n"], n_product, n_event, counts.cases, ne
+    )
     out = {
         "ingredient": counts.ingredients[product],
         "reaction": counts.reactions[event],
@@ -102,3 +109,77 @@ def score(counts: Counts) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
         if source is not None:
             out[name] = maths[source]
     return {name: out[name] for name in COLUMNS}, about
+
+
+def _maths(
+    prior: ebgm.Prior | None,
+    n: np.ndarray,
+    n_product: np.ndarray,
+    n_event: np.ndarray,
+    total: Any,
+    ne: dict[str, np.ndarray],
+) -> dict[str, np.ndarray]:
+    """Every statistic, by the maths' names, of tables of cases (`n` naming both, `n_product`,
+    `n_event`, `total`) with their expected counts within strata (`ne["E"]`): EBGM, EB05 and
+    EB95 under `prior`, empty without one. The one place the build's scores and score_with's
+    are worked out."""
+    if prior is None:
+        scores = {k: np.full(len(ne["E"]), np.nan) for k in ("EBGM", "EB05", "EB95")}
+    else:
+        scores = ebgm.score(prior, ne["N"], ne["E"])
+    cells = dp.table(n, n_product, n_event, total)
+    return {**dp.measures(**cells), **scores, "E": ne["E"]}
+
+
+def release_prior(entry: dict[str, Any]) -> ebgm.Prior | None:
+    """The prior a built release's statistics were scored under, as its manifest's statistics
+    entry records it (`statistics`, or its `as_published` for the set counted by FDA's text);
+    None where it did not fit, and the entry's `ebgm.reason` says why. Read, never fitted."""
+    fitted = entry["ebgm"]
+    return ebgm.Prior(**fitted["prior"]) if fitted.get("fitted") else None
+
+
+@dataclass(frozen=True)
+class Cells:
+    """Tables of cases to score, one per row, each over strata of the same cases: the cases
+    naming the ingredient and the reaction (`cases`, one number per row); and in each stratum
+    (rows by strata, the strata in the same order in every row) the cases naming the ingredient
+    (`ingredient`), those naming the reaction (`reaction`) and every case counted (`strata`).
+    A group of reactions counted as one names its cases once each in `cases` and `reaction`."""
+
+    cases: np.ndarray
+    ingredient: np.ndarray
+    reaction: np.ndarray
+    strata: np.ndarray
+
+
+# score_with's columns: those of COLUMNS a table gives, its two names aside; and of those, the
+# ones worked out from the counts.
+SCORED = tuple(name for name in COLUMNS if name not in ("ingredient", "reaction"))
+MEASURES = tuple(n for n in SCORED if n not in ("cases", "ingredient_cases", "reaction_cases"))
+
+
+def score_with(prior: ebgm.Prior | None, cells: Cells) -> dict[str, np.ndarray]:
+    """Every column of SCORED for each row of `cells`, by the build's own maths (_maths): E
+    summed over the strata, EBGM, EB05 and EB95 under `prior` (release_prior; empty without
+    one), and PRR, chi-square, ROR, RRR and IC from the row's table. A row where no stratum
+    holds both its ingredient and its reaction, as where either has no case, expects 0 cases
+    and has every other statistic empty."""
+    a = np.asarray(cells.cases, dtype=np.int64)
+    ingredient, reaction, strata = (
+        np.asarray(x, dtype=np.int64) for x in (cells.ingredient, cells.reaction, cells.strata)
+    )
+    n_product, n_event, total = ingredient.sum(axis=1), reaction.sum(axis=1), strata.sum(axis=1)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        share = np.where(strata > 0, ingredient / strata, 0.0)
+    e = np.einsum("ks,ks->k", share, reaction.astype(float))
+    out = {name: np.full(len(a), np.nan) for name in MEASURES}
+    out |= {"cases": a, "ingredient_cases": n_product, "reaction_cases": n_event}
+    held = e > 0
+    if held.any():
+        ne = {"N": a[held], "E": e[held]}
+        maths = _maths(prior, a[held], n_product[held], n_event[held], total[held], ne)
+        for name in MEASURES:
+            out[name][held] = maths[str(COLUMNS[name])]
+    out["expected"] = e
+    return {name: out[name] for name in SCORED}
