@@ -81,6 +81,7 @@ settable:
   suspect_roles:
     label: The drug roles whose reactions get a label flag (PS, SS, I, C)
 enforced_in:
+- src/open_altio/faers/meddra/rulenames.py
 - src/open_altio/faers/labeldict/flags.py
 - src/open_altio/faers/insights/cards/rule_charts.py
 - src/open_altio/faers/labeldict/flagbuild.py
@@ -92,6 +93,7 @@ enforced_in:
 - src/open_altio/faers/rxnorm/layer.py
 - src/open_altio/faers/labeldict/unit.py
 - src/open_altio/faers/insights/numbers.py
+- src/open_altio/explorer/recountlabel.py
 ---
 # On the drug's label?
 

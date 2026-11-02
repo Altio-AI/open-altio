@@ -2,6 +2,8 @@
 
 For anyone reading, checking or changing how Open Altio treats the data.
 
+Contract version 1.0: [Rules from other folders](#rules-from-other-folders) is part of Open Altio's [written contract](contract.md).
+
 Every number and every policy Open Altio applies is a rule: one Markdown file in [`rules/`](https://github.com/Altio-AI/open-altio/tree/main/rules). The code reads each value from its file, so the words and the behaviour cannot drift apart, and a test fails if a rule's value is typed into the code instead.
 
 ## How to read one
@@ -18,6 +20,7 @@ A rule file has two parts: front matter, then text.
 | `settable` | For a data rule: the values `rules.toml` and the methods page let you change, each with a plain label. |
 | `always_on` and `why_locked` | For a rule the pipeline cannot run without. It cannot be switched off, and `why_locked` says why. |
 | `enforced_in` | The code that applies the rule and the tests that prove it. |
+| `placeholder` | `true` for a rule whose values wait on their evidence: a starting point, not yet decided. Its text names the notebook that will decide them. |
 
 **The text** has three parts:
 
@@ -48,3 +51,20 @@ per_page = value("explorer-page-size", "cases_per_page")
 - **`open_altio.rulebook` is the only way code reads a rule.**
 - **`is_on("deleted-cases")`** says whether a data rule acts in the build running.
 - **An unknown rule or value raises an error,** so a typo fails loudly.
+
+## Rules from other folders
+
+A product built on Open Altio keeps its own numbers and policies as rule files too, in a folder of its own, and adds that folder once as it loads:
+
+```python
+from pathlib import Path
+
+from open_altio import rulebook
+
+rulebook.add_rules_dir(Path(__file__).parent / "rules", prefix="acme-")
+```
+
+- **Its rules are read like Open Altio's.** `rulebook.value("acme-review-days", "days")` reads one, after `rules/` is searched. A product's rule file has the same front matter (`rule`, `line`, `values`, `enforced_in`, `placeholder`) and the same text.
+- **Every name carries the product's prefix.** In a folder added with a prefix, a rule whose file name does not start with it is refused, naming the file and the prefix, so a product's rule never takes a name Open Altio may use later.
+- **A name lives in one folder.** A name in two folders is refused, so a product cannot replace one of Open Altio's rules with a copy of its own.
+- **Tests change values with `open_altio.testing.rules.rules_with`,** which copies every folder, with its prefix, and changes only the values named.

@@ -11,6 +11,7 @@ values:
 enforced_in:
   - src/open_altio/explorer/labels.py
   - src/open_altio/explorer/filters.py
+  - src/open_altio/explorer/recountlabel.py
   - tests/explorer/test_labels_api.py
 ---
 # How the screens show the label flags

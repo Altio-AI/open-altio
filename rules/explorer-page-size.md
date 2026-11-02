@@ -3,7 +3,7 @@ rule: explorer-page-size
 values:
   cases_per_page: 50
 enforced_in:
-  - src/open_altio/explorer/explore.py
+  - src/open_altio/explorer/caselist.py
   - tests/explorer/test_explore.py
 ---
 # The explorer lists 50 cases a page

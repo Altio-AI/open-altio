@@ -5,11 +5,9 @@ values:
   pts:
   - No adverse event
   - Drug ineffective
-  - Drug ineffective for unapproved indication
   - Product ineffective
   - Product ineffective for unapproved use
   - Therapeutic response decreased
-  - Drug effect incomplete
   - Drug effect less than expected
   - Treatment failure
   - Therapy non-responder
@@ -31,9 +29,11 @@ values:
   - Vaccination failure
   groups_key: not_a_medical_event
 enforced_in:
+- src/open_altio/faers/meddra/rulenames.py
 - src/open_altio/faers/labeldict/flagbuild.py
 - src/open_altio/faers/labeldict/groups.py
 - tests/faers/test_label_build.py
+- tests/explorer/test_meddra_names_release.py
 ---
 # Not a health effect
 
@@ -43,8 +43,8 @@ Some reaction terms in FAERS name no health effect: the drug did not work, it wa
 
 A reported term is not a medical event when its current preferred term (PT) is not one of `compared_pts` and:
 
-- is one of `pts`, written as FDA publishes them (lack of effect, no adverse event, self-medication, a treatment paused, stopped or changed); a term named here is not a medical event even where MedDRA files it under procedures; or
-- sits, on its primary path in MedDRA, under one of the groups the licensed part lists under `groups_key` in `label_groups.json`, beside the MedDRA version's tables: a body-system class, a group term or a high level term. MedDRA's group names are MedDRA content, so they are kept there and never in this repository. The groups hold product problems, medication and product use errors, off label use and misuse, overdoses and underdoses, exposure and its routes ("Exposure via skin contact", "Accidental exposure to product"), and the social circumstances that are not health effects: crimes and their victims, money, work, schooling and housing ("Theft", "Unemployment").
+- is one of `pts`, written as FDA publishes them (lack of effect, no adverse event, self-medication, a treatment paused, stopped or changed); a term named here is not a medical event even where MedDRA files it under procedures. Each is a preferred term of MedDRA 29.1: a name that is not matches nothing, so `tests/explorer/test_meddra_names_release.py` checks them over a real release; or
+- sits, on its primary path in MedDRA, under one of the groups the licensed part lists under `groups_key` in `label_groups.json`, beside the MedDRA version's tables: a body-system class, a group term or a high level term. MedDRA's group names are MedDRA content, so they are kept there and never in this repository. The groups hold product problems, medication and product use errors, off label use and misuse, overdoses and underdoses, exposure and its routes ("Exposure via skin contact", "Accidental exposure to product"), and the personal and social matters that are not health effects: crimes and their victims, money, work, schooling and housing ("Theft", "Unemployment").
 
 Death (sudden death, death unexplained and the like) and the disease getting worse (condition aggravated, disease progression) are health effects and are compared with the label like any other event: they usually come out not on the label and stay in triage, because a cluster of deaths can be a real signal.
 

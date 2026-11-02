@@ -19,7 +19,7 @@ enforced_in:
 
 **Why:** the whole service runs on one small box; anyone hitting the limits should take the full release.
 
-**How it is enforced:** SQL on the Tables and SQL page (`POST /api/sql`) queries the live release's own tables (a view per Parquet file in `manifest.json`) and its deduplicated views (`views.sql`), through a DuckDB catalog opened read only. DuckDB is locked down after the views are made: external access off except reading the release's Parquet files, extensions never installed or loaded, configuration locked. Only a single `SELECT` statement runs; anything else is refused before it reaches DuckDB.
+**How it is enforced:** SQL on the Tables and SQL page (`POST /api/sql`) queries the live release's own tables (a view per Parquet file in `manifest.json`) and its deduplicated views (`views.sql`), and for a viewer who may see MedDRA's licensed part the tables of its MedDRA version too, through a DuckDB catalog opened read only. DuckDB is locked down after the views are made: external access off except reading those Parquet files, extensions never installed or loaded, configuration locked. Only a single `SELECT` statement runs; anything else is refused before it reaches DuckDB.
 
 - `timeout_seconds`: a query still running after this is interrupted. The SQL box says so, with this number.
 - `memory_limit_gb`: DuckDB's memory limit for all SQL queries together (one box), with `threads` worker threads.

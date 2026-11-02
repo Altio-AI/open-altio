@@ -10,6 +10,7 @@ enforced_in:
   - src/open_altio/faers/companies.py
   - src/open_altio/faers/insights/cards/empty_fields.py
   - src/open_altio/explorer/filters.py
+  - src/open_altio/explorer/recountquery.py
   - tests/faers/test_company_names.py
   - tests/faers/test_companies.py
   - tests/faers/test_user_rules.py

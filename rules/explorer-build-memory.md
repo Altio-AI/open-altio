@@ -13,6 +13,7 @@ enforced_in:
   - src/open_altio/faers/labeldict/flagbuild.py
   - src/open_altio/faers/meddra/licensed.py
   - src/open_altio/faers/statistics/step.py
+  - src/open_altio/faers/statistics/quarterly.py
   - tests/faers/test_explorer_db.py
   - tests/faers/test_build.py
   - tests/explorer/test_rebuild.py

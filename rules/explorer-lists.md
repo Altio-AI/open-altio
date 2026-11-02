@@ -21,6 +21,7 @@ values:
   years_offered: 7
   countries_offered: 80
   statistics_shown: 100
+  events_shown: 50
   classes_found: 40
   top_classes: 12
   socs_charted: 12
@@ -62,6 +63,7 @@ The page reads the rest from `/api/release`:
 - `countries_offered`: countries the Country filter lists, most cases first, of those that match what is typed.
 - `reactions_suggested`: reactions the Reactions filter suggests before anything is typed; under PTs alone, all `top_reactions`.
 - `years_offered`: whole years the date filters offer at a click, the release's last first.
+- `events_shown`: events the events table lists before Show more, and how many more each press shows, unless the page that draws it pages it itself.
 
 **Search order:** every search box lists what it finds in three groups: the name typed, whole, first; then the names that start with it; then the rest that hold it. Within each group the list keeps its own order (most cases first, or the column a table is sorted by, or by code). A class above others comes where the first class found under it does, so the tree keeps that order. Clearing the box lists everything in that own order again.
 

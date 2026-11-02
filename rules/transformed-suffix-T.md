@@ -14,6 +14,7 @@ enforced_in:
   - src/open_altio/faers/explorer_db.py
   - tests/faers/test_explorer_db.py
   - src/open_altio/faers/statistics/step.py
+  - src/open_altio/faers/medical_events.py
 ---
 # FDA's values never changed
 

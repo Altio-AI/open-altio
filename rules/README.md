@@ -12,11 +12,15 @@ A rule file has two parts.
 - `values`: its values. The text below names each one in `code style`.
 - `enforced_in`: the code that applies the rule and the tests that check it, or `not yet built`.
 
-A data rule, one that shapes the release, also has:
+A data rule, one that shapes the release, also has the three below; a rule the methods page names beside the data rules, such as the day a case is dated by, has a `line` too:
 
 - `line`: one plain sentence, shown under its name on the methods page.
 - `settable`: the values you may set for your own releases, each with a plain label (and, for a choice, its options).
 - `always_on: true` and `why_locked`: for a rule the build cannot run without.
+
+A rule whose values wait on their evidence also has:
+
+- `placeholder: true`: its values are a starting point, not yet decided. Its text names the notebook that will decide them (`notebooks/faers/NN_name`), which `notebooks/README.md` lists as To write until it is written. Deciding it is one pull request: the notebook with its outputs, the decided values, and the key removed.
 
 **The text.** The heading is the rule's name. The first paragraph says what it does and why, in plain words; the methods page shows it when the rule is opened. The paragraphs after it give the exact rule, and **Why** gives the evidence, usually a notebook in `notebooks/faers/` you can run yourself.
 
@@ -125,10 +129,12 @@ These set how the explorer, the commands and MedDRA's licensed part behave, and 
 
 | Rule | What it says |
 |---|---|
+| [counted-question](counted-question.md) | A question's cases counted by one field at a time, each value with the question that lists exactly its cases |
 | [era-filter](era-filter.md) | Era is and/or, not either/or |
 | [explorer-build-memory](explorer-build-memory.md) | The explorer database builds within the service's box |
 | [explorer-read-memory](explorer-read-memory.md) | The explorer reads within the service's box |
 | [explorer-drug-counts](explorer-drug-counts.md) | A drug counts by its ingredient, in any product containing it, as primary or secondary suspect; each role a tick box |
+| [explorer-event-thresholds](explorer-event-thresholds.md) | A product's events open at the thresholds a person steps for that page, nothing kept |
 | [explorer-field-notes](explorer-field-notes.md) | A note under a field's chart and beside its filter where FDA's own files changed |
 | [explorer-label-flags](explorer-label-flags.md) | How the screens show the label flags: every flag from the start, Unexpected only one click |
 | [explorer-label-names](explorer-label-names.md) | A label is named by its product, its ingredients and its date; its forms only where the drug's labels differ by form |
@@ -141,8 +147,31 @@ These set how the explorer, the commands and MedDRA's licensed part behave, and 
 | [improve-this](improve-this.md) | Improve this sends only the note, from the browser, to Altio's improvements board; a note that cannot go yet waits on this machine |
 | [machine-needs](machine-needs.md) | The memory and free disk `open-altio doctor` checks for |
 | [meddra-version](meddra-version.md) | One MedDRA version per release, the newest when it is built |
+| [serious-outcomes](serious-outcomes.md) | A case is serious, fatal or life-threatening by FDA's own outcome codes; one with no outcome is none of them |
+| [literature-reference](literature-reference.md) | A report cites an article when FDA's literature reference is given; one from FDA's files before the field existed reads Not given |
 | [sql-limits](sql-limits.md) | SQL is read-only DuckDB with hard limits |
 | [sql-result-download](sql-result-download.md) | A SQL result downloads whole up to 2,000,000 rows |
+
+## Waiting on their evidence
+
+These rules hold a value chosen before the notebook that will decide it was run. Each says `placeholder: true` at the top and names its notebook; a change of value ships as its own data release. A rules file does not change them.
+
+| Rule | What it says |
+|---|---|
+| [received-day](received-day.md) | Every count by quarter, year or window dates a case by the first time FDA received any copy of it |
+| [trend-rising](trend-rising.md) | A statistic is rising when its value at the newest quarter end is higher than it was a set number of quarter ends before |
+| [chance-test](chance-test.md) | A change in a share between two periods counts as more than chance when its p-value is under alpha, by Fisher's exact test on a small table and the chi-square test on a large one |
+| [medical-event-lists](medical-event-lists.md) | Reaction terms that EMA lists as designated or important medical events are marked from the list files you give the build |
+| [age-groups](age-groups.md) | An event's facts give the share of its cases in the children's bands and in the older bands, of the cases that give an age |
+| [pregnancy-cases](pregnancy-cases.md) | A pregnancy case is one that names a term of one MedDRA SMQ |
+| [not-a-medical-event](not-a-medical-event.md) | A term about how a product was used, made or worked is marked as not a medical event |
+| [treated-condition](treated-condition.md) | An event is the treated condition when the drug's label flag for it says so |
+| [indication-match](indication-match.md) | The share of an event's cases whose reported indication is the event itself |
+| [breakdown-lines](breakdown-lines.md) | An event's cases are broken down one field at a time, each value's share among only the reports that give the field, in a window and before it |
+| [rechallenge-correction](rechallenge-correction.md) | Dechallenge and rechallenge are read through Not given before an event's shares are counted, and corrected no further |
+| [breakdown-rose](breakdown-rose.md) | A value of a breakdown line rose when its share is up by a set number of points from before to the window and the change is more than chance |
+| [breakdown-alarm](breakdown-alarm.md) | A breakdown line is an alarm when the value it shows moved by a set number of points from before to the window and the change is more than chance |
+| [dose-strength](dose-strength.md) | The Dose line shows the share of reports giving a dose whose dose as written reads to the highest strength, the one passed or else the highest that enough of them write |
 
 ## The label review
 

@@ -30,11 +30,12 @@ src/open_altio/
   testing/      invented FDA files and MedDRA releases, and the fixtures tests share
   paths.py      where the data folder is on each platform
   machine.py    memory facts, read the same way on every platform
+  scratch.py    scratch folders named by process id, so a killed process's are cleared
 rules/          one file per rule: values in front matter, then the rule in plain words
 mappings/       reviewed cleaning data, such as legacy country names as ISO codes
 notebooks/      the evidence behind each step, run against a release, committed with the outputs of that run (licensed MedDRA output cleared)
 docs/           the MkDocs site, by reader
-tests/          mirrors src/
+tests/          mirrors src/; contract/ checks the written contract (docs/reference/contract.md)
 scripts/        small tools run by hand, such as check.py (the gates every change passes)
 ```
 
@@ -89,6 +90,8 @@ uv run python scripts/check.py --all
 ```
 
 That runs the text gates (no process history, private references, old names or em dashes), the code gates (no link made, no file path typed with a separator), `ruff check`, `ruff format --check`, `mypy src`, `mkdocs build --strict` and the fast test suite. `uv run python scripts/check.py` alone runs only the text and code gates, in a second. CI runs exactly these commands on Linux, macOS and Windows, with `OPEN_ALTIO_REQUIRE_BROWSER=1` so that a page test fails rather than skips when the browser is missing; set it yourself to be sure the pages were drawn. Tests over the real FAERS quarters are marked `slow`: `uv run pytest -q -m slow`.
+
+`tests/contract/` checks Open Altio's written contract, the names a product built on Open Altio may build on (`docs/reference/contract.md`), in the fast suite. A change that fails it either keeps the old names, or raises `CONTRACT_VERSION` (`src/open_altio/__init__.py`) and writes the snapshot again with `scripts/contract_snapshot.py`, with a CHANGELOG line naming the new contract version.
 
 Tests mirror `src/`. Shared helpers live in fixtures (`tests/conftest.py`) and fakes in `open_altio.testing`. A test names what it proves and checks both what the code does and what it refuses. Prefer a behaviour check to asserting a literal string of CSS or HTML.
 

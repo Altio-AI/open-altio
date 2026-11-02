@@ -85,6 +85,13 @@
     often they are reported together than expected; no case is removed.
   rules: [statistics-cases, ebgm, prr, ror, rrr, ic, ror-strata]
 
+- id: medical_event_lists
+  title: EMA's medical event lists
+  sentence: >-
+    Nothing is taken out here; each reaction term that EMA lists as a designated or an important
+    medical event is marked, from the list files you give the build.
+  rules: [medical-event-lists]
+
 - id: drug_labels
   title: FDA drug labels
   sentence: >-

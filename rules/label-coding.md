@@ -61,6 +61,7 @@ values:
   needs_note: [other]
   faers_line: FAERS reports are suspected events, not proven reactions; the flag only says whether today's label lists the event.
 enforced_in:
+  - src/open_altio/faers/meddra/rulenames.py
   - src/open_altio/labelreview/coding.py
   - tests/labelreview/test_coding.py
 ---

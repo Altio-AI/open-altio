@@ -54,6 +54,9 @@ Builds a release from the files `fetch` downloaded, into the current folder.
 - **Memory.** It is held to a memory limit by default so a laptop with 16 GB works, and spills to disk past it.
 - **Your rules.** If the current folder holds a `rules.toml`, the build uses it and records how it differs from Altio's standard.
 - **Drug ingredients.** Without DiAna's drug dictionary in the data folder, the release has no drug ingredients.
+- **Quarter-end counts.** After the statistics, it counts their cases by the quarter each was received in ([Quarter-end counts](data-dictionary.md#quarter-end-counts)). To add them to a release built before they were, run `python -m open_altio.faers quarter-statistics RELEASE` (from a clone, `uv run python -m ...`), naming the release folder. It writes those tables and their manifest entries, and nothing else in the folder changes.
+
+- **EMA's medical event lists.** `open-altio build --dme FILE --ime FILE` reads EMA's Designated and Important Medical Events files into the release, so each event of a drug says whether EMA lists it. A list not given is recorded as not held, and its mark shows as Not available. To add them to a release already built, run `python -m open_altio.faers medical-events RELEASE --dme FILE --ime FILE` (from a clone, `uv run python -m ...`). It writes `medical_events_T` and the manifest's `medical_events` entry, and nothing else in the folder changes. Run it with both files each time: it replaces both lists.
 
 See [Rebuild from FDA's files](../customise/rebuild.md).
 
@@ -68,7 +71,7 @@ Runs the explorer on `127.0.0.1`, so only your own machine can reach it. No sign
 - **`--release`** names another release.
 - **`--port`** names a port. If port 8000 is taken it uses the next free one.
 - **`--meddra`** points it at the MedDRA release your organisation received from MSSO, unzipped. The release keeps what it needs, so you give it once.
-- **`--rxnorm`, `--labels` and `--ime`** name the other files the release was built with, which the methods page's rebuild reads again, as it reads `--meddra` ([Rebuild it with your rules](../customise/rebuild.md#rebuild-it-with-your-rules)).
+- **`--rxnorm`, `--labels`, `--dme` and `--ime`** name the other files the release was built with, which the methods page's rebuild reads again, as it reads `--meddra` ([Rebuild it with your rules](../customise/rebuild.md#rebuild-it-with-your-rules)).
 
 See [Run the explorer on your machine](../use/explorer.md). The explorer's methods page is where you switch rules and change their values.
 

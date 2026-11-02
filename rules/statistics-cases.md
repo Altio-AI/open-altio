@@ -10,14 +10,19 @@ why_locked: The statistics take no case out of the release; the thresholds you r
 enforced_in:
   - src/open_altio/faers/statistics/cases.py
   - src/open_altio/faers/statistics/step.py
+  - src/open_altio/faers/statistics/quarterly.py
   - src/open_altio/faers/meddra/licensed.py
   - src/open_altio/explorer/statistics.py
+  - src/open_altio/explorer/grouped.py
+  - src/open_altio/explorer/quarterly.py
   - tests/faers/statistics/test_statistics_cases.py
   - tests/faers/statistics/test_statistics_meddra.py
+  - tests/explorer/test_grouped.py
+  - tests/explorer/test_quarterly.py
 ---
 # The cases the statistics count
 
-Every statistic counts one set of cases: the cases the release keeps that name at least one suspect ingredient and at least one reaction. EBGM, PRR, ROR, RRR and IC all count it, and so do each pair's time to onset (`time-to-onset`) and its ROR by age band and by sex (`ror-strata`), so their numbers for one ingredient and reaction stand side by side.
+Every statistic counts one set of cases: the cases the release keeps that name at least one suspect ingredient and at least one reaction. EBGM, PRR, ROR, RRR and IC all count it, and so do each pair's time to onset (`time-to-onset`), its ROR by age band and by sex (`ror-strata`), the counts by the quarter each case was received in (`received-day`), the statistics of a group of reactions counted as one event or of the cases received since a day, and each pair's statistics at the end of every quarter, all scored under the release's own fitted prior, so their numbers for one ingredient and reaction stand side by side. Statistics at each quarter end asked by the date the reaction started hold, of these cases, those that give that date in full, placed by it.
 
 - **Cases**: the cases the release keeps after duplicates (`dup_kept_T`, rule `dedup-default`), each counted once. A case counts only if it names an ingredient and a reaction below. These cases are the whole table: the total N, the comparator cell c and the cell d are counted over them and no others.
 - **Ingredient**: each ingredient of every drug the case names as primary or secondary suspect (`product_roles`, FDA's `role_cod`), from `drug_ingredient_T` (rule `drug-names`). A combination counts for each of its ingredients, so valsartan's cases include those naming Entresto: "any product containing" the ingredient. Interacting and concomitant drugs do not count. A release built without the drug names has no statistics.

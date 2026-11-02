@@ -2,6 +2,8 @@
 
 For anyone querying a release: every file, table and column, and where each comes from.
 
+Contract version 1.0: [what a product may read](#what-a-product-may-read) of a release folder is part of Open Altio's [written contract](contract.md).
+
 This page lists the files in a release folder, then each table and its columns.
 
 Columns are marked **FDA** or **Open Altio**:
@@ -30,6 +32,18 @@ Counts in the examples are from the 2026Q2 release.
 
 - **In Python,** `open_altio.faers.open_release(folder)` gives a DuckDB connection with every table and view registered.
 - **In any other tool,** read the Parquet directly. To get the views, create a view per table over its Parquet file and run `views.sql`, which names tables, never paths.
+
+### What a product may read
+
+A product built on Open Altio reads a release folder through these names, which change only with a new contract version:
+
+- **The manifest:** every key in [its table](#manifestjson).
+- **The tables:** FDA's tables, every column verbatim; every table and column ending in `_T` that this page lists; the views in `views.sql`; and MedDRA's part (`licensed/`), where the release holds it.
+- **FAERS's own names:** a case's address `/api/case/{era}/{key}`, its `era_T` and `case_key_T`, and the drug roles `PS`, `SS`, `I` and `C`. They are FAERS's. A second source changes them only with a new contract major version.
+
+`explorer.duckdb` is outside the contract: its layout serves the explorer and may change in any release.
+
+Every reader opens a release through `read_manifest(folder)` (`open_altio.faers`): the explorer, `open_release` and SQL. It refuses a folder that is not a finished release this version reads, with `NotARelease` naming the folder: one with no `manifest.json`, one whose manifest names another format, a `format_version` this version does not read (`READABLE_VERSIONS` in `open_altio.faers.formats`) or a `source` it does not read (`SOURCES`). So nothing is counted over an unfinished or unknown folder.
 
 ## FDA's tables
 
@@ -146,6 +160,9 @@ The steps, in order. Each table carries FDA's columns beside Open Altio's, so a 
 | `statistics_T` | One row per suspect ingredient and reaction named together in at least one counted case: EBGM, PRR, ROR, RRR, IC and the time to onset (below). Absent from a release built without the drug ingredients |
 | `statistics_strata_T` | One row per pair of `statistics_T` and value of an age band or a sex where the pair has a case: its ROR within that value (below). Absent where `statistics_T` is |
 | `statistics_as_published_T`, `statistics_strata_as_published_T` | The same two tables counted by FDA's text, as in a release without MedDRA, for anyone shown reactions as FDA wrote them. Only in a release with MedDRA |
+| `quarter_strata_T`, `reaction_quarter_strata_T` | The statistics' cases counted by the quarter each was received in and by stratum, and again for each reaction, so the statistics can be read as they stood at the end of any quarter ([below](#quarter-end-counts)). Absent where `statistics_T` is |
+| `medical_events_T` | One row per term of each of EMA's medical event lists the build was given: `list_T` (`dme` for designated, `ime` for important) and `pt_T`, the preferred term as MedDRA writes it, with no MedDRA code. Empty when no list was given; the manifest's `medical_events` entry says which list is missing and why ([medical-event-lists](https://github.com/Altio-AI/open-altio/blob/main/rules/medical-event-lists.md)) |
+| `reaction_quarter_strata_as_published_T` | `reaction_quarter_strata_T` counted by FDA's text, as `statistics_as_published_T` is. Only in a release with MedDRA |
 | `atc_index_T`, `atc_drug_T`, `atc_drug_codes_T` | WHO's drug classes, when the release includes them ([below](#who-drug-classes)) |
 | `atc_statistics_T`, `atc_statistics_ingredients_T` | The statistics of each WHO class and reaction, at each class level, and each ingredient's classes, when the release includes the classes and the drug ingredients ([below](#statistics-of-each-class)) |
 
@@ -245,6 +262,16 @@ The explorer counts a drug by these columns. On a product page and in the Drugs 
 
 On `statistics_strata_T`, rule [ror-strata](https://github.com/Altio-AI/open-altio/blob/main/rules/ror-strata.md): `ingredient_T` and `reaction_T` as above; `by_T`, the part (`age_band` or `sex`); `stratum_T`, its value (an age band's id, `F`, `M`, or `unknown`); `cases_T`, `ingredient_cases_T`, `reaction_cases_T` and `stratum_cases_T`, the cases within that value naming both, the ingredient, the reaction, and any of them (a, a + b, a + c and N); `ror_T`, `ror_lower_T`, `ror_upper_T`, the ROR within that value and its 95% interval.
 
+### Quarter-end counts
+
+Rule [received-day](https://github.com/Altio-AI/open-altio/blob/main/rules/received-day.md) names the day a case is dated by. Each case the statistics count is placed in the quarter of that day or, where it is empty, in the quarter of the file that holds it (`quarter_T`). A case is in one quarter only, so summed over every quarter the tables give the statistics' own counts, and summed up to a quarter they give the counts as they stood at that quarter's end. `python -m open_altio.faers quarter-statistics R` adds them to a release built without them and changes nothing else in it.
+
+| Table | One row per | Columns |
+|---|---|---|
+| `quarter_strata_T` | Quarter and stratum with a counted case | `qnum_T` (the quarter, yyyyq), `age_band_T`, `sex_T` and `receipt_year_T` (the stratum EBGM compares within, `unknown` where not given), and `cases_T`, the counted cases placed there. Summed over every quarter, each stratum's cases; over every stratum too, the cases the statistics count (N) |
+| `reaction_quarter_strata_T` | Reaction, quarter and stratum with a counted case naming the reaction | `reaction_T`, named as in `statistics_T`, then the same columns. Summed over every quarter and stratum, the reaction's `reaction_cases_T` |
+| `reaction_quarter_strata_as_published_T` | The same, by FDA's text | As `reaction_quarter_strata_T`, with `reaction_T` as in `statistics_as_published_T`. Only in a release with MedDRA, whose cases counted are the same either way, so `quarter_strata_T` serves both |
+
 ### The deduplicated views
 
 `views.sql` defines the release's default view:
@@ -276,7 +303,8 @@ The count after each step, per era and in total, and what each step removed:
 
 | Key | What |
 |---|---|
-| `format`, `format_version` | `open-altio-release`, and its version |
+| `format`, `format_version` | `open-altio-release`, and its version: 2. Version 1 names no `source` and is read as FAERS |
+| `source` | The public database it was built from: `faers` |
 | `release`, `quarters` | The release's name and every quarter in it |
 | `built_at`, `build_seconds` | When it was built (UTC) and how long it took |
 | `peak_rss_bytes` | The build's peak memory, in bytes |
@@ -290,6 +318,8 @@ The count after each step, per era and in total, and what each step removed:
 | `classes` | WHO's drug classes: the ATC index year, WHO's citation, the class table and the group classes read (path and checksum of each), the class tables, and the cases with a coded drug, with a class, with a shared class and with a drug it cannot tell; or why the release has none |
 | `class_statistics` | What the statistics of each class counted: the cases (the ingredient statistics' own), the pairs, and for each level its name, its classes, the counted cases naming one of them, its pairs and its own EBGM fit; the reaction key, whether a record also counted under the classes it could be (`could_be`), the two tables and how long it took; or why the release has none |
 | `statistics` | What the statistics counted (cases, ingredients, reactions, strata, pairs), the reaction key they counted by (`reaction_key`: `meddra_pt` with its `meddra_version`, or `fda_text`), EBGM's fit (its five hyperparameters, what each starting point reached, or why it did not fit), the table and parts of the ROR by stratum (`ror_strata`) and how long each part took; or why the release has none |
+| `quarter_statistics` | What the quarter-end counts counted: the column of the received day (`received_day`), the cases, reactions and quarters, the reaction key, each table with its rows and bytes, and how long it took; with MedDRA, the same for the reactions by FDA's text (`as_published`); or why the release has none |
+| `medical_events` | Per list (`dme`, `ime`): whether it is held, the checksum of the file it was read from, the file's date (DME) or MedDRA version (IME) and the number of terms, or `reason` when the list was not given or could not be read. The IME list is named by the release's MedDRA where it holds one (`named_by`: `meddra`, with `not_pts_of_release_version`, the codes that are no PT of its version), else by the names in the file (`file`) |
 | `labels` | What the labels step read and chose, or that it was skipped; the DailyMed day the labels are as of (`as_of`), the daily files applied since the build (`daily_files`), and what each refresh changed (`refreshes`, rule label-refresh) |
 | `user_rules` | How the rules it was built with differ from Altio's standard: the rules off, and each value changed, from what to what. Empty for Altio's standard (see [Change a rule](../customise/rules.md)) |
 

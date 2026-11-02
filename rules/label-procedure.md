@@ -4,6 +4,7 @@ line: Terms that name what was done to the patient, such as a liver transplant o
 values:
   groups_key: procedure
 enforced_in:
+- src/open_altio/faers/meddra/rulenames.py
 - src/open_altio/faers/labeldict/flagbuild.py
 - src/open_altio/faers/labeldict/groups.py
 - tests/faers/test_label_build.py

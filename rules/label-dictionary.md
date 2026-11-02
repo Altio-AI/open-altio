@@ -148,7 +148,7 @@ Examples:
 | "Elevated ALT was seen in 3%." | ALT increased | prose order |
 | "decrease in hemoglobin" | Hemoglobin decreased | prose order, a phrase first |
 | "injection site reactions (erythema, itching, pain)" | Injection site erythema, Injection site pruritus, Injection site pain | a site governs the list |
-| "General disorders and administration site conditions: asthenia" | Asthenia | no site phrase |
+| "General and administration site conditions: asthenia" | Asthenia | no site phrase |
 | "extra-pulmonary tuberculosis" | none for pulmonary tuberculosis | the hyphen keeps one word |
 | "adverse reaction rates observed in clinical trials" | Adverse reaction, kept off | boilerplate |
 | "may lead to hospitalization" | Lead, kept off | "lead to" is the everyday sense |

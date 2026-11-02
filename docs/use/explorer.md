@@ -49,7 +49,8 @@ Everything about the data:
 
 - **Drugs and reactions,** each with its cases, charts and counts. A drug is found by its ingredient or any name it is reported under; [how a drug counts](#how-a-drug-counts) is below.
 - **Pinned products.** The pin beside a drug Home finds, or on the drug's page, keeps it in the side panel, in the order you drag them. Press the pin again, or Unpin in the row's menu, to let it go. Pins are kept in this browser. Home lists the drugs you opened lately.
-- **How current it is.** Every page says once, top right, the latest FDA quarter the release holds ("FDA data through 2026Q2").
+- **How current it is.** Every page says once, top right, the day the release was built ("Data refreshed") and the latest FDA quarter it holds ("newest quarter").
+- **A drug's events.** A drug's page opens on Events: which events crossed the thresholds in the newest quarter, against the quarter before, counting the drug as primary or secondary suspect in any product containing it. Each statistic starts at its standard screen, and every value of it is in its column's head menu, there to change for that visit; the page says how many events they hide. Columns adds the rest; [rule explorer-event-thresholds](https://github.com/Altio-AI/open-altio/blob/main/rules/explorer-event-thresholds.md) says what they start at.
 - **All cases,** with filters (drugs, drug classes, reactions, system organ class, dates, sex, age, outcome, reporter, country, company, era) and the switch that shows probable duplicates again.
 - **Companies,** [listed in the company-names rule](https://github.com/Altio-AI/open-altio/blob/main/rules/company-names.md).
     - The company that sent each report is shown, with each of FDA's spellings of one company counted under its name (`ELI LILLY AND CO` and `ELI LILLY AND COMPANY` are Eli Lilly).
@@ -61,7 +62,7 @@ Everything about the data:
 - **FDA system** is the system of each case's latest version. The cases FDA carried from AERS into FAERS count as FAERS cases, though many were first received before. The Received by FDA filter finds the cases first reported before FAERS.
 - **Statistics,** on a product's page and on All cases: EBGM with EB05 and EB95, PRR, ROR, RRR and IC for each ingredient and reaction, worked out once for the release ([below](#statistics)).
 - **Label flags,** when the release holds them: whether today's US prescription label of each suspect drug lists a reaction ([see below](#label-flags)).
-- **Tables and SQL.** Every table of the release, with its columns marked FDA or Open Altio, read-only SQL, and downloads.
+- **Tables and SQL.** Every table of the release, with its columns marked FDA or Open Altio, read-only SQL, and downloads. A link can carry a query: an address ending `/release?query=SELECT 1` opens the page with that query in the box once the tables are listed. The address then loses `query`, so a reload or a shared link does not fill the box again. The query is never run for you; press Run.
 - **Exports** of what your filters show.
 - **How we clean FAERS,** the methods page, at `/methods`: the journey from FDA's files to the cases you see, every rule with what it moved, and the evidence. Switch a rule or set a value there, then rebuild the release with your rules. Afterwards every page with counts says "Your rules" and lists how they differ from Altio's standard.
 - **Settings,** and a light and a dark look.
@@ -174,6 +175,7 @@ MedDRA's hierarchy above the preferred term and its SMQs are MedDRA's licensed c
 - **The case list** shows that preferred term beside FDA's text and each case under it, with the MedDRA version.
 - **Statistics.** Adding MedDRA to a release already built counts its statistics again by preferred term.
 - **Downloads and exports** carry FDA's text only.
+- **SQL.** Tables and SQL holds MedDRA's tables too, such as `meddra_pt` and `reac_meddra_T` (each reaction text FDA wrote, read to its preferred term), so a count by preferred term can be run there.
 - **Your files stay on your machine.** `open-altio serve --help` shows how.
 
 Without MedDRA files, reactions show and count as FDA published them, by preferred term text. An old term AERS wrote in capitals is shown in MedDRA's spelling, taken from FAERS's own text, with FDA's capitals beside it.
